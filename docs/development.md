@@ -1,6 +1,6 @@
 # Workspace development
 
-One active virtual workspace contains eleven library packages. Rust 1.99.0 is the
+One active virtual workspace contains sixteen library packages. Rust 1.99.0 is the
 pinned contributor compiler and the initial supported compiler floor. This is a
 conservative tested floor, not a claim that older compilers cannot work. Lower a
 package's `rust-version` only after testing it and its resolved dependencies.
@@ -15,6 +15,13 @@ python3 tools/check.py build
 ```
 
 All current members have a host-compatible configuration with no chip selected.
+Host-only packages declare `platforms = ["native"]` in package metadata and are
+skipped by embedded builds. Optional transport packages declare `feature-sets`;
+the build tool tests each combination with default features disabled. Discovery
+covers four combinations: none, `udp`, `rs485`, and both. Tokio defaults to UDP;
+Embassy discovery has no default transport. Control-link covers four Tokio
+combinations (`tcp`, `serial`) and eight Embassy combinations (`uart`, `tcp`,
+`serial`), defaulting to TCP and UART respectively.
 PIO host builds expose portable types and test timing/waveform code; select an MCU
 feature for the hardware API. Each package owns an independent version. Shared
 versions and internal `path` plus `version` declarations live in root

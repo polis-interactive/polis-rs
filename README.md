@@ -19,9 +19,14 @@ compatible; MCU implementations are enabled through explicit package features.
 
 | Library | Purpose |
 | --- | --- |
-| [framing](crates/framing) | Allocation-free byte framing with typed payload support |
+| [framing](crates/protocol-framing) | Allocation-free byte framing with typed payload support |
 | [led-output](crates/led-output) | Group fixed-length RGB or RGBW LED chains into one output |
-| [discovery](crates/protocols/discovery) | Common discovery schema with consumer-assigned application identity |
+| [discovery-protocol](crates/discovery/discovery-protocol) | Common discovery schema with consumer-assigned application identity |
+| [discovery-tokio](crates/discovery/discovery-tokio) | Host discovery; UDP by default, optional RS-485 |
+| [discovery-embassy](crates/discovery/discovery-embassy) | Embedded discovery; opt-in UDP and RS-485 |
+| [control-link-protocol](crates/control-link/control-link-protocol) | Shared control messages, bounded request tracking, and unsolicited events |
+| [control-link-tokio](crates/control-link/control-link-tokio) | Point-to-point TCP and host serial control links |
+| [control-link-embassy](crates/control-link/control-link-embassy) | Point-to-point UART, USB CDC and TCP control links |
 | [ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
 | [tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |
 | [rs485](drivers/rs485) | Async half-duplex RS-485 with direction and turnaround timing |
@@ -58,8 +63,10 @@ cargo build -p pio-i2c --features rp2040 --target thumbv6m-none-eabi
 ```
 
 Host tests exercise codecs, sensor/bus behavior and portable waveform logic.
-Discovery owns its wire contract and slot calculation; socket adapters and live
-session state machines remain future work. Build results do not qualify hardware.
+Discovery adapters provide UART streams and UDP probing over the shared protocol.
+Discovery supports UDP and RS-485 bus scheduling. Control-link provides
+point-to-point runtime adapters; downstream adoption remains a separate step.
+Build results do not qualify hardware.
 
 ## Guides
 

@@ -1,5 +1,109 @@
 # Initial library validation
 
+## Point-to-point control-link adapters
+
+Validated on 2026-10-11 with Rust 1.99.0. Added control-link-tokio (TCP default,
+optional host serial) and control-link-embassy (UART default, optional USB CDC
+and TCP). No discovery handoff or RS-485 control transport. Application identity
+checks and session trackers compose with independent framed read/write halves.
+
+```sh
+python3 tools/check.py test --package control-link-protocol --package control-link-tokio --package control-link-embassy
+python3 tools/check.py build --platform all --package control-link-protocol --package control-link-tokio --package control-link-embassy
+python3 tools/check.py clippy --platform all --package control-link-protocol --package control-link-tokio --package control-link-embassy
+RUSTDOCFLAGS='-D warnings' python3 tools/check.py doc --package control-link-protocol --package control-link-tokio --package control-link-embassy
+cargo test --locked --offline --doc -p control-link-tokio -p control-link-embassy
+```
+
+Four Tokio and eight Embassy feature combinations passed native tests, builds,
+Clippy and API documentation. RP2040/RP2350 library builds and target Clippy passed;
+the fixture linking hardware UART, USB CDC and embassy-net TCP linked on both.
+README examples compile with the default transport selections. Formatting and
+diff whitespace checks passed. Local TCP tests ran with socket access outside
+the filesystem sandbox; host serial tests use a pseudo-terminal.
+
+Tests cover simultaneous traffic, request correlation through a coalesced
+identity exchange, events during pending requests, small writes, receive
+cancellation with partial input, interrupted sends, zero writes, flush failure,
+wrong application, EOF/truncation and USB packet boundaries/ZLP/disconnect.
+The framing decoder and unread chunk survive the handshake. Interrupted sends
+retire their sender; no requests are automatically replayed.
+
+Package content listing includes package-local licenses, provenance, READMEs,
+tests, build script and embedded memory maps. Full registry archive verification
+was not repeated; the previously recorded framing registry-name issue remains.
+No hardware was flashed, no physical UART/USB/Wi-Fi behavior was qualified, and
+neither downstream product was migrated. Optional tokio-serial/embassy-usb
+dependencies now belong to control-link, not discovery.
+
+## Discovery cleanup: UDP and RS-485 only
+
+Validated on 2026-10-11 with Rust 1.99.0. Removed point-to-point UART/USB serial
+discovery, its role loops, tests, port/CDC dependencies and fixture setup. The
+RS-485 scheduler keeps its framed I/O as a private implementation detail. UDP
+and RS-485 discovery remain; control-link connection/session work is deferred
+to the next implementation step. Tokio defaults to UDP; Embassy has no default
+transport. This replaces the earlier UART/serial discovery validation records.
+
+```sh
+python3 tools/check.py test --package discovery-protocol --package discovery-tokio --package discovery-embassy
+python3 tools/check.py build --platform all --package discovery-protocol --package discovery-tokio --package discovery-embassy
+python3 tools/check.py clippy --platform all --package discovery-protocol --package discovery-tokio --package discovery-embassy
+RUSTDOCFLAGS='-D warnings' python3 tools/check.py doc --package discovery-protocol --package discovery-tokio --package discovery-embassy
+cargo fmt --all -- --check
+```
+
+All four transport feature combinations (none, UDP, RS-485, both) passed native
+tests, builds, Clippy and API docs. Embedded libraries built on RP2040 and RP2350;
+both `udp_link_check` and `rs485_link_check` linked on each target, and target
+Clippy passed. UDP tests required local socket access. At this cleanup step the lockfile no longer included embassy-usb or tokio-serial;
+they were subsequently added for the control-link adapters above.
+
+Retained tests cover wire fixtures, UDP announcements/probes and filtering,
+RS-485 response slots, early/late timestamp bounds, ACK ordering/suppression,
+capacity overflow, stalled sends and participant loops. Physical bus timing,
+collisions and network interfaces remain unqualified. Fixtures were built, not
+flashed. RS-485 still requires a direction-controlled backend with physical TX
+completion, measured timing bounds and cancellation recovery.
+
+## Control-link protocol and package layout
+
+Validated on 2026-10-11 with Rust 1.99.0. `framing` lives at
+`crates/protocol-framing`; `discovery` was renamed to `discovery-protocol` under
+`crates/discovery/discovery-protocol`. The new portable core lives at
+`crates/control-link/control-link-protocol`. Discovery's wire schema is unchanged.
+
+The full workspace test suite passed. The control core adds ten unit,
+integration and documentation tests, including mixed discovery/control frames
+on one stream, keepalives during outstanding requests, cancellation, stale
+sessions, duplicate requests, buffer limits and request ID exhaustion.
+
+```sh
+cargo test --workspace --locked --offline
+python3 tools/check.py build --platform all --package control-link-protocol --package discovery-protocol
+python3 tools/check.py clippy --platform all --package control-link-protocol --package discovery-protocol
+RUSTDOCFLAGS='-D warnings' cargo doc --locked --offline -p control-link-protocol -p discovery-protocol --no-deps
+cargo fmt --all -- --check
+```
+
+These checks passed, including actual native, RP2040 and RP2350 library builds.
+Runtime adapters, linked runtime examples, consumer migration and hardware tests
+are subsequent steps; the protocol core itself performs no I/O.
+
+Archive generation included manifests, source, tests, documentation and licenses.
+The standard offline `cargo package` verification selected an unrelated cached
+registry `framing 0.1.1` for control-link's version requirement and failed on an
+uncached dependency. An online retry failed on registry DNS access. Registry
+package naming/resolution must be settled before release.
+
+As a separate archive-content check, all three generated archives were extracted
+into `/tmp/polis-control-archives-o2xd8sti` with sibling `[patch.crates-io]`
+overrides. `cargo test --workspace --locked --offline` there passed all 36 tests
+using only archived source. This verifies archive contents with local dependency
+overrides, not an unmodified registry release.
+
+## Initial workspace
+
 Validated on 2026-10-11 with Rust 1.99.0, after adopting bare driver package names.
 
 ## Repository checks

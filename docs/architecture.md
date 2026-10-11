@@ -9,7 +9,7 @@ to adopt the whole workspace.
 
 | Location | Responsibility | Packages |
 | --- | --- | --- |
-| `crates/` and `crates/protocols/` | Codecs, shared protocol definitions, reusable algorithms and host libraries | `framing`, `discovery`, `led-output` |
+| `crates/` (group related packages in subdirectories) | Codecs, shared protocol definitions, reusable algorithms and host libraries | `framing`, `discovery-protocol`, `control-link-protocol`, `led-output` |
 | `drivers/` and `drivers/pio/` | Peripheral behavior, bus timing, electrical direction, device recovery | `rs485`, `tmp1x2`, `pio-uart` |
 | Package `examples/` and `tests/` | Small usage demonstrations, mocks, compatibility and link checks | TCP/UDP framing demos; explicit MCU link examples |
 | Product repositories | Composition and deployment | Board pins, product messages, boot images, service entry points |
@@ -21,7 +21,7 @@ to support `no_std`.
 
 Use short publishable package names. PIO packages use `pio-i2c`, `pio-uart`,
 `pio-sk6812` and `pio-ws2813`; their target/features document RP support. Other drivers use `ads1x1x`, `rs485`, `tmp1x2` and `w5500`; software libraries use
-`framing`, `led-output` and `discovery`, also without a repository prefix. Add a name such as
+`framing`, `led-output`, `discovery-protocol` and `control-link-protocol`, also without a repository prefix. Add a name such as
 `discovery-tokio` only when an actual adapter warrants a separate crate.
 Directory names may omit the prefix. Registry name conflicts will be handled at publication time.
 
@@ -39,14 +39,38 @@ product pins, global allocators, panic handlers, executors, network interfaces,
 or linker layouts. Shared host parsers remain outside embedded runtime dependency
 graphs; build-time use is a separate dependency edge.
 
-Keep framing independent of discovery and product messages. A future discovery
-transport composes payload definitions, framing, I/O and a clock. Discovery
+Keep framing independent of discovery and product messages. Discovery
+adapters compose payload definitions, framing, I/O and a clock. Discovery
 payload definitions must remain usable without a socket, driver or executor.
 Extract state machines separately from platform I/O only when real code exists.
 
+## Shared control link
+
+`crates/control-link/control-link-protocol` owns the control envelope and bounded
+request/session tracking. It depends on `framing` in `crates/protocol-framing`;
+it has no runtime dependency on discovery. Request and response bodies remain
+application-owned, as do business handlers and handshake identity checks.
+The shared envelope replaces downstream transport envelopes during adoption.
+
+`Requests<N>` matches replies while allowing unsolicited events and concurrent
+keepalive requests. `RequestGate` rejects repeated/decreasing IDs before business
+invocation. Runtime adapters own framed I/O and retain buffers through startup, the session
+handshake and ongoing communication. Applications compose the trackers with
+identity checks, handlers, deadlines and any queues/reconnect policy they need;
+operations with uncertain outcomes are never automatically replayed. Control-link
+is always point-to-point, including UART/USB serial.
+
+Related packages live under `crates/discovery/` and `crates/control-link/`.
+Their `-protocol` packages are portable. Discovery's `-tokio` and `-embassy`
+adapters expose independently optional `udp` and `rs485` features. Tokio defaults
+to UDP; Embassy selects no transport by default. Control-link runtime
+adapters default to TCP on Tokio and UART on Embassy. Tokio also supports host
+serial; Embassy also supports USB CDC serial and TCP over any network interface. Hardware resources and
+network configuration stay downstream.
+
 ## Shared discovery protocol
 
-`crates/protocols/discovery` owns the discovery protocol used across products,
+`crates/discovery/discovery-protocol` owns the discovery protocol used across products,
 including its wire schema, message IDs, device identity and discovery agreements.
 It is a discovery library, not a collection of unrelated product protocols.
 
@@ -60,6 +84,23 @@ Application identity is routing/filtering information, not authentication.
 The common schema and cross-consumer interoperability tests live with the crate.
 Migrating existing products to it is a later consumer update; the old byte layouts
 are not automatically changed by adding the shared library.
+
+UDP discovers network endpoints; RS-485 discovers participants sharing a bus.
+Point-to-point UART/USB serial discovery is intentionally absent. Its connection
+and session lifecycle belongs to control-link, without a discovery/control handoff.
+
+RS-485 adapters execute controller rounds and participant slots using portable
+state from discovery-protocol and caller-supplied timing bounds. Their framed I/O
+helpers are private. The configured backend owns electrical direction and physical
+TX completion; hardware UART can be part of that backend. Participant callbacks
+still expose other protocols' borrowed frames for application dispatch.
+
+UDP adapters send/receive one frame per datagram and offer announce, listen,
+probe/respond and combined serve behaviors. These roles are independent of
+application server/client labels and of who later connects or accepts TCP.
+Applications supply sockets, interfaces, identities and registry handling.
+Returned source endpoints identify the discovery route; the application supplies
+the control service's endpoint/port.
 
 ## Embedded and host features
 
