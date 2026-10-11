@@ -1,0 +1,11 @@
+{
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "editor.formatOnSave": true
+    },
+    "rust-analyzer.cargo.allTargets": false,
+    "rust-analyzer.check.overrideCommand": [
+        "python3", "tools/check.py", "clippy", "--platform", "native",
+        "--message-format", "json", "--unlocked"
+    ]
+}

@@ -1,0 +1,16 @@
+[package]
+name = "w5500"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+description = "W5500 Ethernet startup adapter for Embassy"
+
+[dependencies]
+embassy-net-wiznet.workspace = true
+embedded-hal.workspace = true
+embedded-hal-async.workspace = true
+
+[package.metadata.polis]
+chip-features = false

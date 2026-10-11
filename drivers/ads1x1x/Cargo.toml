@@ -1,0 +1,15 @@
+[package]
+name = "ads1x1x"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+description = "Blocking and async I2C drivers for TI ADS1013/1014/1015 and ADS1113/1114/1115"
+
+[dependencies]
+embedded-hal.workspace = true
+embedded-hal-async.workspace = true
+
+[package.metadata.polis]
+chip-features = false

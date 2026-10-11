@@ -1,0 +1,30 @@
+[package]
+name = "pio-i2c"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+description = "RP2040 and RP2350 PIO I2C with transaction recovery"
+license = "BSD-3-Clause"
+
+[features]
+default = []
+rp2040 = ["dep:embassy-rp", "embassy-rp/rp2040", "dep:embassy-time", "dep:fixed"]
+rp235xa = ["dep:embassy-rp", "embassy-rp/rp235xa", "embassy-rp/unstable-pac", "dep:embassy-time", "dep:fixed"]
+
+[dependencies]
+embassy-rp = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
+fixed = { workspace = true, optional = true }
+pio.workspace = true
+embedded-hal.workspace = true
+embedded-hal-async.workspace = true
+
+[package.metadata.polis]
+chip-features = true
+
+[package.metadata.docs.rs]
+default-target = "thumbv6m-none-eabi"
+targets = ["thumbv6m-none-eabi"]
+features = ["rp2040"]

@@ -1,0 +1,15 @@
+[package]
+name = "led-output"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+description = "Allocation-free composition of asynchronous LED outputs"
+
+[dependencies]
+embassy-futures.workspace = true
+smart-leds.workspace = true
+
+[package.metadata.polis]
+chip-features = false

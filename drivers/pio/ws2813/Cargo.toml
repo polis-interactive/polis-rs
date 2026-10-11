@@ -1,0 +1,48 @@
+[package]
+name = "pio-ws2813"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+description = "RP2040 and RP2350 PIO WS2813 RGB output"
+license = "MIT"
+
+[features]
+default = []
+rp2040 = ["dep:embassy-rp", "embassy-rp/rp2040", "embassy-rp/unstable-pac", "dep:embassy-time", "dep:fixed"]
+rp235xa = ["dep:embassy-rp", "embassy-rp/rp235xa", "embassy-rp/unstable-pac", "dep:embassy-time", "dep:fixed"]
+link-check = [
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+    "dep:embassy-executor", "dep:embassy-futures", "dep:cortex-m-rt",
+    "dep:panic-probe", "dep:defmt-rtt",
+]
+
+[[example]]
+name = "link_check"
+required-features = ["link-check"]
+test = false
+bench = false
+
+[dependencies]
+embassy-rp = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
+fixed = { workspace = true, optional = true }
+pio.workspace = true
+smart-leds.workspace = true
+led-output.workspace = true
+embassy-executor = { workspace = true, optional = true }
+embassy-futures = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+
+[package.metadata.polis]
+chip-features = true
+link-examples = ["link_check"]
+
+[package.metadata.docs.rs]
+default-target = "thumbv6m-none-eabi"
+targets = ["thumbv6m-none-eabi"]
+features = ["rp2040"]

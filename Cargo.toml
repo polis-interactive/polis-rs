@@ -1,0 +1,67 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/framing",
+    "crates/led-output",
+    "crates/protocols/discovery",
+    "drivers/ads1x1x",
+    "drivers/tmp1x2",
+    "drivers/rs485",
+    "drivers/w5500",
+    "drivers/pio/i2c",
+    "drivers/pio/uart",
+    "drivers/pio/sk6812",
+    "drivers/pio/ws2813",
+]
+default-members = [
+    "crates/framing",
+    "crates/led-output",
+    "crates/protocols/discovery",
+    "drivers/ads1x1x",
+    "drivers/tmp1x2",
+    "drivers/rs485",
+    "drivers/w5500",
+    "drivers/pio/i2c",
+    "drivers/pio/uart",
+    "drivers/pio/sk6812",
+    "drivers/pio/ws2813",
+]
+
+[workspace.package]
+edition = "2024"
+
+[workspace.dependencies]
+framing = { path = "crates/framing", version = "0.1.0", default-features = false }
+led-output = { path = "crates/led-output", version = "0.1.0", default-features = false }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+postcard = { version = "1.1.3", default-features = false }
+cobs = { version = "0.3", default-features = false }
+crc = { version = "3.3", default-features = false }
+embedded-hal = "1.0.0"
+embedded-hal-async = "1.0.0"
+embedded-io-async = "0.7.0"
+embassy-rp = { version = "0.10.0", default-features = false }
+embassy-time = { version = "0.5.1", default-features = false }
+embassy-futures = "0.1.2"
+embassy-net-wiznet = "0.3.0"
+embassy-executor = { version = "0.10.0", default-features = false }
+fixed = "1.31.0"
+pio = "0.3.0"
+smart-leds = "0.4.0"
+cortex-m-rt = "0.7.5"
+panic-probe = { version = "1.0.0", features = ["print-defmt"] }
+defmt-rtt = "1.0.0"
+
+# Build tooling maps one platform selection to package features and target.
+[workspace.metadata.platforms.rp2040]
+target = "thumbv6m-none-eabi"
+feature = "rp2040"
+
+[workspace.metadata.platforms.rp2350]
+target = "thumbv8m.main-none-eabihf"
+feature = "rp235xa"
+
+[profile.release]
+debug = 2
+lto = true
+codegen-units = 1
