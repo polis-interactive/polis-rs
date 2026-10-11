@@ -42,10 +42,10 @@ no board IDs, sensor addresses or sensor register formats live in the driver.
 SDA and SCL may be any two distinct RP2040/RP2350A GPIOs, including nonadjacent pins.
 Every SCL `WAIT PIN` uses `(scl - sda) mod 32`, with SDA as `IN_BASE`:
 
-| Export | SDA | SCL | WAIT offset |
-| --- | --- | --- | --- |
-| LargeBoard | GP6 | GP5 | 31 |
-| MiniBoard | GP6 | GP7 | 1 |
+| SDA | SCL | WAIT offset |
+| --- | --- | --- |
+| GP6 | GP5 | 31 |
+| GP6 | GP7 | 1 |
 
 On RP2350A, construction uses `unstable-pac` to set the owned state machine's
 `IN_COUNT` to 0 (all 32 inputs) after HAL configuration. Otherwise Embassy's
@@ -54,9 +54,7 @@ This does not claim or change any additional GPIOs. See the RP2350 datasheet
 [PIO register description](https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf).
 
 One driver in PIO0 SM0 plus the shared four-instruction SK6812 program in SM1/SM2
-uses **24 of 32 instructions**. The LED BSP (in the upstream Slate project)
-initializes this bus and exposes optional sensor handles. Temperature devices
-remain DNP in the exports; product LED lanes now share this PIO block.
+uses **24 of 32 instructions**.
 
 Output latches always stay low. PIO changes only output enables: drive low or
 release to the pull-ups. SDA payload bits are inverted in software, avoiding the
@@ -78,7 +76,7 @@ Timing requirements come from [NXP UM10204](https://www.nxp.com/docs/en/user-gui
 
 Seven-bit addressing only; no multi-controller arbitration, target/slave mode,
 10-bit addressing, SMBus PEC or Fast-mode Plus. Reserved 7-bit addresses are not
-filtered by this generic driver; Slate's hardware consumer enforces its contract.
+filtered by this driver; address policy belongs to the caller.
 An empty write probes the address. Empty reads are rejected before bus activity;
 an empty operation list does nothing. Consecutive operations in the same
 direction concatenate without extra START/address cycles. Direction changes use
@@ -99,6 +97,35 @@ If either line remains held low, recovery times out and the bus stays marked for
 recovery. Only use this bus-clear operation on a single-controller bus. After
 ordinary NACK plus successful STOP, the bus is immediately reusable.
 
+## Minimal Embassy example
+
+[`examples/embassy.rs`](examples/embassy.rs) is a standalone Pico/Pico 2
+usage example with all setup in one file.
+
+Reads the TMP102/TMP112 configuration register once per second through
+the standard async I²C trait and logs its two bytes over RTT. It uses PIO0
+SM0 with SDA on GP6 and SCL on GP7, external pull-ups to 3.3 V, sensor
+ADD0 grounded (0x48), a 3.3 V supply, and common ground. This demonstrates
+`write_read` without adding a sensor-driver dependency.
+
+Build from the workspace root (choose one board):
+
+```sh
+# Pico / RP2040
+cargo build -p pio-i2c --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+# Pico 2 / RP2350A
+cargo build -p pio-i2c --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+```
+
+The ELF is `target/<target>/release/examples/embassy`. Flash the matching
+image with your usual SWD/UF2 workflow; an RTT-capable debug probe displays
+`defmt` output. These commands build and link only; they do not flash hardware.
+The opt-in features supply the executor, time driver, panic logger, boot image,
+and package-local Pico/Pico 2 memory layout. Normal library builds keep their
+existing runtime and MCU choices. Enable only one example board feature.
+Examples stop on I/O errors with `unwrap()` to keep the usage path short;
+applications own deadlines and recovery. Builds do not qualify hardware.
+
 ## Validation
 
 ```sh
@@ -111,16 +138,13 @@ Host tests interpret the emitted PIO instructions with the configured FIFO/shift
 settings. They cover bit order, open-drain control, ninth-bit completion, normal
 and reversed/nonadjacent SCL offsets, pulse timing under stretching, transaction
 boundaries, adjacent operations, NACKs, address probes and bus-clear packets.
-The Pico bench application (in the upstream Slate project) exercises blocking
-address probing, async sensor configuration/readback, continuous and one-shot
-measurements, and bus recovery. Its guide also covers the hardware-I²C backend.
 
 These checks do not qualify electrical behavior. Measure both pin orders at
 100/400 kHz, START/repeated START/STOP, pull-up rise times, NACK recovery,
 cancellation, held-low lines, clock stretching and coexistence with LED output
-on hardware before qualifying the product temperature bus.
+on hardware before qualifying a bus.
 
 ## Source and distribution
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
-license status. Product BSPs and bench firmware remain in their original projects.
+license status.

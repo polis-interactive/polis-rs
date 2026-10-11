@@ -43,8 +43,8 @@ clock in board support and **keep it unchanged throughout the UART's lifetime**.
 Embassy's PIO UART `flush` is a no-op. This wrapper waits for the maximum queued
 tail: eight FIFO words plus one OSR character, each ten bits, plus 20 us of
 timer margin. The bound is `ceil(90 * 1_000_000 / baud) + 20` microseconds;
-at 1 Mbaud it preserves the original bench's 110 us delay. It waits this bound
-even if the UART is already empty. This trades turnaround latency for completion
+at 1 Mbaud this is 110 us. It waits this bound even if the UART is already empty.
+This trades turnaround latency for completion
 without accessing Embassy's private state machines or inventing a new waveform.
 The owned halves are not exposed, preventing another writer from extending the
 tail while a flush is pending. Scheduling delays may extend completion.
@@ -63,6 +63,35 @@ This wrapper does not establish production receive capacity or four-lane
 reliability. Those require hardware qualification and potentially a future
 buffering/error-reporting adapter.
 
+## Minimal Embassy example
+
+[`examples/embassy.rs`](examples/embassy.rs) is a standalone Pico/Pico 2
+usage example with all setup in one file.
+
+Echoes one byte at a time at 1 Mbaud, 8N1. Connect a 3.3 V USB-UART
+adapter TX to GP20 (RX), RX to GP18 (TX), and ground to ground. Send one
+byte and wait for its echo before sending the next; the small RX FIFO
+is not a sustained-traffic buffer. The example uses PIO1 SM0/SM1 and sets
+the system clock to 128 MHz for an exact baud divider.
+
+Build from the workspace root (choose one board):
+
+```sh
+# Pico / RP2040
+cargo build -p pio-uart --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+# Pico 2 / RP2350A
+cargo build -p pio-uart --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+```
+
+The ELF is `target/<target>/release/examples/embassy`. Flash the matching
+image with your usual SWD/UF2 workflow; an RTT-capable debug probe displays
+`defmt` output. These commands build and link only; they do not flash hardware.
+The opt-in features supply the executor, time driver, panic logger, boot image,
+and package-local Pico/Pico 2 memory layout. Normal library builds keep their
+existing runtime and MCU choices. Enable only one example board feature.
+Examples stop on I/O errors with `unwrap()` to keep the usage path short;
+applications own deadlines and recovery. Builds do not qualify hardware.
+
 ## Validation
 
 From the `polis-rs/` root:
@@ -73,15 +102,13 @@ cargo clippy -p pio-uart --all-targets
 ```
 
 Host tests cover timing bounds and rejected clock/divider configurations.
-The RS-485 bench (in the upstream Slate project) consumes this driver and links
-on both targets; its guide owns initiator/responder commands and wiring.
 Electrical timing, cancellation captures and sustained reception remain
 hardware-unverified.
 
 ## Source and distribution
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
-license status. Product BSPs and bench firmware remain in their original projects.
+license status.
 
 ## License
 

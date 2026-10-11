@@ -117,14 +117,13 @@ cargo run -p framing --example udp
 ```
 
 The loopback examples use native standard-library sockets. The UDP example
-enforces one complete frame per datagram. The RS-485 bench (in the upstream Slate project)
-links typed framing on both MCUs. Host tests and builds do not qualify physical
-UART reception, electrical timing, or packet delivery on a real network.
+enforces one complete frame per datagram. Host tests and builds do not qualify
+physical UART reception, electrical timing, or packet delivery on a real network.
 
 ## Source and distribution
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
-license status. Product BSPs and bench firmware remain in their original projects.
+license status.
 
 ## License
 

@@ -20,7 +20,7 @@ pub(crate) fn flush_us(sys_hz: u32, baud: u32) -> Result<u64, ConfigError> {
         return Err(ConfigError::InexactBaud);
     }
     // Joined TX FIFO (8 words) + OSR (1 word), ten bits per 8N1 character.
-    // Preserve the bench's 20 us scheduling/timer margin: 110 us at 1 Mbaud.
+    // Include a 20 us scheduling/timer margin: 110 us at 1 Mbaud.
     Ok(90_000_000_u64.div_ceil(u64::from(baud)) + 20)
 }
 

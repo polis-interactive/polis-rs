@@ -17,7 +17,6 @@ same release requirements.
 Use `publish = ["crates-io"]` for packages ready for public distribution.
 An intentional private exception uses package-local `publish = false` and a
 documented reason; published libraries must not depend on that private package.
-Avoid inheriting Slate's blanket prohibition on publishing.
 
 Each package owns its README and release notes. Shared metadata may be inherited
 from the root, but package archives must work outside the monorepo. Inspect

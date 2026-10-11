@@ -1,14 +1,9 @@
 # WS2813 PIO driver
 
-`pio-ws2813` drives the legacy Slate boards' `WS2813B-B` RGB
-chains on RP2040 or RP2350A. It adapts Embassy RP 0.10.0's `PioWs2812`, with
-the drain/reset and output initialization approach used by Slate's SK6812
-driver. Upstream attribution is retained under [MIT](LICENSE-MIT).
-
-The legacy [large](https://github.com/polis-interactive/slate-boards/blob/main/SlateLargeBoard/SlateLargeBoard.xml)
-and [small](https://github.com/polis-interactive/slate-boards/blob/main/SlateSmallBoard/SlateSmallBoard.xml)
-board definitions on `main` are the hardware source of truth. This driver owns
-no board counts, connector wiring, pixel positions or installation topology.
+`pio-ws2813` drives `WS2813B-B` RGB chains on RP2040 or RP2350A. It adapts
+Embassy RP 0.10.0's `PioWs2812`, with the drain/reset and output initialization
+approach used by this workspace's SK6812 driver. Upstream attribution is
+retained under [MIT](LICENSE-MIT).
 
 ## API and resources
 
@@ -31,19 +26,11 @@ to the BSP. The driver implements `led-output::LedOutput<RGB8>` for fixed-layout
 concurrent RGB output groups. Slice writes reject wrong lengths before I/O;
 no RGB/RGBW color conversion is performed.
 
-## 3.3 V data signaling
+## Data signaling
 
-Use 3.3 V data logic for the legacy-board bench setup. The Pico/Pico 2 PIO
-output can drive `DATA_IN` directly, or through a fast, non-inverting buffer
-powered from 3.3 V. The LED board still uses its external 5 V power supply;
-connect the controller, buffer (if used), and LED supply grounds together.
-Exact pins and connections belong to the
-test example's wiring guide (in the upstream Slate project).
-
-No driver setting or timing change is needed for 3.3 V logic. PIO controls the
-pulse sequence; the GPIO supply and any external buffer determine voltage.
-The example guide records the working original-Pico bench observation;
-signal integrity and timing qualification remain separate checks.
+PIO controls pulse timing; the GPIO supply and any external buffer determine
+voltage. Choose signal levels and wiring to meet the LED datasheet requirements.
+Connect controller and LED supply grounds together.
 
 ## Timing and completion
 
@@ -82,6 +69,36 @@ cannot detect it. Concurrent completion does not guarantee simultaneous optical
 latching on unequal chains. Backup-data wiring remains a board responsibility,
 not a second independently generated LED stream.
 
+## Minimal Embassy example
+
+[`examples/embassy.rs`](examples/embassy.rs) is a standalone Pico/Pico 2
+usage example with all setup in one file.
+
+Blinks eight WS2813 RGB LEDs dim red every 500 ms using PIO0 SM0 and
+DMA_CH0. Connect GP2 through a suitable level shifter to chain DIN;
+wire backup data according to the strip/part requirements, use an
+appropriately sized LED supply, and connect common ground. Set
+`LED_COUNT` to your chain length. The existing `link_check` example
+remains a separate concurrent-chain integration fixture.
+
+Build from the workspace root (choose one board):
+
+```sh
+# Pico / RP2040
+cargo build -p pio-ws2813 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+# Pico 2 / RP2350A
+cargo build -p pio-ws2813 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+```
+
+The ELF is `target/<target>/release/examples/embassy`. Flash the matching
+image with your usual SWD/UF2 workflow; an RTT-capable debug probe displays
+`defmt` output. These commands build and link only; they do not flash hardware.
+The opt-in features supply the executor, time driver, panic logger, boot image,
+and package-local Pico/Pico 2 memory layout. Normal library builds keep their
+existing runtime and MCU choices. Enable only one example board feature.
+Examples stop on I/O errors with `unwrap()` to keep the usage path short;
+applications own deadlines and recovery. Builds do not qualify hardware.
+
 ## Validation
 
 Run from the workspace root:
@@ -99,17 +116,16 @@ For target Clippy, replace `build` in each example command with `clippy` and
 append `-- -D warnings`. The opt-in example supplies its own Pico/Pico 2 linker
 layout; ordinary library builds impose no image layout. It links concurrent
 63- and 70-pixel chains on GPIO2/GPIO3, using PIO0 on RP2040 and PIO2 on RP2350A,
-and repeatedly sends black. It is a link fixture, not a sculpture controller
-or a visual bench test.
+and repeatedly sends black. It validates linking, not visual output.
 
 Host tests interpret the emitted PIO instructions, check GRB/MSB-first ordering
 and exclusion of padding, and verify pulse and drain/reset bounds. Linked
 examples establish type/resource integration, not electrical behavior.
 Hardware qualification remains pending: measure pulse widths, reset and startup
 at the LED inputs; exercise colors, concurrent DMA traffic, cancellation and
-restart on the actual legacy assemblies.
+restart on the target hardware.
 
 ## Source and distribution
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
-license status. Product BSPs and bench firmware remain in their original projects.
+license status.

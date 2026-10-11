@@ -48,12 +48,18 @@ def main():
             if args.command == "doc":
                 base.append("--no-deps")
             commands = [base]
-            if platform != "native" and args.command == "build":
-                for example in settings.get("link-examples", []):
+            if platform != "native" and args.command in ("build", "check", "clippy"):
+                examples = [
+                    (example, f'{platforms[platform]["feature"]},link-check')
+                    for example in settings.get("link-examples", [])
+                ]
+                if settings.get("embassy-example"):
+                    examples.append(("embassy", f'example-{platforms[platform]["feature"]}'))
+                for example, features in examples:
                     commands.append([
-                        "cargo", "build", "-p", package["name"], "--no-default-features",
+                        "cargo", args.command, "-p", package["name"], "--no-default-features",
                         "--target", platforms[platform]["target"], "--release",
-                        "--features", f'{platforms[platform]["feature"]},link-check',
+                        "--features", features,
                         "--example", example, f"--message-format={args.message_format}",
                         *([] if args.unlocked else ["--locked"]),
                     ])

@@ -9,16 +9,44 @@ license = "MIT"
 description = "RP2040 and RP2350 PIO UART with physical transmit completion"
 
 [features]
+
+# Opt-in Pico/Pico 2 usage example; normal library builds select no runtime.
+example-rp2040 = ["embassy-example", "rp2040"]
+example-rp235xa = ["embassy-example", "rp235xa"]
+embassy-example = [
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+    "dep:embassy-rp",
+    "dep:embassy-time",
+    "dep:embassy-executor",
+    "dep:cortex-m-rt",
+    "dep:panic-probe",
+    "dep:defmt-rtt",
+    "dep:defmt",
+]
+
 default = []
 rp2040 = ["dep:embassy-rp", "embassy-rp/rp2040", "dep:embassy-time"]
 rp235xa = ["dep:embassy-rp", "embassy-rp/rp235xa", "dep:embassy-time"]
 
+[[example]]
+name = "embassy"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
 [dependencies]
+embassy-executor = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+defmt = { workspace = true, optional = true }
 embassy-rp = { workspace = true, optional = true }
 embassy-time = { workspace = true, optional = true }
 embedded-io-async.workspace = true
 
 [package.metadata.polis]
+embassy-example = true
 chip-features = true
 
 [package.metadata.docs.rs]

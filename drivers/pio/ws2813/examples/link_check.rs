@@ -1,4 +1,4 @@
-//! Link-only fixture for two concurrent chains. Not a sculpture controller.
+//! Link-only fixture for two concurrent chains.
 #![no_std]
 #![no_main]
 

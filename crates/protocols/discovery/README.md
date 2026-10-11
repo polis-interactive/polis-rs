@@ -58,9 +58,8 @@ Use `wire_capacity(MAX_PAYLOAD_LEN)` for framing buffers. UDP carries exactly on
 complete frame per datagram; stream adapters retain their incremental decoder.
 Do not transmit output after an encoding error.
 
-This is the common protocol products should adopt. It is a new protocol family
-relative to the existing Slate and UTSuites deployments; those consumers need an
-explicit update. Their product control/OTA/runtime messages are not included.
+This defines a new protocol family; compatibility with earlier wire schemas is
+not implied. Product control, OTA and runtime messages are outside its scope.
 
 ## UDP and identity
 

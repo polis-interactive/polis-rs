@@ -2,6 +2,9 @@
 
 ## 0.1.0 Unreleased
 
-Initial shared `pio-uart` library imported from Slate. See PROVENANCE.md for origin.
+- Add a minimal, opt-in Embassy usage example for Pico and Pico 2, with
+  wiring, build commands, and target build/Clippy coverage.
+
+Initial shared `pio-uart` library. See PROVENANCE.md for source attribution.
 
 Reject conflicting RP2040/RP2350 feature selections explicitly.

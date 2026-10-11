@@ -170,8 +170,8 @@ impl<BUS: I2c> Tmp1x2<BUS> {
     ///
     /// Clears the write-only one-shot trigger rather than echoing its read status.
     /// Does not wait for a conversion or rewrite temperature thresholds when EM
-    /// changes. Slate does not use ALERT. A failed/cancelled write may partially
-    /// change the device; recover the bus as needed and reapply configuration.
+    /// changes. A failed/cancelled write may partially change the device;
+    /// recover the bus as needed and reapply configuration.
     pub async fn configure(&mut self, config: Config) -> Result<(), Error<BUS::Error>> {
         let raw = self.read_register(CONFIGURATION).await?;
         self.write_config((raw & WRITABLE & !MEASUREMENT) | config.bits())

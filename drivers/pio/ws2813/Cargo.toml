@@ -9,6 +9,22 @@ description = "RP2040 and RP2350 PIO WS2813 RGB output"
 license = "MIT"
 
 [features]
+
+# Opt-in Pico/Pico 2 usage example; normal library builds select no runtime.
+example-rp2040 = ["embassy-example", "rp2040"]
+example-rp235xa = ["embassy-example", "rp235xa"]
+embassy-example = [
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+    "dep:embassy-rp",
+    "dep:embassy-time",
+    "dep:embassy-executor",
+    "dep:cortex-m-rt",
+    "dep:panic-probe",
+    "dep:defmt-rtt",
+    "dep:defmt",
+]
+
 default = []
 rp2040 = ["dep:embassy-rp", "embassy-rp/rp2040", "embassy-rp/unstable-pac", "dep:embassy-time", "dep:fixed"]
 rp235xa = ["dep:embassy-rp", "embassy-rp/rp235xa", "embassy-rp/unstable-pac", "dep:embassy-time", "dep:fixed"]
@@ -25,7 +41,14 @@ required-features = ["link-check"]
 test = false
 bench = false
 
+[[example]]
+name = "embassy"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
 [dependencies]
+defmt = { workspace = true, optional = true }
 embassy-rp = { workspace = true, optional = true }
 embassy-time = { workspace = true, optional = true }
 fixed = { workspace = true, optional = true }
@@ -39,6 +62,7 @@ panic-probe = { workspace = true, optional = true }
 defmt-rtt = { workspace = true, optional = true }
 
 [package.metadata.polis]
+embassy-example = true
 chip-features = true
 link-examples = ["link_check"]
 

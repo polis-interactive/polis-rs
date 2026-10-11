@@ -1,9 +1,13 @@
 fn main() {
-    if std::env::var_os("CARGO_FEATURE_LINK_CHECK").is_none() {
+    if std::env::var_os("CARGO_FEATURE_EMBASSY_EXAMPLE").is_none()
+        && std::env::var_os("CARGO_FEATURE_LINK_CHECK").is_none()
+    {
         return;
     }
-    let rp2040 = std::env::var_os("CARGO_FEATURE_RP2040").is_some();
-    let rp235xa = std::env::var_os("CARGO_FEATURE_RP235XA").is_some();
+    let rp2040 = std::env::var_os("CARGO_FEATURE_RP2040").is_some()
+        || std::env::var_os("CARGO_FEATURE_EXAMPLE_RP2040").is_some();
+    let rp235xa = std::env::var_os("CARGO_FEATURE_RP235XA").is_some()
+        || std::env::var_os("CARGO_FEATURE_EXAMPLE_RP235XA").is_some();
     assert!(rp2040 ^ rp235xa, "select exactly one MCU feature");
     let (target, memory) = if rp2040 {
         ("thumbv6m-none-eabi", "examples/memory-rp2040.x")

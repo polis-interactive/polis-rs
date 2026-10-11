@@ -18,3 +18,13 @@ are recorded in CHANGELOG.md. No product application or BSP is included.
 | `Cargo.toml` | `92d1f68b94a2b74f5a5ef5d8271dd9dc0b2d8357101b67faf15fecc2a3888030` |
 | `README.md` | `be0052630f534bd802e76f9f34fd90e97eb33491606140ade8cb0a226f9e8d79` |
 | `src/lib.rs` | `dc21e5efb776b1703f639250b115bd26774be18841542e2106a8f498a51bd014` |
+
+## Usage example adaptation
+
+`examples/embassy.rs` was added on 2026-10-11 using
+`1017-Slate/SlateCode/bsp/controller-board/src/lib.rs (SPI/GPIO setup)`
+from the source checkout (recorded repository revision `5cf31aea6bd683d2ac958ca31714f8b480218c4c`).
+It reduces the source setup to a single usage path with this package's current
+API; product configuration, diagnostics, and test harnesses are not imported.
+Source checkouts are unchanged. Package-local linker support follows the
+existing `pio-ws2813` example. Original reference hashes above are unchanged.

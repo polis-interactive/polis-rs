@@ -26,7 +26,7 @@ let count = bus.read(&mut reply).await?;
 The sample intervals are conservative THVD1420 bench values, not defaults for
 arbitrary transceivers. Board support supplies polarity, timing, safe pin
 initialization and the serial configuration. This driver supports tied DE and
-active-low RE on a single direction output, as in Slate's hardware contract.
+active-low RE on a single direction output.
 The opposite of `tx_level` selects receive. A separate-enable topology needs
 its own direction abstraction or adapter.
 
@@ -55,9 +55,8 @@ FIFO is insufficient. The driver cannot infer this from trait conformance.
 Embassy RP 0.10.0's stock PIO UART is async, but its `flush` is a no-op and needs
 an adapter before use here. Hardware UART backends also need their actual flush
 semantics checked. The separate [PIO UART wrapper](../pio/uart/README.md)
-provides that completion guarantee around Embassy's existing PIO programs. The
-bench (in the upstream Slate project) composes the two drivers; the UART wrapper
-is not a dependency of this crate.
+provides that completion guarantee around Embassy's existing PIO programs.
+The UART wrapper is not a dependency of this crate.
 
 Dropping a pending send future (including caller timeouts), or returning a write
 or flush error, immediately releases DE through a drop guard. It leaves the
@@ -82,6 +81,38 @@ waits; scheduling latency can extend bus ownership. Other nodes must honor the
 protocol's turnaround budget. Dropping the driver selects receive; board biasing
 must also cover the direction pin's subsequent destructor/reset behavior.
 
+## Minimal Embassy example
+
+[`examples/embassy.rs`](examples/embassy.rs) is a standalone Pico/Pico 2
+usage example with all setup in one file.
+
+Sends `hello\r\n` once per second at 1 Mbaud, 8N1, then releases DE.
+Connect GP18 to THVD1420 DI, GP20 to RO, and GP19 to tied DE and /RE.
+Use a DE pull-down during reset, pull-ups on TX/RO, common ground, and
+appropriate A/B termination and biasing. A receiving USB-RS485 adapter
+can display the message. The example timings are for THVD1420; adapt
+them for another transceiver. PIO1 SM0/SM1 runs at a 128 MHz system clock
+and provides the required physical TX completion. Startup calls `recover()`
+before the first send.
+
+Build from the workspace root (choose one board):
+
+```sh
+# Pico / RP2040
+cargo build -p rs485 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+# Pico 2 / RP2350A
+cargo build -p rs485 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+```
+
+The ELF is `target/<target>/release/examples/embassy`. Flash the matching
+image with your usual SWD/UF2 workflow; an RTT-capable debug probe displays
+`defmt` output. These commands build and link only; they do not flash hardware.
+The opt-in features supply the executor, time driver, panic logger, boot image,
+and package-local Pico/Pico 2 memory layout. Normal library builds keep their
+existing runtime and MCU choices. Enable only one example board feature.
+Examples stop on I/O errors with `unwrap()` to keep the usage path short;
+applications own deadlines and recovery. Builds do not qualify hardware.
+
 ## Validation
 
 From the `polis-rs/` root:
@@ -91,7 +122,7 @@ cargo test -p rs485
 cargo clippy -p rs485 --all-targets
 ```
 
-The image builds also compile this portable crate on both embedded targets.
+Target builds compile this portable crate on both embedded targets.
 Host tests exercise ordering, both polarities, short writes, error propagation,
 every send cancellation point, recovery failures/cancellation and stale TX
 suppression. They use standard-trait mocks with no MCU dependency. Product BSP
@@ -101,7 +132,7 @@ electrical behavior require separate hardware qualification.
 ## Source and distribution
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
-license status. Product BSPs and bench firmware remain in their original projects.
+license status.
 
 ## License
 

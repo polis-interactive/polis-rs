@@ -41,10 +41,9 @@ board-specific presence input while retaining its frame range and pixel count.
 Absence must not shift later lanes or change frame size. No generic hot-plug
 mechanism is provided.
 
-The [SK6812 driver](../../drivers/pio/sk6812/README.md) implements this interface. The
-LED BSP (in the upstream Slate project) constructs its group from the validated
-hardware export. Its current resource allocation supports one to three lanes;
-that limit belongs to the BSP, not the generic grouping layer.
+The [SK6812 driver](../../drivers/pio/sk6812/README.md) and
+[WS2813 driver](../../drivers/pio/ws2813/README.md) implement this interface.
+Available PIO and DMA resources determine the number of physical lanes.
 
 ## Validation
 
@@ -59,13 +58,12 @@ Tests cover one through three and eight lanes, unequal lengths, concurrent progr
 completion, invalid frames without I/O, and cancellation. Macro tests cover
 evaluation order, hygiene, rejected syntax and a renamed dependency in a `no_std`
 consumer. Run `python3 tools/check-led-macro.py` for that consumer on all targets.
-Electrical timing and DMA behavior
-require hardware tests; the BSP guide owns consuming image builds.
+Electrical timing and DMA behavior require hardware tests.
 
 ## Source and distribution
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
-license status. Product BSPs and bench firmware remain in their original projects.
+license status.
 
 ## License
 

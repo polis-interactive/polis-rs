@@ -2,8 +2,8 @@
 
 `tmp1x2` is a portable `no_std` driver over
 [`embedded_hal_async::i2c::I2c` 1.0](https://docs.rs/embedded-hal-async/1.0.0/embedded_hal_async/i2c/trait.I2c.html).
-It has no dependency on Embassy, an executor, or Slate's PIO implementation.
-Both an Embassy hardware I²C bus and Slate's [PIO I²C bus](../pio/i2c/README.md)
+It has no dependency on Embassy, an executor, or a particular I²C implementation.
+Both an Embassy hardware I²C bus and the [PIO I²C bus](../pio/i2c/README.md)
 can provide this standard trait. The caller may supply an owned bus, `&mut bus`,
 or an async shared-bus adapter. Use one logical driver per sensor.
 
@@ -16,10 +16,6 @@ addresses and sample formats match, so `Tmp1x2` works with either chip without
 a model flag or automatic identification. Sensor accuracy and conversion timing
 must still be taken from the selected part's specification. TMP117 and TMP119
 are not supported by this driver.
-
-Slate selects TMP112AIDRLR; the two board sensors at `0x48` and `0x49` remain
-unpopulated by default. This package does not activate them. The dedicated
-sensor bench (in the upstream Slate project) uses a SparkFun TMP102 breakout.
 
 ## Reading temperature
 
@@ -76,7 +72,7 @@ bus implementation or caller.
 The initial scope covers measurement. ALERT/SMBus alert response, threshold
 register access, and general-call reset are not implemented. Changing extended
 mode also changes the interpretation of existing threshold registers; this
-driver does not rewrite them. Slate's ALERT pin is unconnected.
+driver does not rewrite them.
 
 ## Errors, cancellation and recovery
 
@@ -91,6 +87,34 @@ changed configuration or started a conversion; recover the bus if needed, read
 back device state and reapply settings. Configuration uses a read-modify-write
 across separate transactions: do not configure the same sensor concurrently
 through multiple handles.
+
+## Minimal Embassy example
+
+[`examples/embassy.rs`](examples/embassy.rs) is a standalone Pico/Pico 2
+usage example with all setup in one file.
+
+Reads a TMP102/TMP112 once per second and logs milli-Celsius over RTT.
+Connect SDA to GP6, SCL to GP7, ADD0 to ground (0x48), supply to 3.3 V,
+and ground to the Pico ground. Use external I²C pull-ups to 3.3 V.
+The first read waits one second for an initial conversion.
+
+Build from the workspace root (choose one board):
+
+```sh
+# Pico / RP2040
+cargo build -p tmp1x2 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+# Pico 2 / RP2350A
+cargo build -p tmp1x2 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+```
+
+The ELF is `target/<target>/release/examples/embassy`. Flash the matching
+image with your usual SWD/UF2 workflow; an RTT-capable debug probe displays
+`defmt` output. These commands build and link only; they do not flash hardware.
+The opt-in features supply the executor, time driver, panic logger, boot image,
+and package-local Pico/Pico 2 memory layout. Normal library builds keep their
+existing runtime and MCU choices. Enable only one example board feature.
+Examples stop on I/O errors with `unwrap()` to keep the usage path short;
+applications own deadlines and recovery. Builds do not qualify hardware.
 
 ## Validation
 
@@ -107,18 +131,13 @@ samples, address selection, exact transaction shapes, configuration bit masks,
 one-shot busy/ready transitions, transport errors, partial-write state and
 cancellation before a configuration write starts.
 
-The combined sensor/I²C bench (in the upstream Slate project) exercises
-configuration readback, normal continuous measurements and extended one-shot
-measurements over PIO or Embassy hardware I²C on Pico/Pico 2. PIO builds also
-exercise address probing, reversed pin order and explicit bus recovery.
 Builds and host tests do not qualify physical hardware. Sensor response, one-shot
-conversions, hot-plug/recovery and electrical timing require bench evidence;
-Mini/Large product integration remains pending.
+conversions, hot-plug/recovery and electrical timing require bench evidence.
 
 ## Source and distribution
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
-license status. Product BSPs and bench firmware remain in their original projects.
+license status.
 
 ## License
 

@@ -1,9 +1,9 @@
 # Library architecture
 
 Use one virtual Cargo workspace with independently consumable and independently
-versioned library packages. Follow SlateCode's separation of portable contracts,
-hardware drivers, and platform integration. Share dependency declarations without
-requiring consumers to adopt the whole workspace.
+versioned library packages. Separate portable contracts, hardware drivers, and
+platform integration. Share dependency declarations without requiring consumers
+to adopt the whole workspace.
 
 ## Package boundaries
 
@@ -49,8 +49,6 @@ Extract state machines separately from platform I/O only when real code exists.
 `crates/protocols/discovery` owns the discovery protocol used across products,
 including its wire schema, message IDs, device identity and discovery agreements.
 It is a discovery library, not a collection of unrelated product protocols.
-Slate and UTSuites are reference implementations; their current differences are
-inputs to convergence, not a reason to keep separate discovery definitions.
 
 The consumer supplies an application identifier when constructing discovery
 configuration. Its fixed 16-byte identifier is carried on the wire and validated on receive so
@@ -107,7 +105,7 @@ framing = "0.1.0"
 For an initial migration, dependency aliases can preserve imports:
 
 ```toml
-slate-framing = { package = "framing", git = "<polis-rs repository URL>", rev = "<full commit SHA>" }
+legacy-framing = { package = "framing", git = "<polis-rs repository URL>", rev = "<full commit SHA>" }
 ```
 
 Replace the old dependency declaration and remove the old crate's workspace

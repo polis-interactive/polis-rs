@@ -2,4 +2,4 @@
 
 ## 0.1.0 Unreleased
 
-Initial shared `framing` library imported from Slate. See PROVENANCE.md for origin.
+Initial shared `framing` library. See PROVENANCE.md for source attribution.

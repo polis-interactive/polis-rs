@@ -2,8 +2,6 @@
 
 Derived on 2026-10-11 from `1017-Slate/SlateCode/crates/protocol` at revision
 `5cf31aea6bd683d2ac958ca31714f8b480218c4c`. That package was clean at import.
-UTSuites discovery informed the architecture; none of its control, OTA, runtime
-facts or other product-specific protocol implementations are included.
 
 The source had no license declaration at import. On 2026-10-11, the owner
 selected MIT for this shared package; see LICENSE-MIT. The original source
@@ -12,9 +10,10 @@ checkout and its recorded hashes are unchanged.
 Changes: dedicated discovery crate and flattened discovery modules; new common
 protocol identity and UDP default; mandatory consumer-provided application prefix
 and configured encode/decode API. This defines Polis discovery schema 1; it does
-not claim compatibility with the previous Slate or UTSuites wire schemas.
-Message bodies, validation and slot hashing derive from Slate; its independent
-body fixtures, bounds tests and slot vectors are retained and extended.
+not claim compatibility with earlier wire schemas.
+Message bodies, validation and slot hashing derive from the recorded source;
+its independent body fixtures, bounds tests and slot vectors are retained and
+extended.
 
 ## Original file hashes
 

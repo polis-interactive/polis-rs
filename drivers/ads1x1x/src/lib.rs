@@ -3,7 +3,6 @@
 #![doc = include_str!("../README.md")]
 
 mod asynchronous;
-mod blocking;
 pub mod model;
 
 use core::marker::PhantomData;

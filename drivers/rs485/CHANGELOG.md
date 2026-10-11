@@ -2,4 +2,7 @@
 
 ## 0.1.0 Unreleased
 
-Initial shared `rs485` library imported from Slate. See PROVENANCE.md for origin.
+- Add a minimal, opt-in Embassy usage example for Pico and Pico 2, with
+  wiring, build commands, and target build/Clippy coverage.
+
+Initial shared `rs485` library. See PROVENANCE.md for source attribution.

@@ -1,5 +1,5 @@
 #![no_std]
-//! WS2813B-B RGB signaling for legacy Slate LED chains.
+//! WS2813B-B RGB signaling for RP2040 and RP2350A.
 //!
 //! Enable exactly one of `rp2040` or `rp235xa` for the hardware driver.
 //! With no features, the color type is public and waveform tests run on the host.

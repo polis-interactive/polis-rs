@@ -51,11 +51,18 @@ replace builds. `clippy` checks the same feature/target combinations. `test` is
 native-only. `doc` builds each library's API documentation and selects hardware
 APIs when given an embedded platform.
 
-The WS2813 `link_check` example is opt-in and owns its memory maps and linker
-arguments. Its runtime dependencies are enabled by `link-check`; ordinary library
-builds do not select an executor, time driver, panic handler, or boot image.
-The other hardware drivers need consuming-image checks for concrete integration.
-No build command flashes hardware.
+Every driver has a minimal `examples/embassy.rs` for Pico/Pico 2. Package READMEs
+give wiring, expected behavior, and direct Cargo commands. Select
+`example-rp2040` or `example-rp235xa` to enable the example's runtime and chip;
+do not enable both. Each package owns its example's memory maps and linker
+arguments so its archive is self-contained. Ordinary library builds do not
+select an executor, time driver, panic handler, or boot image.
+
+The platform tool builds and links these examples on both embedded targets and
+includes them in target Clippy/check runs. `check` still does not link images.
+The WS2813 `link_check` fixture remains enabled by `link-check` for additional
+concurrent-chain integration coverage. No build command flashes hardware;
+linked examples do not replace electrical or downstream product validation.
 
 ## Editor and CI
 

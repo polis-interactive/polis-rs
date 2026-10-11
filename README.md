@@ -17,15 +17,26 @@ compatible; MCU implementations are enabled through explicit package features.
 
 ## Libraries
 
-| Location | Packages |
+| Library | Purpose |
 | --- | --- |
-| `crates/framing`, `crates/led-output` | `framing`, `led-output` |
-| `crates/protocols/discovery` | `discovery`: common discovery schema with consumer-assigned application identity |
-| `drivers/ads1x1x` | `ads1x1x`: ADS1013/1014/1015 and ADS1113/1114/1115 I²C ADCs |
-| `drivers/tmp1x2`, `drivers/rs485`, `drivers/w5500` | `tmp1x2`, `rs485`, `w5500` |
-| `drivers/pio/{i2c,uart,sk6812,ws2813}` | `pio-i2c`, `pio-uart`, `pio-sk6812`, `pio-ws2813` |
+| [framing](crates/framing) | Allocation-free byte framing with typed payload support |
+| [led-output](crates/led-output) | Group fixed-length RGB or RGBW LED chains into one output |
+| [discovery](crates/protocols/discovery) | Common discovery schema with consumer-assigned application identity |
+| [ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
+| [tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |
+| [rs485](drivers/rs485) | Async half-duplex RS-485 with direction and turnaround timing |
+| [w5500](drivers/w5500) | W5500 Ethernet startup adapter for Embassy |
+| [pio-i2c](drivers/pio/i2c) | PIO I²C controller for RP2040 and RP2350A |
+| [pio-uart](drivers/pio/uart) | Async PIO UART adapter for RP2040 and RP2350A |
+| [pio-sk6812](drivers/pio/sk6812) | PIO driver for SK6812 RGBW LED chains |
+| [pio-ws2813](drivers/pio/ws2813) | PIO driver for WS2813 RGB LED chains |
 
 Each package owns its API documentation, tests, changelog and source provenance.
+Every driver includes `examples/embassy.rs`, a minimal Pico/Pico 2 usage example.
+Its README documents wiring, expected output, and the `example-rp2040` /
+`example-rp235xa` build features. The embedded build matrix links all examples;
+target Clippy checks them too.
+
 Original code is licensed under [MIT](LICENSE-MIT). Imported SK6812/WS2813
 drivers retain their MIT notices; PIO I²C retains BSD-3-Clause. Each package
 declares its license and includes the applicable notice. No packages are
@@ -58,7 +69,7 @@ session state machines remain future work. Build results do not qualify hardware
 | [Development](docs/development.md) | Native/embedded matrix, tooling and examples |
 | [Publishing](docs/publishing.md) | Per-package releases and remaining release inputs |
 | [Migration](docs/migration.md) | Source findings and adoption status |
-| [Validation](docs/validation.md) | Test, target build, archive and downstream integration results |
+| [Validation](docs/validation.md) | Test, target build, archive and link validation results |
 
 ## Contributions
 

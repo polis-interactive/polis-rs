@@ -15,7 +15,6 @@ in GRBW order into a `4 * N` byte inline buffer in the future. Preserve exported
 chain order in the caller. Writes on separate chains may run concurrently.
 The driver also implements `led_output::LedOutput`: its slice API
 rejects incorrect lengths before I/O. The fixed-array API remains available.
-The LED BSP (in the upstream Slate project) constructs the product chain group.
 
 ## Timing and completion
 
@@ -24,8 +23,8 @@ At 800 kbit/s, the waveform uses 20 PIO cycles per bit: nominal zero-high
 rounded upward. `clk_sys` must be at least 32 MHz and must not change while the
 driver exists. Both selected parts require a symbol period of at least 1.2 us
 and reset low for **more than 200 us**:
-[LargeBoard datasheet, p. 9](https://www.ledlightinghut.com/files/SKC6812RGBW-XW.pdf),
-[MiniBoard datasheet, p. 8](https://datasheet.lcsc.com/datasheet/pdf/a2bc892b0af22abe04f5c8a837afb921.pdf?productCode=C7423107).
+[SKC6812RGBW datasheet, p. 9](https://www.ledlightinghut.com/files/SKC6812RGBW-XW.pdf),
+[SK6812MINIRGBW datasheet, p. 8](https://datasheet.lcsc.com/datasheet/pdf/a2bc892b0af22abe04f5c8a837afb921.pdf?productCode=C7423107).
 
 DMA completion only means the last word reached the FIFO. After DMA, the driver
 waits a calculated upper bound for eight FIFO words, the shift register and one
@@ -45,6 +44,34 @@ pin mux handover and enables a data-pin pull-down afterward. This uses Embassy's
 `unstable-pac` feature for the RP2040/RP2350A register setup. Handover and
 power/reset transitions still require hardware qualification at the translator input.
 
+## Minimal Embassy example
+
+[`examples/embassy.rs`](examples/embassy.rs) is a standalone Pico/Pico 2
+usage example with all setup in one file.
+
+Blinks the white channel of eight SK6812 RGBW LEDs every 500 ms using
+PIO0 SM0 and DMA_CH0. Connect GP2 through a suitable level shifter to
+chain DIN; use an appropriately sized LED supply and common ground.
+Set `LED_COUNT` to your chain length. Brightness is deliberately low.
+
+Build from the workspace root (choose one board):
+
+```sh
+# Pico / RP2040
+cargo build -p pio-sk6812 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+# Pico 2 / RP2350A
+cargo build -p pio-sk6812 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+```
+
+The ELF is `target/<target>/release/examples/embassy`. Flash the matching
+image with your usual SWD/UF2 workflow; an RTT-capable debug probe displays
+`defmt` output. These commands build and link only; they do not flash hardware.
+The opt-in features supply the executor, time driver, panic logger, boot image,
+and package-local Pico/Pico 2 memory layout. Normal library builds keep their
+existing runtime and MCU choices. Enable only one example board feature.
+Examples stop on I/O errors with `unwrap()` to keep the usage path short;
+applications own deadlines and recovery. Builds do not qualify hardware.
+
 ## Validation
 
 ```sh
@@ -56,15 +83,13 @@ cargo build -p pio-sk6812 --features rp235xa --target thumbv8m.main-none-eabihf 
 Host tests interpret the emitted PIO instructions to check MSB-first output,
 branch pulse lengths, GRBW packing, timing bounds with fractional divider jitter,
 and the drain/reset allowance. The target build compiles the library. It does
-not demonstrate electrical behavior. Mini/Large image builds now integrate the
-driver alongside temperature I2C and send a black frame at startup.
+not demonstrate electrical behavior.
 
-On hardware, measure both chains at the translated LED inputs: zero/one widths,
+On hardware, measure each chain at the LED inputs: zero/one widths,
 GRBW/white order, reset duration, consecutive frames, and cancellation/restart
-under concurrent RS-485/DMA load. Check PIO0 instruction capacity again when
-adding programs: current I2C plus all LED lanes use 24 of 32 PIO0 instructions.
+under concurrent DMA load. Check PIO instruction capacity when adding programs.
 
 ## Source and distribution
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
-license status. Product BSPs and bench firmware remain in their original projects.
+license status.

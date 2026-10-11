@@ -6,8 +6,14 @@ version = 4
 name = "ads1x1x"
 version = "0.1.0"
 dependencies = [
- "embedded-hal 1.0.0",
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
  "embedded-hal-async",
+ "panic-probe",
 ]
 
 [[package]]
@@ -600,6 +606,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-hal-bus"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "513e0b3a8fb7d3013a8ae17a834283f170deaf7d0eeab0a7c1a36ad4dd356d22"
+dependencies = [
+ "critical-section",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+]
+
+[[package]]
 name = "embedded-hal-nb"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1078,11 +1095,16 @@ dependencies = [
 name = "pio-i2c"
 version = "0.1.0"
 dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
  "embassy-rp",
  "embassy-time",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "fixed",
+ "panic-probe",
  "pio",
 ]
 
@@ -1117,10 +1139,15 @@ dependencies = [
 name = "pio-sk6812"
 version = "0.1.0"
 dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
  "embassy-rp",
  "embassy-time",
  "fixed",
  "led-output",
+ "panic-probe",
  "pio",
  "smart-leds",
 ]
@@ -1129,9 +1156,14 @@ dependencies = [
 name = "pio-uart"
 version = "0.1.0"
 dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
  "embassy-rp",
  "embassy-time",
  "embedded-io-async 0.7.0",
+ "panic-probe",
 ]
 
 [[package]]
@@ -1139,6 +1171,7 @@ name = "pio-ws2813"
 version = "0.1.0"
 dependencies = [
  "cortex-m-rt",
+ "defmt",
  "defmt-rtt",
  "embassy-executor",
  "embassy-futures",
@@ -1286,9 +1319,17 @@ dependencies = [
 name = "rs485"
 version = "0.1.0"
 dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "embedded-io-async 0.7.0",
+ "panic-probe",
+ "pio-uart",
 ]
 
 [[package]]
@@ -1530,7 +1571,14 @@ dependencies = [
 name = "tmp1x2"
 version = "0.1.0"
 dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
  "embedded-hal-async",
+ "panic-probe",
 ]
 
 [[package]]
@@ -1655,9 +1703,19 @@ dependencies = [
 name = "w5500"
 version = "0.1.0"
 dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-futures",
+ "embassy-net-driver",
  "embassy-net-wiznet",
+ "embassy-rp",
+ "embassy-time",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
+ "embedded-hal-bus",
+ "panic-probe",
 ]
 
 [[package]]

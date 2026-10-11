@@ -22,3 +22,13 @@ are recorded in CHANGELOG.md. No product application or BSP is included.
 | `src/protocol.rs` | `86a2d72f1b0de853c411ca386c83f767b9e514c773e1f9dbaaae86be5756e9b7` |
 | `src/waveform/tests.rs` | `371f4a57a855f9868b370af977e6bbd4c37467db182d95b8378bfae45f77111d` |
 | `src/waveform.rs` | `8925e93752c6a4b4475314594dd7b700adb2df9225b905315befafddcec35436` |
+
+## Usage example adaptation
+
+`examples/embassy.rs` was added on 2026-10-11 using
+`1017-Slate/SlateCode/bin/test-tmp1x2/src/board.rs (PIO configuration)`
+from the source checkout (recorded repository revision `5cf31aea6bd683d2ac958ca31714f8b480218c4c`).
+It reduces the source setup to a single usage path with this package's current
+API; product configuration, diagnostics, and test harnesses are not imported.
+Source checkouts are unchanged. Package-local linker support follows the
+existing `pio-ws2813` example. Original reference hashes above are unchanged.

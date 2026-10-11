@@ -22,27 +22,6 @@ checksum error. Normal registry-enabled packaging passed. Cargo also reports a
 future-compatibility warning in the upstream `proc-macro-error2` dependency; this
 did not fail the current compiler/build matrix.
 
-## Consumer checks
-
-Temporary copies under `/tmp/polis-consumer-validation` retained the original
-consumer source and aliased its existing dependency names to these shared packages.
-Original product checkouts were not edited. The temporary Slate copy used the
-validated Rust 1.99.0 compiler rather than its original 1.95.0 pin.
-
-| Consumer | Result |
-| --- | --- |
-| Slate `test-rs485`, `test-tmp1x2` with PIO I2C, `test-sk6812`, `test-ws2813` | All four linked separately for RP2040 and RP2350: eight images |
-| Slate controller BSP `link_check` | RP2350 example linked with shared W5500/UART/RS-485 libraries |
-| Slate Mini and Large firmware | Both RP2040 images linked in separate invocations with shared output and driver libraries |
-| Wired-control protocol | 20 tests passed against shared framing |
-| Wired-control firmware | RP2350 firmware linked against shared framing |
-
-Each Slate bench build used `--no-default-features`, its matching `rp2040` or
-`rp235xa` feature, target triple and `--profile firmware`; the TMP1x2 bench also
-selected `pio-i2c`. Mini and Large require separate builds because their BSP
-features are mutually exclusive. Consumer aliases preserve source imports while
-selecting the new upstream package identity.
-
 ## Remaining release and adoption work
 
 No hardware was flashed or electrically qualified. Discovery provides the shared
@@ -72,25 +51,24 @@ cargo fmt --all -- --check
 
 All commands passed. The isolated caller imports the dependency as `led-api`,
 uses borrowed, const-generic lanes without `std`, and builds on the host and both
-MCUs. The WS2813 example now uses the macro and links on both MCUs. Separate
-Mini/Large firmware builds in the temporary Slate consumer copy also passed.
+MCUs. The WS2813 example now uses the macro and links on both MCUs.
 
-## ADS1x1x extraction validation
+## ADS1x1x async validation
 
 Validated on 2026-10-11 with Rust 1.99.0. The workspace now has eleven libraries.
-The new `ads1x1x` package has 12 unit tests and three doctests (including a
+After removing the blocking API, `ads1x1x` has 12 unit tests and two doctests (including a
 compile-fail check for selecting a 12-bit rate on a 16-bit model). The complete
-workspace suite passes 91 tests.
+workspace suite passes 90 tests.
 
 | Check | Result |
 | --- | --- |
-| `cargo test --workspace --locked --offline` | 91 unit, integration and documentation tests passed |
+| `cargo test --workspace --locked --offline` | 90 unit, integration and documentation tests passed |
 | `python3 tools/check.py build --platform all --package ads1x1x` | Native, RP2040 and RP2350 library builds passed |
 | `python3 tools/check.py clippy --platform all --package ads1x1x` | All three configurations passed with warnings denied |
 | `RUSTDOCFLAGS='-D warnings' cargo doc -p ads1x1x --no-deps --locked --offline` | Passed; README examples are also compiled by doctests |
 | `cargo package -p ads1x1x --allow-dirty --offline` | Standalone archive created and verified; source, tests, README, changelog and provenance included |
 
-Wire fixtures exercise both blocking and yielding async I²C implementations:
+Wire fixtures exercise yielding async I²C transactions:
 all six models, four addresses, signed 12/16-bit samples, both rate tables,
 thresholds, ready-output setup, model capability rejection, trigger/MUX writes,
 bounded polling, transport failures and reconfiguration after cancellation.
@@ -98,7 +76,7 @@ Formatting also passes `cargo fmt --all -- --check`.
 
 An isolated consumer at `/tmp/ads1x1x-validation` linked release ELF images for
 both MCUs using Embassy RP 0.10.0, Embassy Time 0.5.1 and Executor 0.10.0. It
-instantiates all six models with actual blocking and async Embassy I²C types,
+instantiates all six models with an actual async Embassy I²C bus,
 configures them, performs bounded reads and scales samples. Its memory maps and
 linker setup follow the existing WS2813 link fixture. Reproduction in this
 session:
@@ -109,7 +87,28 @@ cargo build --offline --locked --manifest-path /tmp/ads1x1x-validation/Cargo.tom
 ```
 
 The temporary consumer is a link check, not a product migration or hardware
-qualification. No ADC was exercised electrically. The original UTSuites driver
-checkout remains clean. MIT was subsequently selected by the owner. Public
-repository metadata is still needed before publication; no registry upload was
-attempted.
+qualification. No ADC was exercised electrically. MIT was subsequently selected
+by the owner. Public repository metadata is still needed before publication;
+no registry upload was attempted.
+
+## Minimal Embassy driver examples
+
+Validated on 2026-10-11 with Rust 1.99.0. All eight drivers now include
+`examples/embassy.rs`, with package-local runtime features and Pico/Pico 2
+linker inputs. Source usage demos were simplified; no hardware was flashed.
+
+| Check | Result |
+| --- | --- |
+| `python3 tools/check.py build --platform all` restricted to the eight driver packages | Native and both MCU library builds passed; all eight Embassy examples linked on both MCUs, plus the existing WS2813 `link_check` |
+| `python3 tools/check.py clippy --platform all` with the same package selection | Libraries and embedded examples passed with warnings denied |
+| `cargo test --workspace --locked` | 90 unit, integration, and documentation tests passed |
+| `cargo fmt --all -- --check` and `git diff --check` | Passed |
+| `cargo package -p <driver> --list --allow-dirty --locked` for each driver | All eight package file lists include the usage example, build script, both memory maps, README, and provenance |
+
+The matrix selection used repeated `--package` arguments for `ads1x1x`,
+`tmp1x2`, `rs485`, `w5500`, `pio-i2c`, `pio-uart`, `pio-sk6812`, and
+`pio-ws2813`. Individual example commands and wiring are in each README.
+Archive checks here inspect contents; they do not claim standalone archive
+build verification. The existing upstream `proc-macro-error2` future-compatibility
+notice remains. Physical sensor readings, serial timing, LED waveforms, and
+Ethernet traffic still require bench validation.

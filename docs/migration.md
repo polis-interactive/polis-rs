@@ -2,8 +2,7 @@
 
 The initial library extraction is complete. Package READMEs describe supported
 APIs; `PROVENANCE.md` files record origins and `validation.md` records checks.
-The ADS1x1x driver now covers the six related I²C models from the UTSuites ADS1015
-reference. Further drivers can follow the same process.
+Further libraries can follow the same process.
 
 ## For each new library
 
@@ -18,8 +17,8 @@ reference. Further drivers can follow the same process.
 
 Switch consumers separately to a pinned upstream revision or published version,
 validate their images, then retire local copies. Discovery consumers adopt the
-shared schema with their own application ID; UTSuites-specific control protocols
-remain downstream. ADS1015 consumers need the API changes in the `ads1x1x` README.
+shared schema with their own application ID. Package READMEs document API
+migration requirements.
 
 Release prerequisites and dependency ordering live in [publishing](publishing.md);
 package boundaries and dependency examples live in [architecture](architecture.md).
