@@ -125,3 +125,7 @@ UART reception, electrical timing, or packet delivery on a real network.
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
 license status. Product BSPs and bench firmware remain in their original projects.
+
+## License
+
+Licensed under MIT; see [LICENSE-MIT](LICENSE-MIT).

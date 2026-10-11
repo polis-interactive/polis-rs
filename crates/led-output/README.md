@@ -66,3 +66,7 @@ require hardware tests; the BSP guide owns consuming image builds.
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
 license status. Product BSPs and bench firmware remain in their original projects.
+
+## License
+
+Licensed under MIT; see [LICENSE-MIT](LICENSE-MIT).

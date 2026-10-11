@@ -107,4 +107,4 @@ Run `cargo test -p discovery` for independent byte fixtures, malformed-input
 and application-filter tests, maximum sizes, slot vectors and stream/datagram
 composition. `python3 tools/check.py build --package discovery --platform all`
 builds it on host, RP2040 and RP2350. See [PROVENANCE.md](PROVENANCE.md) for its
-origin, changes and pending license selection.
+origin and changes. This package is licensed under MIT; see LICENSE-MIT.

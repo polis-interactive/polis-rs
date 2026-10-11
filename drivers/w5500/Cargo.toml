@@ -5,6 +5,7 @@ edition.workspace = true
 publish = ["crates-io"]
 rust-version = "1.99"
 readme = "README.md"
+license = "MIT"
 description = "W5500 Ethernet startup adapter for Embassy"
 
 [dependencies]

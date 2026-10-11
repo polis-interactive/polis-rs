@@ -3,7 +3,9 @@
 Imported on 2026-10-11 from `1017-Slate/SlateCode/crates/framing`.
 Source repository revision: `5cf31aea6bd683d2ac958ca31714f8b480218c4c`. The source package was clean at import.
 
-The source manifest has no license. Public distribution awaits the owner's license selection; this import makes no new license grant.
+The source had no license declaration at import. On 2026-10-11, the owner
+selected MIT for this shared package; see LICENSE-MIT. The original source
+checkout and its recorded hashes are unchanged.
 
 Changes: package/import names, distribution metadata and README paths/commands.
 Algorithms and wire behavior are preserved. Any subsequent implementation changes

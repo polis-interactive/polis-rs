@@ -114,5 +114,5 @@ cargo package -p ads1x1x --allow-dirty
 
 Mocks cover all six models and both APIs. Hardware qualification remains a
 consumer task. See `PROVENANCE.md` and `CHANGELOG.md` in the package archive.
-The source has no license declaration; an owner-selected license is required
-before public release. Package-name availability is checked at publication.
+This package is licensed under MIT; see LICENSE-MIT. Package-name availability
+is checked at publication.

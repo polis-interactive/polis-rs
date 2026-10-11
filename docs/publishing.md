@@ -25,18 +25,21 @@ from the root, but package archives must work outside the monorepo. Inspect
 Use docs.rs target/feature metadata for hardware packages; never ask docs.rs to
 enable mutually exclusive MCU features together.
 
-## License decisions
+## Licensing
 
-The inspected framing manifests have no license, and wired-control's provenance
-explicitly preserves that absence. Slate's SK6812/WS2813 derivatives carry MIT
-notices; its PIO I2C derivative carries BSD-3-Clause. Preserve these existing
-terms and notices on extraction.
+The owner selected MIT for original code on 2026-10-11. Those packages declare
+`license = "MIT"` and include a package-local `LICENSE-MIT`, matching the root
+license. Use the same convention for new original libraries.
 
-The owner must choose public licensing for currently unlicensed original code
-before publication. A dual MIT OR Apache-2.0 policy is a proposal for original
-contributions, not a license grant made by this scaffold. Package license
-expressions must reflect the actual incorporated code; do not mechanically
-replace existing upstream terms with a repository default.
+The imported SK6812/WS2813 drivers retain their original MIT notices; PIO I²C
+retains BSD-3-Clause. Preserve third-party copyright and license notices. A
+package's license declaration must reflect its incorporated code, rather than
+blindly inheriting the repository default. Provenance records the source's
+license status at import and the subsequent owner-selected license.
+
+External contributions are currently not accepted; see
+[CONTRIBUTING.md](../CONTRIBUTING.md). That policy is separate from users'
+permissions under the applicable licenses.
 
 ## Versioning
 

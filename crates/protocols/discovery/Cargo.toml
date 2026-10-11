@@ -5,6 +5,7 @@ edition.workspace = true
 rust-version = "1.99"
 description = "Shared allocation-free discovery protocol with consumer-defined application identity"
 readme = "README.md"
+license = "MIT"
 publish = ["crates-io"]
 
 [dependencies]

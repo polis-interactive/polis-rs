@@ -47,3 +47,7 @@ The example is not deployable firmware; see its BSP guide for limitations.
 
 See [PROVENANCE.md](PROVENANCE.md) for source hashes, extraction changes and
 license status. Product BSPs and bench firmware remain in their original projects.
+
+## License
+
+Licensed under MIT; see [LICENSE-MIT](LICENSE-MIT).

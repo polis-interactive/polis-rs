@@ -26,9 +26,10 @@ compatible; MCU implementations are enabled through explicit package features.
 | `drivers/pio/{i2c,uart,sk6812,ws2813}` | `pio-i2c`, `pio-uart`, `pio-sk6812`, `pio-ws2813` |
 
 Each package owns its API documentation, tests, changelog and source provenance.
-Existing upstream license notices are retained. Several original libraries still
-need an owner-selected public license before release. No packages are published
-by this setup, and a Git remote has not been established here.
+Original code is licensed under [MIT](LICENSE-MIT). Imported SK6812/WS2813
+drivers retain their MIT notices; PIO I²C retains BSD-3-Clause. Each package
+declares its license and includes the applicable notice. No packages are
+published by this setup, and a Git remote has not been established here.
 
 ## Platform selection
 
@@ -58,3 +59,8 @@ session state machines remain future work. Build results do not qualify hardware
 | [Publishing](docs/publishing.md) | Per-package releases and remaining release inputs |
 | [Migration](docs/migration.md) | Source findings and adoption status |
 | [Validation](docs/validation.md) | Test, target build, archive and downstream integration results |
+
+## Contributions
+
+External contributions are not currently accepted. Please read
+[CONTRIBUTING.md](CONTRIBUTING.md) for the contribution policy.

@@ -49,9 +49,9 @@ No hardware was flashed or electrically qualified. Discovery provides the shared
 wire contract and application filtering, not live socket/session implementations.
 Existing discovery consumers still need to adopt the common schema explicitly.
 
-Eight packages await a public-license choice: the three software libraries plus
-`ads1x1x`, `tmp1x2`, `rs485`, `w5500` and `pio-uart`. Existing MIT/BSD notices remain on the
-other PIO packages. Establish the actual repository URL and registry ownership
+Original packages now use the owner-selected MIT license. Existing MIT/BSD
+notices remain on the imported PIO packages. Establish the actual repository URL
+and registry ownership
 before publication; resolve name conflicts at that time. Remote CI is configured
 but has not run because this directory has no established Git remote.
 
@@ -110,5 +110,6 @@ cargo build --offline --locked --manifest-path /tmp/ads1x1x-validation/Cargo.tom
 
 The temporary consumer is a link check, not a product migration or hardware
 qualification. No ADC was exercised electrically. The original UTSuites driver
-checkout remains clean. This package still needs an owner-selected license and
-public repository metadata before publication; no registry upload was attempted.
+checkout remains clean. MIT was subsequently selected by the owner. Public
+repository metadata is still needed before publication; no registry upload was
+attempted.

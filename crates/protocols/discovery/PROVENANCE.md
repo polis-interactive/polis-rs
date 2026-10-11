@@ -5,8 +5,9 @@ Derived on 2026-10-11 from `1017-Slate/SlateCode/crates/protocol` at revision
 UTSuites discovery informed the architecture; none of its control, OTA, runtime
 facts or other product-specific protocol implementations are included.
 
-The source manifest has no license. Public distribution awaits the owner's
-license selection; this import makes no new license grant.
+The source had no license declaration at import. On 2026-10-11, the owner
+selected MIT for this shared package; see LICENSE-MIT. The original source
+checkout and its recorded hashes are unchanged.
 
 Changes: dedicated discovery crate and flattened discovery modules; new common
 protocol identity and UDP default; mandatory consumer-provided application prefix

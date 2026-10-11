@@ -5,6 +5,7 @@ edition.workspace = true
 publish = ["crates-io"]
 rust-version = "1.99"
 readme = "README.md"
+license = "MIT"
 description = "Allocation-free composition of asynchronous LED outputs"
 
 [dependencies]

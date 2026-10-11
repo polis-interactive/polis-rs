@@ -5,6 +5,7 @@ edition.workspace = true
 publish = ["crates-io"]
 rust-version = "1.99"
 readme = "README.md"
+license = "MIT"
 description = "Blocking and async I2C drivers for TI ADS1013/1014/1015 and ADS1113/1114/1115"
 
 [dependencies]

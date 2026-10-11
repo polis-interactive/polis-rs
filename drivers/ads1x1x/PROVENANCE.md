@@ -4,9 +4,9 @@ Reviewed and reworked on 2026-10-11 from
 `2043-UTSuites/ControlCode/ads1015-rs` at repository revision
 `b0173ce5e084da9e00ec338c1572995b73ecc8d5` (clean source checkout).
 
-The source manifest has no license declaration or accompanying license file.
-Public distribution awaits the owner's license selection; this adaptation
-makes no new license grant.
+The source had no license declaration at import. On 2026-10-11, the owner
+selected MIT for this shared package; see LICENSE-MIT. The original source
+checkout and its recorded hashes are unchanged.
 
 The original register constants, ADS1015 encodings, signed conversion behavior
 and blocking/async I²C approach informed this implementation. It is substantially
