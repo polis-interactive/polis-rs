@@ -14,11 +14,12 @@ use panic_probe as _;
 use polis_control_link_embassy::{
     Buffers,
     protocol::{ControlLink, Message},
-    serial, supervisor, tcp, uart,
+    supervisor, tcp, uart, usb as control_usb,
 };
 
 // Minimal fixture behavior; production handlers provide their own handshake and queues.
 struct UsbApplication;
+impl control_usb::Lifecycle for UsbApplication {}
 impl<R: embedded_io_async::Read, W: embedded_io_async::Write> supervisor::ConnectionHandler<R, W>
     for UsbApplication
 {
@@ -89,6 +90,9 @@ async fn main(_spawner: embassy_executor::Spawner) {
     let driver = usb::Driver::new(p.USB, Irqs);
     let config = embassy_usb::Config::new(0xc0de, 0xcafe);
     let (mut descriptor, mut bos, mut msos, mut control) = ([0; 256], [0; 256], [0; 128], [0; 64]);
+    let application = UsbApplication;
+    let usb_state = control_usb::State::new();
+    let mut events = usb_state.handler(&application);
     let mut state = State::new();
     let mut builder = embassy_usb::Builder::new(
         driver,
@@ -98,34 +102,29 @@ async fn main(_spawner: embassy_executor::Spawner) {
         &mut msos,
         &mut control,
     );
+    builder.handler(&mut events);
     let class = CdcAcmClass::new(&mut builder, &mut state, 64);
-    let mut usb = builder.build();
-    let (mut usb_tx, mut usb_rx) = class.split();
-    let serial_task = async {
-        loop {
-            usb_rx.wait_connection().await;
-            let (mut rx, mut payload, mut tx, mut packet) = ([0; 256], [0; 128], [0; 256], [0; 64]);
-            let pair = serial::split(
-                &mut usb_tx,
-                &mut usb_rx,
-                LINK,
-                Buffers {
-                    receive: &mut rx,
-                    payload: &mut payload,
-                    transmit: &mut tx,
-                },
-                &mut packet,
-            )
-            .unwrap();
-            supervisor::run(
-                pair,
-                embassy_time::Duration::from_millis(500),
-                core::future::pending(), // Production USB reset notification is application-supplied.
-                &UsbApplication,
-            )
-            .await;
-        }
-    };
+    let (mut rx, mut payload, mut tx, mut packet) = ([0; 256], [0; 128], [0; 256], [0; 64]);
+    let mut usb_runner = control_usb::Runner::new(
+        builder.build(),
+        class,
+        &usb_state,
+        &application,
+        control_usb::Config {
+            link: LINK,
+            send_timeout: embassy_time::Duration::from_millis(500),
+            reconnect_delay: embassy_time::Duration::from_millis(1),
+        },
+        control_usb::Storage {
+            frames: Buffers {
+                receive: &mut rx,
+                payload: &mut payload,
+                transmit: &mut tx,
+            },
+            packet: &mut packet,
+        },
+    )
+    .unwrap();
     let mut channel_state = ChannelState::<1536, 2, 2>::new();
     let (mut channel, driver) = embassy_net_driver_channel::new(
         &mut channel_state,
@@ -179,7 +178,7 @@ async fn main(_spawner: embassy_executor::Spawner) {
     };
     embassy_futures::join::join3(
         uart_task,
-        embassy_futures::join::join(usb.run(), serial_task),
+        usb_runner.run(),
         embassy_futures::join::join3(tcp_task, runner.run(), network),
     )
     .await;

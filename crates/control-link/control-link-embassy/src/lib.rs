@@ -38,3 +38,6 @@ impl<E: core::fmt::Display> core::fmt::Display for Error<E> {
     }
 }
 impl<E: core::error::Error + 'static> core::error::Error for Error<E> {}
+
+#[cfg(all(feature = "serial", feature = "supervisor"))]
+pub mod usb;

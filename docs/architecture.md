@@ -69,7 +69,12 @@ Embassy's optional `supervisor` feature runs an application's `ConnectionHandler
 receive/transmit loops with one lifetime. Failure, send timeout/cancellation or
 an application-supplied reset retires both halves. Low-level split remains
 available. The caller owns timeout values, transport readiness, queue/session
-invalidation, reconnection and power policy; no commands are retained or replayed.
+invalidation, reconnection and power policy when using the low-level supervisor.
+With `serial` + `supervisor`, `usb::Runner` owns the USB device, readiness waits,
+splitting, latched resets, supervision and reconnection. Consumers provide USB
+resources, timing configuration and a `ConnectionHandler`; `usb::Lifecycle`
+callbacks keep queue/session invalidation and power policy product-owned. No
+commands are retained or replayed.
 
 Related packages live under `crates/discovery/` and `crates/control-link/`.
 Their `-protocol` packages are portable. Discovery's `-tokio` and `-embassy`

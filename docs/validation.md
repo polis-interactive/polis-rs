@@ -1,5 +1,52 @@
 # Library validation
 
+## Complete Embassy USB connection runner
+
+Validated on 2026-10-11 with Rust 1.99.0. With `serial` + `supervisor`,
+`polis-control-link-embassy::usb::Runner` now owns USB device execution, CDC
+splitting, endpoint readiness waits, latched reset/disable/unconfiguration events,
+supervision and reconnection. `Lifecycle` callbacks retain product cleanup.
+Cancellation drops both business futures/adapters before cleanup. Restarting a
+cancelled runner disables the USB device before reuse as required by Embassy;
+permanent shutdown is available through `disable().await`.
+
+```sh
+python3 tools/check.py test --package polis-control-link-embassy
+python3 tools/check.py build --platform all --package polis-control-link-embassy
+python3 tools/check.py clippy --platform all --package polis-control-link-embassy
+RUSTDOCFLAGS='-D warnings' python3 tools/check.py doc --package polis-control-link-embassy
+cargo test --locked --offline -p polis-control-link-embassy --no-default-features --features serial,supervisor --doc
+```
+
+All sixteen feature combinations passed native tests/builds/Clippy/docs, both
+RP2040/RP2350 library builds passed, and the complete USB runner linked in the
+fixture on both targets. Added tests execute the real `UsbDevice` and CDC class
+against a mocked bus/control pipe/endpoints. They cover waiting before interface
+enable, reset plus immediate reconfiguration, partial RX discard, cancellation
+of an in-flight TX, cleanup ordering, timeout/reconnection on a still-enabled
+interface, no command replay, and restart/disable after whole-runner cancellation.
+Existing low-level split and supervisor tests pass. Three README examples compile.
+
+The acceptance criterion was checked against the actual consumer: its
+`firmware/src/usb.rs` has no `link`/USB run task, readiness wait, reset handler,
+reset signal, generation-wait future or reconnect loop. It shrank from 180 to
+119 lines, retaining only business loops, lifecycle callbacks and loss accounting.
+`main.rs` builds resources/configuration and joins the library runner with device
+logic. The now-unused board `UsbDriver` type alias was removed. No product queues,
+handshake, power policy or dependency pins were changed. The 500 ms send timeout
+remains in product configuration; a 1 ms reconnect delay is explicitly configured.
+
+The adapted firmware linked and passed Clippy for `thumbv8m.main-none-eabihf`
+with the `firmware` profile in `/tmp/polis-usb-runner-consumer`, using temporary
+Git-source patches to local polis-rs packages. The applied USB/main/board files
+match this tested copy. The consumer's existing dirty changes were preserved;
+its dependency Git pins and lockfile were not rewritten. Local overrides are
+needed until these library changes are committed and adopted downstream.
+Formatting and diff checks pass in both repositories. Package listing includes
+USB runner/tests and existing self-contained build inputs; registry archive
+verification was not repeated. No hardware was flashed or physically qualified.
+
+
 ## Optional Embassy connection supervisor
 
 Validated on 2026-10-11 with Rust 1.99.0 on branch `bw-control-link`.

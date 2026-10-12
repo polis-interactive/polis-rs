@@ -79,18 +79,64 @@ serial discovery, connection upgrade, decoder reset or buffered-byte handoff.
 
 ## USB CDC serial
 
-Build the CDC class and USB device in the application. Split the class into its
-sender/receiver and wait for interface enable. Pass mutable references to those
-halves, `ControlLink`, `Buffers`, and a separate packet buffer to `serial::split`.
-The packet buffer must hold `receiver.max_packet_size()` bytes (64 for full-speed
-CDC); construction checks its size. Keep the USB device runner alive.
+For a complete connection lifecycle, enable `serial` and `supervisor` and use
+`usb::Runner`. It owns the USB device run future, CDC splitting, endpoint readiness
+waits, reset detection, RX/TX supervision and reconnection. No application USB
+connection task or reconnect loop is required.
 
-The adapter chunks writes at endpoint packet size, sends a zero-length packet
-when flushing an exact packet multiple, and ignores incoming zero-length packets.
-Disconnect errors propagate; they are not stream EOF. Drop both link halves on
-disconnect, wait for the next connection using the original CDC halves, and
-establish a fresh session. `wait_connection` means interface enabled; any DTR
-policy is application-owned.
+Build descriptors and the CDC class in board setup. Create a `usb::State` and
+register `state.handler(&application)` with the USB builder. The returned handler
+latches reset, disable and unconfiguration events, including a reset followed by
+reconfiguration between endpoint polls. Pass the **same state and application**
+to the runner. Implement `ConnectionHandler` for business receive/transmit loops
+and `usb::Lifecycle` for synchronous product callbacks:
+
+- `reset()` invalidates product ownership immediately, even while awaiting readiness.
+- `connected()` prepares fresh application session state once both endpoints are ready.
+- `disconnected(reason)` runs once per connection, after both adapters and business
+  futures are dropped, including cancellation of the runner.
+
+```rust,no_run
+# #[cfg(all(feature = "serial", feature = "supervisor"))]
+# async fn example<'a, 'd, D, H>(device: embassy_usb::UsbDevice<'d, D>,
+#     class: embassy_usb::class::cdc_acm::CdcAcmClass<'d, D>,
+#     state: &'a polis_control_link_embassy::usb::State, application: &'a H,
+#     storage: polis_control_link_embassy::usb::Storage<'a>)
+#     -> Result<(), polis_control_link_embassy::serial::PacketBufferTooSmall>
+# where D: embassy_usb::driver::Driver<'d>,
+# H: polis_control_link_embassy::usb::Lifecycle + for<'s> polis_control_link_embassy::supervisor::ConnectionHandler<
+#     polis_control_link_embassy::serial::PacketReader<'s, 'd, D>,
+#     polis_control_link_embassy::serial::PacketWriter<'s, 'd, D>> {
+use polis_control_link_embassy::{protocol::ControlLink, usb};
+use embassy_time::Duration;
+let mut runner = usb::Runner::new(device, class, state, application, usb::Config {
+    link: ControlLink::new(*b"example-app-0001"),
+    send_timeout: Duration::from_millis(500),
+    reconnect_delay: Duration::from_millis(1),
+}, storage)?;
+runner.run().await // Run alongside the rest of the firmware, e.g. with join().
+# }
+```
+
+`usb::Storage` contains the existing `Buffers` plus packet storage of at least
+`class.max_packet_size()` bytes. Construction checks packet capacity. Readiness
+means interface enable; any additional DTR/identity policy belongs in the handler.
+All callbacks and futures run in one task with no allocation or `Send` requirement.
+The application owns queue filtering, fresh wire-session negotiation, timeout and
+reconnect-delay values, and power-off policy. The runner never stores or replays
+commands; a new connection always gets fresh framing/packet adapters.
+
+Dropping `runner.run()` cancels both business loops before calling
+`disconnected(Cancelled)`. Embassy requires disabling a cancelled USB device
+before reuse: calling `runner.run()` again does that automatically. If stopping
+permanently, call `runner.disable().await` before releasing the hardware. Drop
+cannot perform an async peripheral shutdown. Reset/disconnect of an active link
+does not cancel the device's USB event loop; reconnection remains inside the runner.
+
+The low-level `serial::split` API remains available for consumers owning their
+own lifecycle. It chunks writes at endpoint packet size, sends a zero-length
+packet when flushing an exact packet multiple, and ignores incoming zero-length
+packets. USB descriptors, packet sizes and board pins are never selected by the library.
 
 ## Sessions, buffers and cancellation
 
@@ -169,8 +215,8 @@ read errors: reset and reconfiguration can happen between endpoint polls. An
 already-ready reset wins before any I/O. USB interface readiness and DTR policy
 stay with the caller; after transport failure an endpoint can still be enabled.
 
-The wired-control firmware's `usb.rs` now implements its loops on an `Application`
-handler. It replaces the manual RX/TX/reset race with `supervisor::run` and uses
-`sender.send(...)` without a separate `with_timeout`. Its generation counter,
-priority queues, pending-frame loss accounting, handshake and power-off policy
-remain application-owned. The RP link fixture also implements the handler trait.
+The wired-control firmware's `usb.rs` contains only `ConnectionHandler` business
+loops, lifecycle cleanup and loss accounting. Its link task, USB device task,
+reset handler, reset signal and reconnect loop were deleted. Board setup hands
+the USB device/class, configuration, buffers and application to `usb::Runner`.
+The RP link fixture uses the same complete runner.
