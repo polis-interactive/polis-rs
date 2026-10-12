@@ -11,12 +11,13 @@ publish = ["crates-io"]
 [features]
 default = ["uart"]
 uart = []
+supervisor = ["dep:embassy-futures", "dep:embassy-time"]
 tcp = ["dep:embassy-net"]
 serial = ["dep:embassy-usb"]
 rp2040 = ["embassy-rp?/rp2040"]
 rp235xa = ["embassy-rp?/rp235xa"]
 link-check = [
-    "uart", "tcp", "serial", "dep:embassy-net-driver-channel", "dep:embassy-futures",
+    "uart", "tcp", "serial", "supervisor", "dep:embassy-net-driver-channel", "dep:embassy-futures",
     "dep:embassy-executor", "dep:cortex-m-rt", "dep:panic-probe", "dep:defmt-rtt",
     "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
     "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
@@ -31,6 +32,7 @@ embassy-usb = { version = "0.6.0", default-features = false, optional = true }
 embassy-rp = { workspace = true, optional = true }
 embassy-executor = { workspace = true, optional = true }
 embassy-futures = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
 cortex-m-rt = { workspace = true, optional = true }
 panic-probe = { workspace = true, optional = true }
 defmt-rtt = { workspace = true, optional = true }
@@ -48,10 +50,14 @@ test = false
 bench = false
 
 [package.metadata.polis]
-feature-sets = [[], ["uart"], ["tcp"], ["serial"], ["uart", "tcp"], ["uart", "serial"], ["tcp", "serial"], ["uart", "tcp", "serial"]]
+feature-sets = [
+    [], ["uart"], ["tcp"], ["serial"], ["uart", "tcp"], ["uart", "serial"], ["tcp", "serial"], ["uart", "tcp", "serial"],
+    ["supervisor"], ["uart", "supervisor"], ["tcp", "supervisor"], ["serial", "supervisor"],
+    ["uart", "tcp", "supervisor"], ["uart", "serial", "supervisor"], ["tcp", "serial", "supervisor"], ["uart", "tcp", "serial", "supervisor"],
+]
 link-examples = ["link_check"]
 
 [package.metadata.docs.rs]
-features = ["uart", "tcp", "serial"]
+features = ["uart", "tcp", "serial", "supervisor"]
 default-target = "thumbv8m.main-none-eabihf"
 targets = ["thumbv6m-none-eabi", "thumbv8m.main-none-eabihf"]

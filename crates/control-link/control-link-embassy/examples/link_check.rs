@@ -14,8 +14,28 @@ use panic_probe as _;
 use polis_control_link_embassy::{
     Buffers,
     protocol::{ControlLink, Message},
-    serial, tcp, uart,
+    serial, supervisor, tcp, uart,
 };
+
+// Minimal fixture behavior; production handlers provide their own handshake and queues.
+struct UsbApplication;
+impl<R: embedded_io_async::Read, W: embedded_io_async::Write> supervisor::ConnectionHandler<R, W>
+    for UsbApplication
+{
+    async fn receive(&self, mut receiver: supervisor::Receiver<'_, '_, R>) {
+        while receiver.receive(|_| ()).await.is_ok() {}
+    }
+    async fn transmit(&self, mut sender: supervisor::Sender<'_, '_, W>) {
+        let _ = sender
+            .send(Message::Event {
+                session: core::num::NonZeroU64::new(1).unwrap(),
+                body: b"link fixture",
+            })
+            .await;
+        core::future::pending().await
+    }
+}
+
 const LINK: ControlLink = ControlLink::new(*b"example-app-0001");
 bind_interrupts!(struct Irqs {
     UART0_IRQ => BufferedInterruptHandler<peripherals::UART0>;
@@ -85,7 +105,7 @@ async fn main(_spawner: embassy_executor::Spawner) {
         loop {
             usb_rx.wait_connection().await;
             let (mut rx, mut payload, mut tx, mut packet) = ([0; 256], [0; 128], [0; 256], [0; 64]);
-            let (mut sender, mut receiver) = serial::split(
+            let pair = serial::split(
                 &mut usb_tx,
                 &mut usb_rx,
                 LINK,
@@ -97,21 +117,13 @@ async fn main(_spawner: embassy_executor::Spawner) {
                 &mut packet,
             )
             .unwrap();
-            while let Ok(Some(key)) = receiver
-                .receive(|m| match m {
-                    Message::Request { key, .. } => Some(key),
-                    _ => None,
-                })
-                .await
-            {
-                if sender
-                    .send(Message::Response { key, body: b"usb" })
-                    .await
-                    .is_err()
-                {
-                    break;
-                }
-            }
+            supervisor::run(
+                pair,
+                embassy_time::Duration::from_millis(500),
+                core::future::pending(), // Production USB reset notification is application-supplied.
+                &UsbApplication,
+            )
+            .await;
         }
     };
     let mut channel_state = ChannelState::<1536, 2, 2>::new();

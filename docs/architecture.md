@@ -65,6 +65,12 @@ identity checks, handlers, deadlines and any queues/reconnect policy they need;
 operations with uncertain outcomes are never automatically replayed. Control-link
 is always point-to-point, including UART/USB serial.
 
+Embassy's optional `supervisor` feature runs an application's `ConnectionHandler`
+receive/transmit loops with one lifetime. Failure, send timeout/cancellation or
+an application-supplied reset retires both halves. Low-level split remains
+available. The caller owns timeout values, transport readiness, queue/session
+invalidation, reconnection and power policy; no commands are retained or replayed.
+
 Related packages live under `crates/discovery/` and `crates/control-link/`.
 Their `-protocol` packages are portable. Discovery's `-tokio` and `-embassy`
 adapters expose independently optional `udp` and `rs485` features. Tokio defaults

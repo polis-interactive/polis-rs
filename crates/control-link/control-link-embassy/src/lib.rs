@@ -6,6 +6,8 @@ pub use protocol::Buffers;
 #[cfg(feature = "serial")]
 pub mod serial;
 pub mod stream;
+#[cfg(feature = "supervisor")]
+pub mod supervisor;
 #[cfg(feature = "tcp")]
 pub mod tcp;
 #[cfg(feature = "uart")]

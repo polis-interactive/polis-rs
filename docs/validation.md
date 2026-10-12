@@ -1,5 +1,53 @@
 # Library validation
 
+## Optional Embassy connection supervisor
+
+Validated on 2026-10-11 with Rust 1.99.0 on branch `bw-control-link`.
+`polis-control-link-embassy` adds an optional `supervisor` feature and
+`ConnectionHandler<R, W>` trait. Scoped RX/TX adapters share retirement state;
+reset, send timeout/cancellation, fatal I/O or either loop ending drops both
+halves before returning. Low-level split remains unchanged and `no_std` builds
+require no allocation. Queues, identity/session handling, timeout values,
+reconnect readiness and power-off policy remain application-owned.
+
+```sh
+python3 tools/check.py test --package polis-control-link-embassy
+python3 tools/check.py build --platform all --package polis-control-link-embassy
+python3 tools/check.py clippy --platform all --package polis-control-link-embassy
+RUSTDOCFLAGS='-D warnings' python3 tools/check.py doc --package polis-control-link-embassy
+cargo test --locked --offline -p polis-control-link-embassy --no-default-features --features serial,supervisor --doc
+```
+
+All sixteen feature combinations passed native tests, builds, Clippy and docs.
+RP2040 and RP2350 library builds and target Clippy passed, and the supervised
+USB link fixture linked on both targets. Eight added tests cover retirement
+when an application ignores an error, cancellation of an individual send or
+whole scope, reset precedence, write/flush timeouts, decoder state across
+reconnection, and no automatic replay. CDC mocks verify reset during partial
+input followed by reborrowing the same endpoints/storage for a new connection.
+Existing unsupervised stream/serial tests continue to pass.
+
+The concrete consumer is the locally modified
+`../BuildrootImages/package/polis-wired-control/firmware/src/usb.rs` at base
+revision `475d0a50f2005101cf793bea7c2ec6b3682d1fa0`. Its receive/transmit business
+loops now implement `ConnectionHandler` on `Application { generation }`, replacing
+the explicit RX/TX/reset race and separate send timeout wrapper. Only that USB
+file and `firmware/Cargo.toml` were changed for this step. Existing downstream
+changes were preserved. USB reset generation signalling, queue priorities,
+stale-generation filtering, pending-frame loss accounting and the 500 ms send
+budget remain in the consumer; handshake and power policy were not moved.
+
+The adapted firmware linked and passed Clippy for `thumbv8m.main-none-eabihf`
+with the `firmware` profile in `/tmp/polis-supervisor-consumer`. This is a copy of
+the dirty consumer workspace, with temporary Git-source patches pointing to the
+local polis-rs packages. Its two edited consumer files match the applied files
+byte-for-byte. No local path overrides, dependency Git pin changes or lockfile
+changes were applied to BuildrootImages. Until shared source is committed and
+its Git dependency updated, consumer builds need the local override. Everything
+remains uncommitted. Formatting and diff checks passed in both repositories.
+No hardware was flashed or physically qualified.
+
+
 ## Polis package naming
 
 Validated on 2026-10-11 with Rust 1.99.0 after renaming all sixteen packages to

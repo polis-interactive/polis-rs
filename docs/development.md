@@ -20,8 +20,8 @@ skipped by embedded builds. Optional transport packages declare `feature-sets`;
 the build tool tests each combination with default features disabled. Discovery
 covers four combinations: none, `udp`, `rs485`, and both. Tokio defaults to UDP;
 Embassy discovery has no default transport. Control-link covers four Tokio
-combinations (`tcp`, `serial`) and eight Embassy combinations (`uart`, `tcp`,
-`serial`), defaulting to TCP and UART respectively.
+combinations (`tcp`, `serial`) and sixteen Embassy combinations (`uart`, `tcp`,
+`serial`, optional `supervisor`), defaulting to TCP and UART respectively.
 PIO host builds expose portable types and test timing/waveform code; select an MCU
 feature for the hardware API. Each package owns an independent version. Shared
 versions and internal `path` plus `version` declarations live in root

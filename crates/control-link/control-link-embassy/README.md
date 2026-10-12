@@ -117,3 +117,60 @@ retiring a link and discards buffered input.
 The `link_check` example links real RP UART and USB drivers plus an in-memory
 Ethernet stack on RP2040/RP2350. Its echo traffic exercises I/O only; it is not a
 product identity/authorization policy. It does not validate physical hardware.
+
+## Optional connection supervisor
+
+Enable `supervisor` to give both halves one connection lifetime. The existing
+low-level `stream`, `uart`, `serial` and `tcp` split APIs are unchanged. This
+feature adds Embassy futures/time, stays `no_std`, and allocates nothing.
+
+Implement `supervisor::ConnectionHandler<R, W>` on your application context.
+Its `receive` and `transmit` methods take `&self` and run concurrently in one
+task, so they can share channels/interior state without a `Send` requirement.
+Each gets an owned, scoped adapter; neither adapter can escape the connection.
+Keep the receive decoder through the identity handshake just as with split.
+
+```rust,no_run
+# #[cfg(feature = "supervisor")]
+# async fn example<R: embedded_io_async::Read, W: embedded_io_async::Write>(
+#     pair: polis_control_link_embassy::stream::Pair<'_, R, W>,
+#     reset_or_generation_changed: impl core::future::Future<Output = ()>,
+#     application: impl polis_control_link_embassy::supervisor::ConnectionHandler<R, W>,
+# ) {
+use embassy_time::Duration;
+use polis_control_link_embassy::supervisor;
+let reason = supervisor::run(
+    pair, // From serial::split, uart::split, tcp::split or stream::split.
+    Duration::from_millis(500), // Application policy, not a library default.
+    reset_or_generation_changed,
+    &application,
+).await;
+// Both adapter halves and application loops have been dropped here.
+// Invalidate application queues/session, then wait for transport readiness and reconnect.
+let _ = reason;
+# }
+```
+
+A receive I/O error/EOF, any send error, send timeout (including flush), cancelled
+send, USB reset notification, or either loop returning retires both halves.
+Dropping `run` itself also drops both halves. Application drop guards still run,
+including accounting for an unfinished outgoing message. `Exit` reports why the
+connection ended; detailed errors remain available to the application loop.
+Malformed/foreign received frames remain recoverable for filtering/counters;
+truncated EOF is fatal. This is stricter than low-level send, whose pre-I/O codec
+errors are retryable. Callbacks must yield cooperatively, as with other Embassy
+code. Cancelling a read still requires a cancellation-safe backend.
+
+The supervisor performs no reconnect/retry by itself and stores no commands.
+The application reborrows/reopens its transport and calls `run` with a fresh pair.
+It must also filter/invalidate old queued work and establish a fresh session.
+For USB, supply a **latched reset or generation-change future**, not just endpoint
+read errors: reset and reconfiguration can happen between endpoint polls. An
+already-ready reset wins before any I/O. USB interface readiness and DTR policy
+stay with the caller; after transport failure an endpoint can still be enabled.
+
+The wired-control firmware's `usb.rs` now implements its loops on an `Application`
+handler. It replaces the manual RX/TX/reset race with `supervisor::run` and uses
+`sender.send(...)` without a separate `with_timeout`. Its generation counter,
+priority queues, pending-frame loss accounting, handshake and power-off policy
+remain application-owned. The RP link fixture also implements the handler trait.

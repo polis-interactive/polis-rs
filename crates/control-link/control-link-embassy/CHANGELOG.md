@@ -7,3 +7,6 @@ Renamed the package to `polis-control-link-embassy` and its Rust crate to
 
 - Point-to-point framed sending and receiving with persistent receive state.
 - Independent transport features and caller-owned buffers.
+- Optional `supervisor` feature and `ConnectionHandler` trait retire RX/TX together
+  on failure, timeout, send cancellation or application-supplied reset; reconnect
+  with fresh adapters without buffering/replaying commands.
