@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.2.0 (unreleased)
 
 Renamed the package to `polis-control-link-embassy` and its Rust crate to
 `polis_control_link_embassy` under the workspace naming standard.
