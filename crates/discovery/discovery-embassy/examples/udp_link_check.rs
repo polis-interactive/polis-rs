@@ -4,8 +4,6 @@
 #![no_main]
 
 use defmt_rtt as _;
-use discovery_embassy::udp;
-use discovery_protocol::{ApplicationId, Discovery};
 use embassy_executor::Spawner;
 use embassy_net::{
     Config, Ipv4Address, Ipv4Cidr, StackResources, StaticConfigV4,
@@ -16,6 +14,8 @@ use embassy_net_driver_channel::{
     driver::{HardwareAddress, LinkState},
 };
 use panic_probe as _;
+use polis_discovery_embassy::udp;
+use polis_discovery_protocol::{ApplicationId, Discovery};
 
 #[embassy_executor::main(
     executor = "embassy_rp::executor::Executor",
@@ -44,7 +44,7 @@ async fn main(_spawner: Spawner) {
     let (mut rx_buf, mut tx_buf) = ([0; 256], [0; 256]);
     let mut socket = UdpSocket::new(stack, &mut rx_meta, &mut rx_buf, &mut tx_meta, &mut tx_buf);
     socket
-        .bind(discovery_protocol::udp::DISCOVERY_PORT)
+        .bind(polis_discovery_protocol::udp::DISCOVERY_PORT)
         .unwrap();
     let udp_task = async {
         loop {

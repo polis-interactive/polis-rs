@@ -1,4 +1,4 @@
-# control-link-tokio
+# polis-control-link-tokio
 
 Point-to-point, bidirectional control communication. Keep one `Sender` and
 `Receiver` from connection setup through the identity handshake and normal
@@ -24,7 +24,7 @@ with the application.
 ```rust,no_run
 #[cfg(feature = "tcp")]
 async fn example(socket: tokio::net::TcpStream) -> Result<(), Box<dyn std::error::Error>> {
-    use control_link_tokio::{
+    use polis_control_link_tokio::{
         Buffers,
         protocol::{ControlLink, Incoming, Message, Requests},
         tcp,
@@ -54,7 +54,7 @@ async fn example(socket: tokio::net::TcpStream) -> Result<(), Box<dyn std::error
     loop {
         let identity = receiver
             .receive(
-                |message| -> Result<_, control_link_tokio::protocol::StateError> {
+                |message| -> Result<_, polis_control_link_tokio::protocol::StateError> {
                     match requests.receive(message)? {
                         Incoming::Response { key, body } if key == hello => Ok(Some(body.to_vec())),
                         Incoming::Event { body } => {
@@ -106,7 +106,7 @@ can close the connection or continue decoding. A timeout does not cancel work
 at the peer; use `Requests::cancel` to retire the local slot deliberately.
 
 For a maximum body size B, allocate `PREFIX_LEN + B` payload bytes and
-`framing::wire_capacity((PREFIX_LEN + B) as u16)` bytes for each of receive and
+`polis_framing::wire_capacity((PREFIX_LEN + B) as u16)` bytes for each of receive and
 transmit, with B <= `MAX_BODY_LEN`. Buffers are caller-owned. `into_inner` recovers
 transport resources when retiring a link; using it for a handshake handoff would
 discard buffered input.

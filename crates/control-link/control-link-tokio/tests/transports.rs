@@ -1,5 +1,5 @@
 #![cfg(any(feature = "tcp", all(unix, feature = "serial")))]
-use control_link_tokio::{
+use polis_control_link_tokio::{
     Buffers,
     protocol::{ControlLink, Message, Requests},
     stream::{Receiver, Sender},
@@ -117,7 +117,7 @@ async fn connected_and_accepted_tcp_are_bidirectional() {
     let (peer, _) = listener.accept().await.unwrap();
     let (mut rx, mut payload, mut tx, mut prx, mut ppayload, mut ptx) =
         ([0; 160], [0; 128], [0; 160], [0; 160], [0; 128], [0; 160]);
-    let (sender, receiver) = control_link_tokio::tcp::split(
+    let (sender, receiver) = polis_control_link_tokio::tcp::split(
         socket,
         LINK,
         Buffers {
@@ -127,7 +127,7 @@ async fn connected_and_accepted_tcp_are_bidirectional() {
         },
     )
     .unwrap();
-    let (peer_sender, peer_receiver) = control_link_tokio::tcp::split(
+    let (peer_sender, peer_receiver) = polis_control_link_tokio::tcp::split(
         peer,
         LINK,
         Buffers {
@@ -151,7 +151,7 @@ async fn host_serial_port_opens_and_exchanges_frames() {
     let builder = tokio_serial::new(name, 115_200);
     let (mut rx, mut payload, mut tx, mut prx, mut ppayload, mut ptx) =
         ([0; 160], [0; 128], [0; 160], [0; 160], [0; 128], [0; 160]);
-    let (sender, receiver) = control_link_tokio::serial::open(
+    let (sender, receiver) = polis_control_link_tokio::serial::open(
         &builder,
         LINK,
         Buffers {
@@ -161,7 +161,7 @@ async fn host_serial_port_opens_and_exchanges_frames() {
         },
     )
     .unwrap();
-    let (peer_sender, peer_receiver) = control_link_tokio::serial::split(
+    let (peer_sender, peer_receiver) = polis_control_link_tokio::serial::split(
         peer,
         LINK,
         Buffers {

@@ -1,8 +1,8 @@
 #![cfg(feature = "rs485")]
-use discovery_embassy::{WIRE_CAPACITY, rs485::*};
-use discovery_protocol::{Announcement, ApplicationId, DeviceId, Discovery, Message};
 use embassy_time::{Duration, Instant};
 use embedded_io_async::{ErrorType, Read, Write};
+use polis_discovery_embassy::{WIRE_CAPACITY, rs485::*};
+use polis_discovery_protocol::{Announcement, ApplicationId, DeviceId, Discovery, Message};
 use std::{
     convert::Infallible,
     num::{NonZeroU16, NonZeroU32},
@@ -32,7 +32,7 @@ impl Read for Bus {
 impl Write for Bus {
     async fn write(&mut self, bytes: &[u8]) -> Result<usize, Infallible> {
         let mut copy = bytes.to_vec();
-        let frame = framing::decode_datagram(&mut copy, WIRE_CAPACITY).unwrap();
+        let frame = polis_framing::decode_datagram(&mut copy, WIRE_CAPACITY).unwrap();
         let message = CODEC
             .decode_payload(
                 frame.header.protocol_id,
@@ -49,11 +49,11 @@ impl Write for Bus {
     }
 }
 fn wire(message: Message) -> Vec<u8> {
-    let mut payload = [0; discovery_protocol::MAX_PAYLOAD_LEN as usize];
+    let mut payload = [0; polis_discovery_protocol::MAX_PAYLOAD_LEN as usize];
     let mut out = [0; WIRE_CAPACITY];
-    framing::encode(
-        framing::Header {
-            protocol_id: discovery_protocol::PROTOCOL_ID,
+    polis_framing::encode(
+        polis_framing::Header {
+            protocol_id: polis_discovery_protocol::PROTOCOL_ID,
             schema_version: 1,
             message_type: message.message_type(),
         },
@@ -163,7 +163,9 @@ async fn embassy_clock_schedules_response_and_delays_controller_ack() {
                     timing,
                     &mut storage,
                     |event| {
-                        if let discovery_embassy::StreamEvent::Discovery(message) = event.unwrap() {
+                        if let polis_discovery_embassy::StreamEvent::Discovery(message) =
+                            event.unwrap()
+                        {
                             seen.push(message);
                         }
                     }

@@ -36,8 +36,8 @@ so a manifest edit can regenerate the lockfile.
 
 ```sh
 python3 tools/check.py build --platform all
-python3 tools/check.py build --platform rp2040 --package pio-i2c
-python3 tools/check.py build --platform rp2350 --package pio-ws2813
+python3 tools/check.py build --platform rp2040 --package polis-pio-i2c
+python3 tools/check.py build --platform rp2350 --package polis-pio-ws2813
 ```
 
 | Platform | Target | Feature forwarded to PIO drivers |

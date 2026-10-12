@@ -1,7 +1,7 @@
 //! Exactly one complete frame per UDP datagram on loopback.
 use std::{error::Error, net::UdpSocket, time::Duration};
 
-use framing::{Header, decode_datagram, encode_message_datagram, wire_capacity};
+use polis_framing::{Header, decode_datagram, encode_message_datagram, wire_capacity};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

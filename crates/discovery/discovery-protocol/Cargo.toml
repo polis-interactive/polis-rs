@@ -1,5 +1,5 @@
 [package]
-name = "discovery-protocol"
+name = "polis-discovery-protocol"
 version = "0.1.0"
 edition.workspace = true
 rust-version = "1.99"
@@ -13,4 +13,4 @@ serde.workspace = true
 postcard.workspace = true
 
 [dev-dependencies]
-framing.workspace = true
+polis-framing.workspace = true

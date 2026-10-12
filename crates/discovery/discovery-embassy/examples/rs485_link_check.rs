@@ -7,8 +7,6 @@
 use bus_driver::{Config, Rs485};
 use core::num::{NonZeroU16, NonZeroU32};
 use defmt_rtt as _;
-use discovery_embassy::rs485::{DiscoveryRound, discover};
-use discovery_protocol::{ApplicationId, Discovery};
 use embassy_executor::Spawner;
 use embassy_rp::{
     bind_interrupts,
@@ -19,7 +17,9 @@ use embassy_rp::{
 use embassy_time::{Delay, Timer};
 use embedded_hal::digital::PinState;
 use panic_probe as _;
-use pio_uart::{PioUart, Programs};
+use polis_discovery_embassy::rs485::{DiscoveryRound, discover};
+use polis_discovery_protocol::{ApplicationId, Discovery};
+use polis_pio_uart::{PioUart, Programs};
 
 bind_interrupts!(struct Irqs {
     PIO1_IRQ_0 => pio::InterruptHandler<peripherals::PIO1>;

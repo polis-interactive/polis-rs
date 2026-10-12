@@ -7,18 +7,18 @@ pub mod rs485;
 pub mod udp;
 
 use core::fmt;
-use discovery_protocol::MAX_PAYLOAD_LEN;
+use polis_discovery_protocol::MAX_PAYLOAD_LEN;
 #[cfg(any(feature = "udp", feature = "rs485"))]
-use discovery_protocol::Message;
+use polis_discovery_protocol::Message;
 #[cfg(any(feature = "udp", feature = "rs485"))]
-use discovery_protocol::{Discovery, PROTOCOL_ID, SCHEMA_VERSION};
+use polis_discovery_protocol::{Discovery, PROTOCOL_ID, SCHEMA_VERSION};
 #[cfg(any(feature = "udp", feature = "rs485"))]
-use framing::Frame;
+use polis_framing::Frame;
 #[cfg(any(feature = "udp", feature = "rs485"))]
-use framing::Header;
+use polis_framing::Header;
 
 /// Maximum encoded discovery frame, including both delimiters.
-pub const WIRE_CAPACITY: usize = framing::wire_capacity(MAX_PAYLOAD_LEN);
+pub const WIRE_CAPACITY: usize = polis_framing::wire_capacity(MAX_PAYLOAD_LEN);
 
 /// RS-485 events are delivered before the decoder reuses its buffer.
 #[cfg(feature = "rs485")]
@@ -32,8 +32,8 @@ pub enum StreamEvent<'a> {
 #[derive(Debug)]
 pub enum Error<E> {
     Io(E),
-    Framing(framing::Error),
-    Protocol(discovery_protocol::Error),
+    Framing(polis_framing::Error),
+    Protocol(polis_discovery_protocol::Error),
     WriteZero,
     TimedOut,
     Closed,
@@ -61,7 +61,7 @@ fn encode<E>(discovery: &Discovery, message: &Message, wire: &mut [u8]) -> Resul
     let payload = discovery
         .encode_payload(message, &mut payload)
         .map_err(Error::Protocol)?;
-    let bytes = framing::encode(
+    let bytes = polis_framing::encode(
         Header {
             protocol_id: PROTOCOL_ID,
             schema_version: SCHEMA_VERSION,

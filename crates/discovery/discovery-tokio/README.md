@@ -1,6 +1,6 @@
 # Tokio discovery
 
-`discovery-tokio` provides UDP endpoint discovery and RS-485 bus discovery.
+`polis-discovery-tokio` provides UDP endpoint discovery and RS-485 bus discovery.
 UDP is enabled by default; disable defaults for RS-485 only.
 
 Point-to-point UART and USB/host serial connections have no discovery adapter.
@@ -11,10 +11,10 @@ runtime implementation is a separate next step.
 
 | Configuration | Cargo dependency |
 | --- | --- |
-| UDP | `discovery-tokio = { version = "0.1.0", default-features = false, features = ["udp"] }` |
-| RS-485 | `discovery-tokio = { version = "0.1.0", default-features = false, features = ["rs485"] }` |
-| Both | `discovery-tokio = { version = "0.1.0", default-features = false, features = ["udp", "rs485"] }` |
-| No transport | `discovery-tokio = { version = "0.1.0", default-features = false }` |
+| UDP | `polis-discovery-tokio = { version = "0.1.0", default-features = false, features = ["udp"] }` |
+| RS-485 | `polis-discovery-tokio = { version = "0.1.0", default-features = false, features = ["rs485"] }` |
+| Both | `polis-discovery-tokio = { version = "0.1.0", default-features = false, features = ["udp", "rs485"] }` |
+| No transport | `polis-discovery-tokio = { version = "0.1.0", default-features = false }` |
 
 ## Discovery roles
 
@@ -46,7 +46,7 @@ The send phase has a separate timeout equal to the response-window duration.
 Run a complete local probe/reply example:
 
 ```sh
-cargo run --locked -p discovery-tokio --example udp
+cargo run --locked -p polis-discovery-tokio --example udp
 ```
 
 See [examples/udp.rs](examples/udp.rs) for both roles. For network deployment,
@@ -55,7 +55,7 @@ bind a device socket to the discovery port and join the group from
 ephemeral source port: devices reply to the endpoint returned by `receive`, not
 an assumed discovery port. The caller owns multicast membership, interface
 selection, broadcast configuration, retries, and periodic unsolicited announcements.
-The default group/port comes from `discovery-protocol`; overrides are ordinary
+The default group/port comes from `polis-discovery-protocol`; overrides are ordinary
 socket destinations. Discovery does not select the subsequent control TCP port;
 the application supplies its service endpoint policy.
 
@@ -75,7 +75,7 @@ The optional `rs485` module implements scheduled half-duplex discovery:
 
 Supply a direction-controlled bus whose successful write/flush includes the final
 stop bit and bus release. A raw UART or ordinary host `SerialStream` is insufficient.
-Embassy can use this repository's `rs485::Rs485` driver over a wire-complete UART.
+Embassy can use this repository's `polis_rs485::Rs485` driver over a wire-complete UART.
 Tokio requires a backend that supplies equivalent direction/completion behavior.
 Recover the driver after a failed/cancelled send before further I/O. Reads used in
 timed controller collection must be cancel-safe, or explicitly discard/recover
@@ -105,5 +105,5 @@ Tokio tests use local UDP sockets and a simulated RS-485 backend with a paused
 clock. This package is host-only; physical RS-485 backends are not qualified.
 
 ```sh
-python3 tools/check.py test --package discovery-tokio
+python3 tools/check.py test --package polis-discovery-tokio
 ```

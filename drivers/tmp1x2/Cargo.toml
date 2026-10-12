@@ -1,5 +1,5 @@
 [package]
-name = "tmp1x2"
+name = "polis-tmp1x2"
 version = "0.1.0"
 edition.workspace = true
 publish = ["crates-io"]

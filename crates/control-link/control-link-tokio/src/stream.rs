@@ -1,6 +1,6 @@
 //! Framed, full-duplex point-to-point I/O. No discovery or background tasks.
 use crate::Error;
-use control_link_protocol::{Buffers, ControlLink, Message};
+use polis_control_link_protocol::{Buffers, ControlLink, Message};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 pub type Pair<'a, R, W> = (Sender<'a, W>, Receiver<'a, R>);
@@ -75,7 +75,7 @@ impl<'a, W: AsyncWrite + Unpin> Sender<'a, W> {
 pub struct Receiver<'a, R> {
     link: ControlLink,
     reader: R,
-    decoder: framing::Decoder<'a>,
+    decoder: polis_framing::Decoder<'a>,
     chunk: [u8; 256],
     cursor: usize,
     len: usize,
@@ -86,7 +86,7 @@ impl<'a, R: AsyncRead + Unpin> Receiver<'a, R> {
         Self {
             link,
             reader,
-            decoder: framing::Decoder::new(storage),
+            decoder: polis_framing::Decoder::new(storage),
             chunk: [0; 256],
             cursor: 0,
             len: 0,

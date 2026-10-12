@@ -1,5 +1,5 @@
 [package]
-name = "control-link-tokio"
+name = "polis-control-link-tokio"
 version = "0.1.0"
 edition.workspace = true
 rust-version = "1.99"
@@ -14,8 +14,8 @@ tcp = ["tokio/net"]
 serial = ["dep:tokio-serial"]
 
 [dependencies]
-control-link-protocol.workspace = true
-framing.workspace = true
+polis-control-link-protocol.workspace = true
+polis-framing.workspace = true
 tokio = { workspace = true, features = ["io-util"] }
 tokio-serial = { version = "5.5.0", default-features = false, optional = true }
 

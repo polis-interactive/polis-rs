@@ -1,6 +1,6 @@
 # WS2813 PIO driver
 
-`pio-ws2813` drives `WS2813B-B` RGB chains on RP2040 or RP2350A. It adapts
+`polis-pio-ws2813` drives `WS2813B-B` RGB chains on RP2040 or RP2350A. It adapts
 Embassy RP 0.10.0's `PioWs2812`, with the drain/reset and output initialization
 approach used by this workspace's SK6812 driver. Upstream attribution is
 retained under [MIT](LICENSE-MIT).
@@ -22,7 +22,7 @@ allocation. Separate chain writes can run concurrently.
 
 `N` must be nonzero. `clk_sys` must be at least 32 MHz and remain unchanged
 while the driver exists. GPIO ownership and peripheral availability belong
-to the BSP. The driver implements `led-output::LedOutput<RGB8>` for fixed-layout
+to the BSP. The driver implements `polis_led_output::LedOutput<RGB8>` for fixed-layout
 concurrent RGB output groups. Slice writes reject wrong lengths before I/O;
 no RGB/RGBW color conversion is performed.
 
@@ -85,9 +85,9 @@ Build from the workspace root (choose one board):
 
 ```sh
 # Pico / RP2040
-cargo build -p pio-ws2813 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+cargo build -p polis-pio-ws2813 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
 # Pico 2 / RP2350A
-cargo build -p pio-ws2813 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+cargo build -p polis-pio-ws2813 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
 ```
 
 The ELF is `target/<target>/release/examples/embassy`. Flash the matching
@@ -104,12 +104,12 @@ applications own deadlines and recovery. Builds do not qualify hardware.
 Run from the workspace root:
 
 ```sh
-cargo test -p pio-ws2813
-cargo clippy -p pio-ws2813 --all-targets -- -D warnings
-cargo build -p pio-ws2813 --features rp2040 --target thumbv6m-none-eabi --release
-cargo build -p pio-ws2813 --features rp235xa --target thumbv8m.main-none-eabihf --release
-cargo build -p pio-ws2813 --example link_check --features rp2040,link-check --target thumbv6m-none-eabi --release
-cargo build -p pio-ws2813 --example link_check --features rp235xa,link-check --target thumbv8m.main-none-eabihf --release
+cargo test -p polis-pio-ws2813
+cargo clippy -p polis-pio-ws2813 --all-targets -- -D warnings
+cargo build -p polis-pio-ws2813 --features rp2040 --target thumbv6m-none-eabi --release
+cargo build -p polis-pio-ws2813 --features rp235xa --target thumbv8m.main-none-eabihf --release
+cargo build -p polis-pio-ws2813 --example link_check --features rp2040,link-check --target thumbv6m-none-eabi --release
+cargo build -p polis-pio-ws2813 --example link_check --features rp235xa,link-check --target thumbv8m.main-none-eabihf --release
 ```
 
 For target Clippy, replace `build` in each example command with `clippy` and

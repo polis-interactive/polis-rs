@@ -1,8 +1,8 @@
 #![cfg(feature = "rs485")]
-use discovery_protocol::{
+use polis_discovery_protocol::{
     Announcement, ApplicationId, DeviceId, Discovery, Message, rs485::DiscoveryAck,
 };
-use discovery_tokio::{Error, WIRE_CAPACITY, rs485::*};
+use polis_discovery_tokio::{Error, WIRE_CAPACITY, rs485::*};
 use std::{
     io,
     num::{NonZeroU16, NonZeroU32},
@@ -32,11 +32,11 @@ fn timing() -> Timing {
     }
 }
 fn wire(message: Message) -> Vec<u8> {
-    let mut payload = [0; discovery_protocol::MAX_PAYLOAD_LEN as usize];
+    let mut payload = [0; polis_discovery_protocol::MAX_PAYLOAD_LEN as usize];
     let mut output = [0; WIRE_CAPACITY];
-    framing::encode(
-        framing::Header {
-            protocol_id: discovery_protocol::PROTOCOL_ID,
+    polis_framing::encode(
+        polis_framing::Header {
+            protocol_id: polis_discovery_protocol::PROTOCOL_ID,
             schema_version: 1,
             message_type: message.message_type(),
         },
@@ -80,7 +80,7 @@ impl AsyncWrite for Bus {
             return Poll::Pending;
         }
         let mut bytes_copy = bytes.to_vec();
-        let frame = framing::decode_datagram(&mut bytes_copy, WIRE_CAPACITY).unwrap();
+        let frame = polis_framing::decode_datagram(&mut bytes_copy, WIRE_CAPACITY).unwrap();
         let message = CODEC
             .decode_payload(
                 frame.header.protocol_id,
@@ -283,7 +283,9 @@ async fn participant_loop_dispatches_rounds_and_acks_without_replaying() {
                 &mut participant,
                 timing(),
                 &mut storage,
-                |event| if let discovery_tokio::StreamEvent::Discovery(message) = event.unwrap() {
+                |event| if let polis_discovery_tokio::StreamEvent::Discovery(message) =
+                    event.unwrap()
+                {
                     observed.push(message);
                 }
             )

@@ -1,7 +1,5 @@
 #![cfg(feature = "udp")]
 
-use discovery_embassy::{Error, udp};
-use discovery_protocol::{Announcement, ApplicationId, DeviceId, Discovery, Message};
 use embassy_net::{
     Config, IpAddress, IpEndpoint, Ipv4Address, Ipv4Cidr, StackResources, StaticConfigV4,
     udp::{PacketMetadata, UdpSocket},
@@ -10,6 +8,8 @@ use embassy_net_driver_channel::{
     RxRunner, State, TxRunner,
     driver::{HardwareAddress, LinkState},
 };
+use polis_discovery_embassy::{Error, udp};
+use polis_discovery_protocol::{Announcement, ApplicationId, DeviceId, Discovery, Message};
 use std::num::NonZeroU64;
 
 const CODEC: Discovery = Discovery::new(ApplicationId(*b"example-app-0001"));
@@ -127,7 +127,7 @@ async fn real_embassy_stacks_exchange_discovery_and_reject_truncation() {
         assert!(matches!(
             udp::receive(&host, &CODEC).await,
             Err(Error::Protocol(
-                discovery_protocol::Error::WrongApplication(_)
+                polis_discovery_protocol::Error::WrongApplication(_)
             ))
         ));
         udp::send(&device, &CODEC, &Message::Announcement(reply), host_address)

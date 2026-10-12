@@ -1,4 +1,4 @@
-use discovery_protocol::{
+use polis_discovery_protocol::{
     APPLICATION_ID_LEN, ApplicationId, DeviceId, Discover, Discovery, Error, MAX_PAYLOAD_LEN,
     Message, PROTOCOL_ID, SCHEMA_VERSION,
 };
@@ -48,7 +48,7 @@ fn application_is_checked_before_body_and_missing_prefix_is_rejected() {
 #[test]
 fn zero_application_id_is_an_ordinary_namespace_not_a_wildcard() {
     let zero = Discovery::new(ApplicationId([0; 16]));
-    let message = Message::Announcement(discovery_protocol::Announcement {
+    let message = Message::Announcement(polis_discovery_protocol::Announcement {
         discovery_id: 0,
         device_id: DeviceId([0; 8]),
     });

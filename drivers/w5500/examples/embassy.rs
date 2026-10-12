@@ -17,7 +17,7 @@ use embassy_rp::{
 use embassy_time::Delay;
 use embedded_hal_bus::spi::ExclusiveDevice;
 use panic_probe as _;
-use w5500::{State, W5500};
+use polis_w5500::{State, W5500};
 
 bind_interrupts!(struct Irqs {
     DMA_IRQ_0 => dma::InterruptHandler<peripherals::DMA_CH0>, dma::InterruptHandler<peripherals::DMA_CH1>;

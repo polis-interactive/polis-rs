@@ -8,7 +8,7 @@ use embassy_executor::Spawner;
 use embassy_rp::{bind_interrupts, dma, peripherals, pio};
 use embassy_time::Timer;
 use panic_probe as _;
-use pio_ws2813::{PioWs2813, PioWs2813Program, RGB8};
+use polis_pio_ws2813::{PioWs2813, PioWs2813Program, RGB8};
 
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => pio::InterruptHandler<peripherals::PIO0>;

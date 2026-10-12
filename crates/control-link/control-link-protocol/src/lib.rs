@@ -7,7 +7,7 @@ mod tracking;
 pub use tracking::{Incoming, RequestGate, Requests, StateError};
 
 use core::{fmt, num::NonZeroU32, num::NonZeroU64};
-use framing::{Frame, Header};
+use polis_framing::{Frame, Header};
 
 /// Shared control protocol. Discovery has its own independent protocol ID.
 pub const PROTOCOL_ID: u16 = 0x5043;
@@ -96,7 +96,7 @@ impl ControlLink {
     }
 
     /// Encode a complete shared frame. Scratch holds PREFIX_LEN + body.len();
-    /// wire needs framing::wire_capacity() for that total payload length.
+    /// wire needs polis_framing::wire_capacity() for that total payload length.
     /// Never transmit either buffer after an error.
     pub fn encode<'a>(
         &self,
@@ -114,7 +114,7 @@ impl ControlLink {
         payload[16..24].copy_from_slice(&message.session().get().to_le_bytes());
         payload[24..28].copy_from_slice(&message.request_id().to_le_bytes());
         payload[PREFIX_LEN..].copy_from_slice(body);
-        framing::encode(
+        polis_framing::encode(
             Header {
                 protocol_id: PROTOCOL_ID,
                 schema_version: SCHEMA_VERSION,
@@ -169,7 +169,7 @@ impl ControlLink {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Error {
-    Framing(framing::Error),
+    Framing(polis_framing::Error),
     OutputTooSmall,
     BodyTooLarge,
     UnknownProtocol(u16),
@@ -206,7 +206,7 @@ impl core::error::Error for Error {}
 
 /// Caller-owned storage for one full-duplex connection. No allocation is required.
 /// For a maximum body of B bytes, payload needs PREFIX_LEN + B bytes; receive and
-/// transmit each need framing::wire_capacity((PREFIX_LEN + B) as u16).
+/// transmit each need polis_framing::wire_capacity((PREFIX_LEN + B) as u16).
 /// Keep B <= MAX_BODY_LEN. Buffers remain with the connection through its handshake.
 pub struct Buffers<'a> {
     pub receive: &'a mut [u8],

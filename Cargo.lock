@@ -3,20 +3,6 @@
 version = 4
 
 [[package]]
-name = "ads1x1x"
-version = "0.1.0"
-dependencies = [
- "cortex-m-rt",
- "defmt",
- "defmt-rtt",
- "embassy-executor",
- "embassy-rp",
- "embassy-time",
- "embedded-hal-async",
- "panic-probe",
-]
-
-[[package]]
 name = "aho-corasick"
 version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -160,45 +146,6 @@ checksum = "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
 dependencies = [
  "termcolor",
  "unicode-width",
-]
-
-[[package]]
-name = "control-link-embassy"
-version = "0.1.0"
-dependencies = [
- "control-link-protocol",
- "cortex-m-rt",
- "critical-section",
- "defmt-rtt",
- "embassy-executor",
- "embassy-futures",
- "embassy-net",
- "embassy-net-driver-channel",
- "embassy-rp",
- "embassy-time",
- "embassy-usb",
- "embedded-io-async 0.7.0",
- "framing",
- "panic-probe",
- "tokio",
-]
-
-[[package]]
-name = "control-link-protocol"
-version = "0.1.0"
-dependencies = [
- "discovery-protocol",
- "framing",
-]
-
-[[package]]
-name = "control-link-tokio"
-version = "0.1.0"
-dependencies = [
- "control-link-protocol",
- "framing",
- "tokio",
- "tokio-serial",
 ]
 
 [[package]]
@@ -418,47 +365,6 @@ checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
 dependencies = [
  "block-buffer",
  "crypto-common",
-]
-
-[[package]]
-name = "discovery-embassy"
-version = "0.1.0"
-dependencies = [
- "cortex-m-rt",
- "critical-section",
- "defmt-rtt",
- "discovery-protocol",
- "embassy-executor",
- "embassy-futures",
- "embassy-net",
- "embassy-net-driver-channel",
- "embassy-rp",
- "embassy-time",
- "embedded-hal 1.0.0",
- "embedded-io-async 0.7.0",
- "framing",
- "panic-probe",
- "pio-uart",
- "rs485",
- "tokio",
-]
-
-[[package]]
-name = "discovery-protocol"
-version = "0.1.0"
-dependencies = [
- "framing",
- "postcard",
- "serde",
-]
-
-[[package]]
-name = "discovery-tokio"
-version = "0.1.0"
-dependencies = [
- "discovery-protocol",
- "framing",
- "tokio",
 ]
 
 [[package]]
@@ -869,16 +775,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
-name = "framing"
-version = "0.1.0"
-dependencies = [
- "cobs",
- "crc",
- "postcard",
- "serde",
-]
-
-[[package]]
 name = "futures-core"
 version = "0.3.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1032,14 +928,6 @@ name = "lazy_static"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb"
-
-[[package]]
-name = "led-output"
-version = "0.1.0"
-dependencies = [
- "embassy-futures",
- "smart-leds",
-]
 
 [[package]]
 name = "libc"
@@ -1317,23 +1205,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pio-i2c"
-version = "0.1.0"
-dependencies = [
- "cortex-m-rt",
- "defmt",
- "defmt-rtt",
- "embassy-executor",
- "embassy-rp",
- "embassy-time",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "fixed",
- "panic-probe",
- "pio",
-]
-
-[[package]]
 name = "pio-parser"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1361,7 +1232,136 @@ dependencies = [
 ]
 
 [[package]]
-name = "pio-sk6812"
+name = "polis-ads1x1x"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal-async",
+ "panic-probe",
+]
+
+[[package]]
+name = "polis-control-link-embassy"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "critical-section",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-futures",
+ "embassy-net",
+ "embassy-net-driver-channel",
+ "embassy-rp",
+ "embassy-time",
+ "embassy-usb",
+ "embedded-io-async 0.7.0",
+ "panic-probe",
+ "polis-control-link-protocol",
+ "polis-framing",
+ "tokio",
+]
+
+[[package]]
+name = "polis-control-link-protocol"
+version = "0.1.0"
+dependencies = [
+ "polis-discovery-protocol",
+ "polis-framing",
+]
+
+[[package]]
+name = "polis-control-link-tokio"
+version = "0.1.0"
+dependencies = [
+ "polis-control-link-protocol",
+ "polis-framing",
+ "tokio",
+ "tokio-serial",
+]
+
+[[package]]
+name = "polis-discovery-embassy"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "critical-section",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-futures",
+ "embassy-net",
+ "embassy-net-driver-channel",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-io-async 0.7.0",
+ "panic-probe",
+ "polis-discovery-protocol",
+ "polis-framing",
+ "polis-pio-uart",
+ "polis-rs485",
+ "tokio",
+]
+
+[[package]]
+name = "polis-discovery-protocol"
+version = "0.1.0"
+dependencies = [
+ "polis-framing",
+ "postcard",
+ "serde",
+]
+
+[[package]]
+name = "polis-discovery-tokio"
+version = "0.1.0"
+dependencies = [
+ "polis-discovery-protocol",
+ "polis-framing",
+ "tokio",
+]
+
+[[package]]
+name = "polis-framing"
+version = "0.1.0"
+dependencies = [
+ "cobs",
+ "crc",
+ "postcard",
+ "serde",
+]
+
+[[package]]
+name = "polis-led-output"
+version = "0.1.0"
+dependencies = [
+ "embassy-futures",
+ "smart-leds",
+]
+
+[[package]]
+name = "polis-pio-i2c"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "fixed",
+ "panic-probe",
+ "pio",
+]
+
+[[package]]
+name = "polis-pio-sk6812"
 version = "0.1.0"
 dependencies = [
  "cortex-m-rt",
@@ -1371,14 +1371,14 @@ dependencies = [
  "embassy-rp",
  "embassy-time",
  "fixed",
- "led-output",
  "panic-probe",
  "pio",
+ "polis-led-output",
  "smart-leds",
 ]
 
 [[package]]
-name = "pio-uart"
+name = "polis-pio-uart"
 version = "0.1.0"
 dependencies = [
  "cortex-m-rt",
@@ -1392,7 +1392,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pio-ws2813"
+name = "polis-pio-ws2813"
 version = "0.1.0"
 dependencies = [
  "cortex-m-rt",
@@ -1403,10 +1403,60 @@ dependencies = [
  "embassy-rp",
  "embassy-time",
  "fixed",
- "led-output",
  "panic-probe",
  "pio",
+ "polis-led-output",
  "smart-leds",
+]
+
+[[package]]
+name = "polis-rs485"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "embedded-io-async 0.7.0",
+ "panic-probe",
+ "polis-pio-uart",
+]
+
+[[package]]
+name = "polis-tmp1x2"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal-async",
+ "panic-probe",
+]
+
+[[package]]
+name = "polis-w5500"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-futures",
+ "embassy-net-driver",
+ "embassy-net-wiznet",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "embedded-hal-bus",
+ "panic-probe",
 ]
 
 [[package]]
@@ -1538,23 +1588,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c92f344f63f950ee36cf4080050e4dce850839b9175da38f9d2ffb69b4dbb21"
 dependencies = [
  "crc-any",
-]
-
-[[package]]
-name = "rs485"
-version = "0.1.0"
-dependencies = [
- "cortex-m-rt",
- "defmt",
- "defmt-rtt",
- "embassy-executor",
- "embassy-rp",
- "embassy-time",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "embedded-io-async 0.7.0",
- "panic-probe",
- "pio-uart",
 ]
 
 [[package]]
@@ -1834,20 +1867,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tmp1x2"
-version = "0.1.0"
-dependencies = [
- "cortex-m-rt",
- "defmt",
- "defmt-rtt",
- "embassy-executor",
- "embassy-rp",
- "embassy-time",
- "embedded-hal-async",
- "panic-probe",
-]
-
-[[package]]
 name = "tokio"
 version = "1.53.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2013,25 +2032,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de437e2a6208b014ab52972a27e59b33fa2920d3e00fe05026167a1c509d19cc"
 dependencies = [
  "vcell",
-]
-
-[[package]]
-name = "w5500"
-version = "0.1.0"
-dependencies = [
- "cortex-m-rt",
- "defmt",
- "defmt-rtt",
- "embassy-executor",
- "embassy-futures",
- "embassy-net-driver",
- "embassy-net-wiznet",
- "embassy-rp",
- "embassy-time",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "embedded-hal-bus",
- "panic-probe",
 ]
 
 [[package]]

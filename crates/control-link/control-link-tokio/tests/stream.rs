@@ -1,4 +1,4 @@
-use control_link_tokio::{
+use polis_control_link_tokio::{
     Error,
     protocol::{ControlLink, Incoming, Message, RequestGate, Requests},
     stream::{Receiver, Sender},
@@ -112,7 +112,7 @@ async fn receive_cancellation_retains_partial_frame_and_request_gate_rejects_dup
     rx.receive(|_| {
         assert_eq!(
             gate.accept(key),
-            Err(control_link_tokio::protocol::StateError::DuplicateRequest)
+            Err(polis_control_link_tokio::protocol::StateError::DuplicateRequest)
         )
     })
     .await
@@ -179,13 +179,13 @@ async fn eof_reports_truncation_once_and_foreign_frame_does_not_eat_next_message
     assert!(matches!(
         rx.receive(|_| ()).await,
         Err(Error::Protocol(
-            control_link_tokio::protocol::Error::WrongApplication
+            polis_control_link_tokio::protocol::Error::WrongApplication
         ))
     ));
     rx.receive(|m| assert_eq!(m, event)).await.unwrap();
     assert!(matches!(
         rx.receive(|_| ()).await,
-        Err(Error::Framing(framing::Error::Truncated))
+        Err(Error::Framing(polis_framing::Error::Truncated))
     ));
     assert!(matches!(rx.receive(|_| ()).await, Err(Error::Closed)));
 }

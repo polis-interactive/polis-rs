@@ -1,6 +1,6 @@
 # SK6812 PIO driver
 
-`pio-sk6812` implements the physical RGBW waveform for
+`polis-pio-sk6812` implements the physical RGBW waveform for
 `SKC6812RGBW-NW` and `SK6812MINIRGBW-NW-P6`. It is adapted from Embassy RP
 0.10.0's `RgbwPioWs2812`; upstream attribution is retained under [MIT](LICENSE-MIT).
 
@@ -13,7 +13,7 @@ It occupies four shared instructions. Each `PioSk6812<PIO, SM, N>` uses one stat
 machine, one DMA channel and one output pin. `write(&[RGBW<u8>; N])` packs pixels
 in GRBW order into a `4 * N` byte inline buffer in the future. Preserve exported
 chain order in the caller. Writes on separate chains may run concurrently.
-The driver also implements `led_output::LedOutput`: its slice API
+The driver also implements `polis_led_output::LedOutput`: its slice API
 rejects incorrect lengths before I/O. The fixed-array API remains available.
 
 ## Timing and completion
@@ -58,9 +58,9 @@ Build from the workspace root (choose one board):
 
 ```sh
 # Pico / RP2040
-cargo build -p pio-sk6812 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+cargo build -p polis-pio-sk6812 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
 # Pico 2 / RP2350A
-cargo build -p pio-sk6812 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+cargo build -p polis-pio-sk6812 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
 ```
 
 The ELF is `target/<target>/release/examples/embassy`. Flash the matching
@@ -75,9 +75,9 @@ applications own deadlines and recovery. Builds do not qualify hardware.
 ## Validation
 
 ```sh
-cargo test -p pio-sk6812
-cargo build -p pio-sk6812 --features rp2040 --target thumbv6m-none-eabi --release
-cargo build -p pio-sk6812 --features rp235xa --target thumbv8m.main-none-eabihf --release
+cargo test -p polis-pio-sk6812
+cargo build -p polis-pio-sk6812 --features rp2040 --target thumbv6m-none-eabi --release
+cargo build -p polis-pio-sk6812 --features rp235xa --target thumbv8m.main-none-eabihf --release
 ```
 
 Host tests interpret the emitted PIO instructions to check MSB-first output,

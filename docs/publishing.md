@@ -4,6 +4,11 @@ Every reusable package should be independently publishable. Repository location
 does not determine release grouping: drivers and software libraries follow the
 same release requirements.
 
+All workspace libraries use `polis-<purpose>` package names, following the
+[naming standard](architecture.md#package-boundaries). Use the same names in
+dependency declarations, Cargo package selections, and release tags. Rust imports
+use underscores, for example `polis_framing`.
+
 ## Package contract
 
 | Area | Requirement |
@@ -42,8 +47,8 @@ permissions under the applicable licenses.
 
 ## Versioning
 
-Release packages independently, for example `framing-v0.1.0` and
-`rs485-v0.1.0`. A framing fix should not require releasing every driver.
+Release packages independently, for example `polis-framing-v0.1.0` and
+`polis-rs485-v0.1.0`. A framing fix should not require releasing every driver.
 Update internal version requirements when a dependent starts using a newly
 introduced API. Treat breaking pre-1.0 changes as minor-version bumps.
 
@@ -59,6 +64,11 @@ Cargo 1.99 stages the local packages in a temporary registry, so initial archive
 verification can include unpublished internal dependencies. This creates local
 archives; it does not publish them. Per-package public release still follows the
 dependency order below.
+
+The `polis-` package names replace the original unprefixed names, including
+`framing`, which collided with an unrelated crates.io package. Internal
+dependencies use ordinary compatible version requirements alongside local paths;
+the temporary exact-version workaround for `framing` is no longer needed.
 
 The offline form hit a Cargo 1.99 temporary-registry checksum error during initial
 validation; the normal command completed verification. Keep registry access

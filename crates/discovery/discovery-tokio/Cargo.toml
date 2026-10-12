@@ -1,5 +1,5 @@
 [package]
-name = "discovery-tokio"
+name = "polis-discovery-tokio"
 version = "0.1.0"
 edition.workspace = true
 rust-version = "1.99"
@@ -14,8 +14,8 @@ rs485 = ["tokio/io-util", "tokio/time"]
 udp = ["tokio/net", "tokio/time"]
 
 [dependencies]
-discovery-protocol.workspace = true
-framing.workspace = true
+polis-discovery-protocol.workspace = true
+polis-framing.workspace = true
 tokio.workspace = true
 
 [dev-dependencies]

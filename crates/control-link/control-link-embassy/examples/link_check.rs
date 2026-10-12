@@ -1,11 +1,6 @@
 //! Runtime/link integration fixture, not a board application or hardware qualification.
 #![no_std]
 #![no_main]
-use control_link_embassy::{
-    Buffers,
-    protocol::{ControlLink, Message},
-    serial, tcp, uart,
-};
 use defmt_rtt as _;
 use embassy_net::{Config, Ipv4Address, Ipv4Cidr, StackResources, StaticConfigV4, tcp::TcpSocket};
 use embassy_net_driver_channel::{State as ChannelState, driver::HardwareAddress};
@@ -16,6 +11,11 @@ use embassy_rp::{
 };
 use embassy_usb::class::cdc_acm::{CdcAcmClass, State};
 use panic_probe as _;
+use polis_control_link_embassy::{
+    Buffers,
+    protocol::{ControlLink, Message},
+    serial, tcp, uart,
+};
 const LINK: ControlLink = ControlLink::new(*b"example-app-0001");
 bind_interrupts!(struct Irqs {
     UART0_IRQ => BufferedInterruptHandler<peripherals::UART0>;

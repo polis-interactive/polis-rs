@@ -1,6 +1,6 @@
 # Async TMP102 / TMP112 temperature sensors
 
-`tmp1x2` is a portable `no_std` driver over
+`polis-tmp1x2` is a portable `no_std` driver over
 [`embedded_hal_async::i2c::I2c` 1.0](https://docs.rs/embedded-hal-async/1.0.0/embedded_hal_async/i2c/trait.I2c.html).
 It has no dependency on Embassy, an executor, or a particular I²C implementation.
 Both an Embassy hardware I²C bus and the [PIO I²C bus](../pio/i2c/README.md)
@@ -21,7 +21,7 @@ are not supported by this driver.
 
 ```rust
 use embedded_hal_async::i2c::I2c;
-use tmp1x2::{Address, Config, ConversionRate, Error, Tmp1x2};
+use polis_tmp1x2::{Address, Config, ConversionRate, Error, Tmp1x2};
 
 async fn read<B: I2c>(bus: &mut B) -> Result<i32, Error<B::Error>> {
     let mut sensor = Tmp1x2::new(bus, Address::Ground); // unshifted 0x48
@@ -102,9 +102,9 @@ Build from the workspace root (choose one board):
 
 ```sh
 # Pico / RP2040
-cargo build -p tmp1x2 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+cargo build -p polis-tmp1x2 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
 # Pico 2 / RP2350A
-cargo build -p tmp1x2 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+cargo build -p polis-tmp1x2 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
 ```
 
 The ELF is `target/<target>/release/examples/embassy`. Flash the matching
@@ -121,8 +121,8 @@ applications own deadlines and recovery. Builds do not qualify hardware.
 Run from the `polis-rs/` root:
 
 ```sh
-cargo test -p tmp1x2
-cargo build -p tmp1x2 --target thumbv6m-none-eabi --release
+cargo test -p polis-tmp1x2
+cargo build -p polis-tmp1x2 --target thumbv6m-none-eabi --release
 ```
 
 Host tests use a bus implementing only the standard async I²C trait. Its

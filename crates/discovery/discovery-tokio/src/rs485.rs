@@ -2,7 +2,7 @@
 //!
 //! Supply direction-controlled I/O. A successful send/flush must include the
 //! final stop bit and bus release. On cancelled/failed sends, recover the driver
-//! before further I/O. Embassy's `rs485` driver supports this contract; a raw UART
+//! before further I/O. Embassy's `polis-rs485` driver supports this contract; a raw UART
 //! or a host serial port alone does not. Host hardware/driver must supply RS-485
 //! direction control and satisfy the same completion/cancellation guarantees.
 //!
@@ -11,9 +11,9 @@
 //! cannot support a guaranteed slot schedule. No automatic retries or addressing.
 use core::num::NonZeroU64;
 
-use discovery_protocol::rs485::Collection;
-pub use discovery_protocol::rs485::{DiscoveryRound, Participant, ScanSummary, Timing};
-use discovery_protocol::{Announcement, Discovery, Message};
+use polis_discovery_protocol::rs485::Collection;
+pub use polis_discovery_protocol::rs485::{DiscoveryRound, Participant, ScanSummary, Timing};
+use polis_discovery_protocol::{Announcement, Discovery, Message};
 use std::time::Duration;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite};
 use tokio::time::{Instant, sleep_until, timeout, timeout_at};
@@ -82,8 +82,9 @@ pub async fn discover<const N: usize, S: AsyncRead + AsyncWrite + Unpin + ?Sized
     send_timeout: Duration,
     mut on_device: impl FnMut(Announcement),
 ) -> Result<ScanSummary, Error<std::io::Error>> {
-    let id = NonZeroU64::new(round.discovery_id)
-        .ok_or(Error::Protocol(discovery_protocol::Error::ZeroDiscoveryId))?;
+    let id = NonZeroU64::new(round.discovery_id).ok_or(Error::Protocol(
+        polis_discovery_protocol::Error::ZeroDiscoveryId,
+    ))?;
     let mut collection = Collection::<N>::new(id);
     timeout(
         send_timeout,

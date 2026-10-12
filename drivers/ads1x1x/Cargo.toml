@@ -1,5 +1,5 @@
 [package]
-name = "ads1x1x"
+name = "polis-ads1x1x"
 version = "0.1.0"
 edition.workspace = true
 publish = ["crates-io"]

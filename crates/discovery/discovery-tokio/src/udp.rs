@@ -1,7 +1,7 @@
 //! One framed discovery message per UDP datagram, using caller-configured sockets.
 use std::{net::SocketAddr, num::NonZeroU64, time::Duration};
 
-use discovery_protocol::{Announcement, Discover, Discovery, Message};
+use polis_discovery_protocol::{Announcement, Discover, Discovery, Message};
 use tokio::{net::UdpSocket, time::timeout};
 
 use crate::{Error, WIRE_CAPACITY, decode, encode};
@@ -9,8 +9,8 @@ use crate::{Error, WIRE_CAPACITY, decode, encode};
 /// Common multicast destination. The caller selects interfaces and membership.
 pub fn multicast_endpoint() -> SocketAddr {
     SocketAddr::from((
-        discovery_protocol::udp::DISCOVERY_MULTICAST_IPV4,
-        discovery_protocol::udp::DISCOVERY_PORT,
+        polis_discovery_protocol::udp::DISCOVERY_MULTICAST_IPV4,
+        polis_discovery_protocol::udp::DISCOVERY_PORT,
     ))
 }
 
@@ -46,7 +46,7 @@ pub async fn receive(
     let mut wire = [0; WIRE_CAPACITY + 1];
     let (len, peer) = socket.recv_from(&mut wire).await.map_err(Error::Io)?;
     let frame =
-        framing::decode_datagram(&mut wire[..len], WIRE_CAPACITY).map_err(Error::Framing)?;
+        polis_framing::decode_datagram(&mut wire[..len], WIRE_CAPACITY).map_err(Error::Framing)?;
     Ok((decode(discovery, frame)?, peer))
 }
 
@@ -88,7 +88,7 @@ pub async fn discover(
 pub async fn announce(
     socket: &UdpSocket,
     discovery: &Discovery,
-    device_id: discovery_protocol::DeviceId,
+    device_id: polis_discovery_protocol::DeviceId,
     destination: SocketAddr,
 ) -> Result<(), Error<std::io::Error>> {
     send(
@@ -108,7 +108,7 @@ pub async fn announce(
 pub async fn serve(
     socket: &UdpSocket,
     discovery: &Discovery,
-    identity: Option<discovery_protocol::DeviceId>,
+    identity: Option<polis_discovery_protocol::DeviceId>,
     mut on_device: impl FnMut(Announcement, SocketAddr),
 ) -> Result<(), Error<std::io::Error>> {
     loop {
@@ -116,7 +116,7 @@ pub async fn serve(
             Ok((Message::Announcement(value), peer)) => on_device(value, peer),
             Ok((message, peer)) => {
                 if let Some(reply) =
-                    identity.and_then(|id| discovery_protocol::reply_to(&message, id))
+                    identity.and_then(|id| polis_discovery_protocol::reply_to(&message, id))
                 {
                     send(socket, discovery, &Message::Announcement(reply), peer).await?;
                 }
@@ -140,7 +140,7 @@ pub async fn listen(
 pub async fn respond(
     socket: &UdpSocket,
     discovery: &Discovery,
-    identity: discovery_protocol::DeviceId,
+    identity: polis_discovery_protocol::DeviceId,
 ) -> Result<(), Error<std::io::Error>> {
     serve(socket, discovery, Some(identity), |_, _| {}).await
 }

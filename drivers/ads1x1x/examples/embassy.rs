@@ -3,12 +3,12 @@
 #![no_std]
 #![no_main]
 
-use ads1x1x::{Address, Ads1015, Channel, Config, model::DataRate12Bit};
 use defmt_rtt as _;
 use embassy_executor::Spawner;
 use embassy_rp::{bind_interrupts, i2c, peripherals};
 use embassy_time::{Delay, Timer};
 use panic_probe as _;
+use polis_ads1x1x::{Address, Ads1015, Channel, Config, model::DataRate12Bit};
 
 bind_interrupts!(struct Irqs {
     I2C1_IRQ => i2c::InterruptHandler<peripherals::I2C1>;

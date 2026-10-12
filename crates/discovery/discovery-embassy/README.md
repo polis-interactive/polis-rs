@@ -1,6 +1,6 @@
 # Embassy discovery
 
-`discovery-embassy` provides UDP endpoint discovery and RS-485 bus discovery.
+`polis-discovery-embassy` provides UDP endpoint discovery and RS-485 bus discovery.
 No transport is enabled by default; select UDP, RS-485, or both.
 
 Point-to-point UART and USB/host serial connections have no discovery adapter.
@@ -11,10 +11,10 @@ runtime implementation is a separate next step.
 
 | Configuration | Cargo dependency |
 | --- | --- |
-| UDP | `discovery-embassy = { version = "0.1.0", default-features = false, features = ["udp"] }` |
-| RS-485 | `discovery-embassy = { version = "0.1.0", default-features = false, features = ["rs485"] }` |
-| Both | `discovery-embassy = { version = "0.1.0", default-features = false, features = ["udp", "rs485"] }` |
-| No transport | `discovery-embassy = { version = "0.1.0", default-features = false }` |
+| UDP | `polis-discovery-embassy = { version = "0.1.0", default-features = false, features = ["udp"] }` |
+| RS-485 | `polis-discovery-embassy = { version = "0.1.0", default-features = false, features = ["rs485"] }` |
+| Both | `polis-discovery-embassy = { version = "0.1.0", default-features = false, features = ["udp", "rs485"] }` |
+| No transport | `polis-discovery-embassy = { version = "0.1.0", default-features = false }` |
 
 Normal library builds select no hardware, executor or time driver. UDP enables
 Embassy Net/Time; RS-485 enables embedded I/O and Embassy Time. Buffers are bounded,
@@ -52,8 +52,8 @@ The subsequent control endpoint/port remains application policy.
 ```rust,no_run
 # #[cfg(feature = "udp")]
 # async fn respond(socket: &embassy_net::udp::UdpSocket<'_>) {
-use discovery_protocol::{Announcement, ApplicationId, DeviceId, Discovery, Message};
-use discovery_embassy::udp;
+use polis_discovery_protocol::{Announcement, ApplicationId, DeviceId, Discovery, Message};
+use polis_discovery_embassy::udp;
 
 let discovery = Discovery::new(ApplicationId(*b"example-app-0001"));
 let (message, peer) = udp::receive(socket, &discovery).await.unwrap();
@@ -90,7 +90,7 @@ The optional `rs485` module implements scheduled half-duplex discovery:
 
 Supply a direction-controlled bus whose successful write/flush includes the final
 stop bit and bus release. A raw UART or ordinary host `SerialStream` is insufficient.
-Embassy can use this repository's `rs485::Rs485` driver over a wire-complete UART.
+Embassy can use this repository's `polis_rs485::Rs485` driver over a wire-complete UART.
 Tokio requires a backend that supplies equivalent direction/completion behavior.
 Recover the driver after a failed/cancelled send before further I/O. Reads used in
 timed controller collection must be cancel-safe, or explicitly discard/recover
@@ -127,7 +127,7 @@ Fixtures use example-only configuration. They are built, not flashed; physical
 networking, bus timing and collisions still require hardware validation.
 
 ```sh
-python3 tools/check.py build --package discovery-embassy --platform all
+python3 tools/check.py build --package polis-discovery-embassy --platform all
 ```
 
 Use `udp,rs485` for both transports. Do not use `--all-features`, which also

@@ -1,4 +1,4 @@
-use discovery_protocol::{Announcement, DeviceId, Discover, Message, reply_to, rs485::*};
+use polis_discovery_protocol::{Announcement, DeviceId, Discover, Message, reply_to, rs485::*};
 use std::num::{NonZeroU16, NonZeroU32, NonZeroU64};
 const DEVICE: DeviceId = DeviceId(*b"device01");
 fn round() -> DiscoveryRound {

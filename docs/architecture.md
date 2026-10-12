@@ -9,8 +9,8 @@ to adopt the whole workspace.
 
 | Location | Responsibility | Packages |
 | --- | --- | --- |
-| `crates/` (group related packages in subdirectories) | Codecs, shared protocol definitions, reusable algorithms and host libraries | `framing`, `discovery-protocol`, `control-link-protocol`, `led-output` |
-| `drivers/` and `drivers/pio/` | Peripheral behavior, bus timing, electrical direction, device recovery | `rs485`, `tmp1x2`, `pio-uart` |
+| `crates/` (group related packages in subdirectories) | Codecs, shared protocol definitions, reusable algorithms and host libraries | `polis-framing`, `polis-discovery-protocol`, `polis-control-link-protocol`, `polis-led-output` |
+| `drivers/` and `drivers/pio/` | Peripheral behavior, bus timing, electrical direction, device recovery | `polis-rs485`, `polis-tmp1x2`, `polis-pio-uart` |
 | Package `examples/` and `tests/` | Small usage demonstrations, mocks, compatibility and link checks | TCP/UDP framing demos; explicit MCU link examples |
 | Product repositories | Composition and deployment | Board pins, product messages, boot images, service entry points |
 
@@ -19,11 +19,16 @@ Avoid a catch-all `common` crate, an umbrella dependency that brings every drive
 and placeholder packages. Host-only libraries are welcome; they need not pretend
 to support `no_std`.
 
-Use short publishable package names. PIO packages use `pio-i2c`, `pio-uart`,
-`pio-sk6812` and `pio-ws2813`; their target/features document RP support. Other drivers use `ads1x1x`, `rs485`, `tmp1x2` and `w5500`; software libraries use
-`framing`, `led-output`, `discovery-protocol` and `control-link-protocol`, also without a repository prefix. Add a name such as
-`discovery-tokio` only when an actual adapter warrants a separate crate.
-Directory names may omit the prefix. Registry name conflicts will be handled at publication time.
+Every workspace library uses `polis-<purpose>` as its Cargo package name, with
+hyphens between words. PIO drivers use `polis-pio-<device>`; runtime adapters use
+`polis-<protocol>-<runtime>`, such as `polis-discovery-tokio`. Add an adapter only
+when actual runtime integration warrants a separate crate.
+
+Rust crate names replace hyphens with underscores (`polis_framing`,
+`polis_pio_uart`). Use the package name as the dependency key by default;
+intentional dependency aliases remain supported. Directory names stay short and
+do not need to match the package prefix. Check crates.io name availability when
+adding a package and again before publication; the prefix does not reserve names.
 
 ## Dependency direction
 
@@ -47,7 +52,7 @@ Extract state machines separately from platform I/O only when real code exists.
 ## Shared control link
 
 `crates/control-link/control-link-protocol` owns the control envelope and bounded
-request/session tracking. It depends on `framing` in `crates/protocol-framing`;
+request/session tracking. It depends on `polis-framing` in `crates/protocol-framing`;
 it has no runtime dependency on discovery. Request and response bodies remain
 application-owned, as do business handlers and handshake identity checks.
 The shared envelope replaces downstream transport envelopes during adoption.
@@ -90,7 +95,7 @@ Point-to-point UART/USB serial discovery is intentionally absent. Its connection
 and session lifecycle belongs to control-link, without a discovery/control handoff.
 
 RS-485 adapters execute controller rounds and participant slots using portable
-state from discovery-protocol and caller-supplied timing bounds. Their framed I/O
+state from polis-discovery-protocol and caller-supplied timing bounds. Their framed I/O
 helpers are private. The configured backend owns electrical direction and physical
 TX completion; hardware UART can be part of that backend. Participant callbacks
 still expose other protocols' borrowed frames for application dispatch.
@@ -134,19 +139,19 @@ These are templates, not usable remote coordinates today:
 ```toml
 # Before publication: replace both placeholders with real values.
 [dependencies]
-framing = { git = "<polis-rs repository URL>", rev = "<full commit SHA>" }
+polis-framing = { git = "<polis-rs repository URL>", rev = "<full commit SHA>" }
 ```
 
 ```toml
-# After framing 0.1.0 is published:
+# After polis-framing 0.1.0 is published:
 [dependencies]
-framing = "0.1.0"
+polis-framing = "0.1.0"
 ```
 
 For an initial migration, dependency aliases can preserve imports:
 
 ```toml
-legacy-framing = { package = "framing", git = "<polis-rs repository URL>", rev = "<full commit SHA>" }
+legacy-framing = { package = "polis-framing", git = "<polis-rs repository URL>", rev = "<full commit SHA>" }
 ```
 
 Replace the old dependency declaration and remove the old crate's workspace

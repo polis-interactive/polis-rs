@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+Renamed the package to `polis-discovery-protocol` and its Rust crate to
+`polis_discovery_protocol` under the workspace naming standard.
+
 Rename the package to `discovery-protocol` and move it under
 `crates/discovery/discovery-protocol`. Rust imports use `discovery_protocol`;
 the discovery schema is unchanged.

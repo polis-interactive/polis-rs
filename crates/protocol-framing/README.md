@@ -1,12 +1,12 @@
 # Portable framing
 
-`framing` is an allocation-free `no_std` byte codec for desktop, RP2040,
+`polis-framing` is an allocation-free `no_std` byte codec for desktop, RP2040,
 and Arm RP235x. It has no I/O, HAL, executor, clock, or domain dependency.
 Serde/Postcard helpers support typed payloads; raw APIs accept any payload bytes.
 
 ```rust
 use serde::{Deserialize, Serialize};
-use framing::{Decoder, Header, encode_message, wire_capacity};
+use polis_framing::{Decoder, Header, encode_message, wire_capacity};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Ping { sequence: u32 }
@@ -24,7 +24,7 @@ for read in wire.chunks(3) {
         assert_eq!(frame.deserialize::<Ping>().unwrap(), Ping { sequence: 42 });
     });
 }
-# Ok::<(), framing::Error>(())
+# Ok::<(), polis_framing::Error>(())
 ```
 
 ## Wire contract, version 1
@@ -107,13 +107,13 @@ receive buffer until the next decoder operation; process or copy them within
 From the `polis-rs/` root:
 
 ```sh
-cargo test -p framing
-cargo clippy -p framing --all-targets -- -D warnings
-cargo build -p framing --examples
-cargo build -p framing --target thumbv6m-none-eabi
-cargo build -p framing --target thumbv8m.main-none-eabihf
-cargo run -p framing --example tcp
-cargo run -p framing --example udp
+cargo test -p polis-framing
+cargo clippy -p polis-framing --all-targets -- -D warnings
+cargo build -p polis-framing --examples
+cargo build -p polis-framing --target thumbv6m-none-eabi
+cargo build -p polis-framing --target thumbv8m.main-none-eabihf
+cargo run -p polis-framing --example tcp
+cargo run -p polis-framing --example udp
 ```
 
 The loopback examples use native standard-library sockets. The UDP example

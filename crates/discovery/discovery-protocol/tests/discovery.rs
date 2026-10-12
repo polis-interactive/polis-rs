@@ -1,6 +1,6 @@
 use core::num::{NonZeroU16, NonZeroU32};
 
-use discovery_protocol::{
+use polis_discovery_protocol::{
     Announcement, ApplicationId, DeviceId, Discover, Discovery, Error, MAX_PAYLOAD_LEN, Message,
     PROTOCOL_ID, SCHEMA_VERSION,
     rs485::{DiscoveryAck, DiscoveryRound},
@@ -218,7 +218,7 @@ fn response_window_uses_wide_arithmetic() {
 
 #[test]
 fn same_announcement_composes_with_stream_and_datagram_framing() {
-    use framing::{Decoder, Header, decode_datagram, encode, encode_datagram, wire_capacity};
+    use polis_framing::{Decoder, Header, decode_datagram, encode, encode_datagram, wire_capacity};
 
     let message = Message::Announcement(Announcement {
         discovery_id: 300,

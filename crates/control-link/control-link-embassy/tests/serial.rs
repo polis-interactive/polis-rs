@@ -1,12 +1,12 @@
 #![cfg(feature = "serial")]
-use control_link_embassy::{
-    Buffers, Error,
-    protocol::{ControlLink, Message},
-    serial,
-};
 use embassy_usb::{
     class::cdc_acm::{CdcAcmClass, State},
     driver::*,
+};
+use polis_control_link_embassy::{
+    Buffers, Error,
+    protocol::{ControlLink, Message},
+    serial,
 };
 use std::{cell::RefCell, collections::VecDeque, num::NonZeroU64, rc::Rc};
 const LINK: ControlLink = ControlLink::new(*b"example-app-0001");

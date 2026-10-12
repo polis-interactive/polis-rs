@@ -1,5 +1,5 @@
 [package]
-name = "rs485"
+name = "polis-rs485"
 version = "0.1.0"
 edition.workspace = true
 publish = ["crates-io"]
@@ -12,8 +12,8 @@ description = "Portable asynchronous RS-485 direction and recovery control"
 default = []
 
 # Opt-in Pico/Pico 2 usage example; normal library builds select no runtime.
-example-rp2040 = ["embassy-example", "embassy-rp/rp2040", "pio-uart/rp2040"]
-example-rp235xa = ["embassy-example", "embassy-rp/rp235xa", "pio-uart/rp235xa"]
+example-rp2040 = ["embassy-example", "embassy-rp/rp2040", "polis-pio-uart/rp2040"]
+example-rp235xa = ["embassy-example", "embassy-rp/rp235xa", "polis-pio-uart/rp235xa"]
 embassy-example = [
     "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
     "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
@@ -24,7 +24,7 @@ embassy-example = [
     "dep:panic-probe",
     "dep:defmt-rtt",
     "dep:defmt",
-    "dep:pio-uart",
+    "dep:polis-pio-uart",
 ]
 
 [[example]]
@@ -41,7 +41,7 @@ cortex-m-rt = { workspace = true, optional = true }
 panic-probe = { workspace = true, optional = true }
 defmt-rtt = { workspace = true, optional = true }
 defmt = { workspace = true, optional = true }
-pio-uart = { workspace = true, optional = true }
+polis-pio-uart = { workspace = true, optional = true }
 embedded-hal.workspace = true
 embedded-hal-async.workspace = true
 embedded-io-async.workspace = true

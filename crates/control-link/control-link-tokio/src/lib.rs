@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 #![doc = include_str!("../README.md")]
-pub use control_link_protocol as protocol;
+pub use polis_control_link_protocol as protocol;
 pub use protocol::Buffers;
 #[cfg(feature = "serial")]
 pub mod serial;
@@ -12,8 +12,8 @@ pub mod tcp;
 #[derive(Debug)]
 pub enum Error<E> {
     Io(E),
-    Framing(framing::Error),
-    Protocol(control_link_protocol::Error),
+    Framing(polis_framing::Error),
+    Protocol(polis_control_link_protocol::Error),
     Closed,
     WriteZero,
     Interrupted,

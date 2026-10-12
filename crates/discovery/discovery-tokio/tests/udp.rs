@@ -1,6 +1,8 @@
 #![cfg(feature = "udp")]
-use discovery_protocol::{Announcement, ApplicationId, DeviceId, Discover, Discovery, Message};
-use discovery_tokio::{Error, WIRE_CAPACITY, udp};
+use polis_discovery_protocol::{
+    Announcement, ApplicationId, DeviceId, Discover, Discovery, Message,
+};
+use polis_discovery_tokio::{Error, WIRE_CAPACITY, udp};
 use std::{num::NonZeroU64, time::Duration};
 use tokio::net::UdpSocket;
 
@@ -32,12 +34,12 @@ async fn bad_datagrams_do_not_poison_the_next_receive() {
     let sender = UdpSocket::bind("127.0.0.1:0").await.unwrap();
     let receiver = UdpSocket::bind("127.0.0.1:0").await.unwrap();
     let address = receiver.local_addr().unwrap();
-    let mut scratch = [0; discovery_protocol::MAX_PAYLOAD_LEN as usize];
+    let mut scratch = [0; polis_discovery_protocol::MAX_PAYLOAD_LEN as usize];
     let mut wire = [0; WIRE_CAPACITY];
-    let valid = framing::encode(
-        framing::Header {
-            protocol_id: discovery_protocol::PROTOCOL_ID,
-            schema_version: discovery_protocol::SCHEMA_VERSION,
+    let valid = polis_framing::encode(
+        polis_framing::Header {
+            protocol_id: polis_discovery_protocol::PROTOCOL_ID,
+            schema_version: polis_discovery_protocol::SCHEMA_VERSION,
             message_type: REPLY.message_type(),
         },
         CODEC.encode_payload(&REPLY, &mut scratch).unwrap(),
@@ -71,7 +73,7 @@ async fn bad_datagrams_do_not_poison_the_next_receive() {
     assert!(matches!(
         udp::receive(&receiver, &CODEC).await,
         Err(Error::Protocol(
-            discovery_protocol::Error::WrongApplication(_)
+            polis_discovery_protocol::Error::WrongApplication(_)
         ))
     ));
     udp::send(&sender, &CODEC, &REPLY, address).await.unwrap();

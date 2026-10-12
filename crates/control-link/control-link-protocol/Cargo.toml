@@ -1,5 +1,5 @@
 [package]
-name = "control-link-protocol"
+name = "polis-control-link-protocol"
 version = "0.1.0"
 edition.workspace = true
 rust-version = "1.99"
@@ -9,7 +9,7 @@ license = "MIT"
 publish = ["crates-io"]
 
 [dependencies]
-framing.workspace = true
+polis-framing.workspace = true
 
 [dev-dependencies]
-discovery-protocol.workspace = true
+polis-discovery-protocol.workspace = true

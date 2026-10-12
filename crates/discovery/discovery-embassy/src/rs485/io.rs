@@ -1,8 +1,8 @@
 //! Private framed I/O for the RS-485 scheduler.
 use crate::{Error, StreamEvent, WIRE_CAPACITY, decode, encode};
 use core::convert::Infallible;
-use discovery_protocol::{Discovery, Message};
 use embedded_io_async::{Read, Write};
+use polis_discovery_protocol::{Discovery, Message};
 
 /// Send one whole discovery frame and flush. Serialize all writers on this link.
 /// Cancellation/error can leave a partial frame; the next frame's leading zero
@@ -29,14 +29,14 @@ pub(super) async fn send<W: Write + ?Sized>(
 /// Use at least WIRE_CAPACITY for discovery-only streams.
 pub(super) struct Receiver<'a> {
     discovery: Discovery,
-    decoder: framing::Decoder<'a>,
+    decoder: polis_framing::Decoder<'a>,
 }
 
 impl<'a> Receiver<'a> {
     pub(super) fn new(discovery: Discovery, storage: &'a mut [u8]) -> Self {
         Self {
             discovery,
-            decoder: framing::Decoder::new(storage),
+            decoder: polis_framing::Decoder::new(storage),
         }
     }
 
@@ -56,7 +56,7 @@ impl<'a> Receiver<'a> {
         self.decoder.feed(bytes, |event| {
             on_event(match event {
                 Err(error) => Err(Error::Framing(error)),
-                Ok(frame) if frame.header.protocol_id == discovery_protocol::PROTOCOL_ID => {
+                Ok(frame) if frame.header.protocol_id == polis_discovery_protocol::PROTOCOL_ID => {
                     decode(&discovery, frame).map(StreamEvent::Discovery)
                 }
                 Ok(frame) => Ok(StreamEvent::Other(frame)),
@@ -111,7 +111,7 @@ impl<'a> Receiver<'a> {
             };
             let event = match frame {
                 Err(error) => Err(Error::Framing(error)),
-                Ok(frame) if frame.header.protocol_id == discovery_protocol::PROTOCOL_ID => {
+                Ok(frame) if frame.header.protocol_id == polis_discovery_protocol::PROTOCOL_ID => {
                     decode(&self.discovery, frame).map(StreamEvent::Discovery)
                 }
                 Ok(frame) => Ok(StreamEvent::Other(frame)),

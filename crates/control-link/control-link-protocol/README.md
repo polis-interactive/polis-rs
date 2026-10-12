@@ -1,20 +1,20 @@
 # Control link protocol
 
-`control-link-protocol` provides an allocation-free `no_std` message envelope
-and request tracking for host/controller communication. It uses `framing` on
+`polis-control-link-protocol` provides an allocation-free `no_std` message envelope
+and request tracking for host/controller communication. It uses `polis-framing` on
 serial and TCP alike. Bodies are application-owned bytes; handlers can use
 Postcard or another encoding without adding product types to this crate.
 
 ```rust
 use core::num::NonZeroU64;
-use control_link_protocol::{ControlLink, Incoming, Message, Requests};
+use polis_control_link_protocol::{ControlLink, Incoming, Message, Requests};
 
 let codec = ControlLink::new(*b"example-app-0001");
 // Example only: the connection owner generates a fresh nonce for each session.
 let mut requests = Requests::<2>::new(NonZeroU64::new(7).unwrap());
 let key = requests.reserve()?;
 let mut scratch = [0; 64];
-let mut wire = [0; framing::wire_capacity(64)];
+let mut wire = [0; polis_framing::wire_capacity(64)];
 let bytes = codec.encode(Message::Request { key, body: b"read-status" },
                          &mut scratch, &mut wire)?;
 assert_eq!(bytes[0], 0);
@@ -31,9 +31,9 @@ assert_eq!(requests.pending_count(), 0);
 
 ## Composition
 
-An adapter owns the socket/UART/USB stream, a `framing::Decoder`, and the async
+An adapter owns the socket/UART/USB stream, a `polis_framing::Decoder`, and the async
 read/write loop. Dispatch complete frames by protocol ID: discovery frames go
-to `discovery-protocol`, control frames to `ControlLink::decode`. Both codecs use
+to `polis-discovery-protocol`, control frames to `ControlLink::decode`. Both codecs use
 the same application-assigned 16 bytes. There is no production dependency
 between the two protocols. Direct connections need no discovery.
 
@@ -84,16 +84,16 @@ explicit memory budgets. Framing's declared length and CRC cover the full payloa
 | 4 | Event | Zero | Application event |
 
 Use `PREFIX_LEN + maximum_body_size` for the framing payload budget and
-`framing::wire_capacity(budget)` for wire and decoder buffers. Application IDs
+`polis_framing::wire_capacity(budget)` for wire and decoder buffers. Application IDs
 filter messages; neither IDs, nonces nor CRC authenticate peers. There are no
 legacy codecs or product-specific schemas in this package.
 
 ## Validation
 
 ```sh
-cargo test --locked -p control-link-protocol
-python3 tools/check.py build --package control-link-protocol --platform all
-python3 tools/check.py clippy --package control-link-protocol --platform all
+cargo test --locked -p polis-control-link-protocol
+python3 tools/check.py build --package polis-control-link-protocol --platform all
+python3 tools/check.py clippy --package polis-control-link-protocol --platform all
 ```
 
 Tests cover fixed wire fields, stream splitting, malformed inputs, buffer limits,
@@ -103,7 +103,7 @@ hardware integration are the responsibility of subsequent adapter validation.
 
 ## Runtime adapters
 
-`control-link-tokio` provides TCP (default) and host serial. `control-link-embassy`
+`polis-control-link-tokio` provides TCP (default) and host serial. `polis-control-link-embassy`
 provides UART (default), USB CDC serial and TCP. All control links are point to
 point. Each adapter retains its decoder and unread bytes from the initial
 identity exchange through normal communication; it does not hand off a serial

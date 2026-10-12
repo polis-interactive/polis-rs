@@ -1,8 +1,8 @@
 //! A complete discovery probe/reply over two local UDP sockets.
 use std::{num::NonZeroU64, time::Duration};
 
-use discovery_protocol::{ApplicationId, DeviceId, Discovery};
-use discovery_tokio::udp;
+use polis_discovery_protocol::{ApplicationId, DeviceId, Discovery};
+use polis_discovery_tokio::udp;
 use tokio::net::UdpSocket;
 
 #[tokio::main(flavor = "current_thread")]

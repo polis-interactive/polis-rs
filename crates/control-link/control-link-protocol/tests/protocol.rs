@@ -1,10 +1,10 @@
 use core::num::{NonZeroU32, NonZeroU64};
 
-use control_link_protocol::{
+use polis_control_link_protocol::{
     ControlLink, Error, Incoming, Key, MAX_BODY_LEN, Message, PREFIX_LEN, PROTOCOL_ID, RequestGate,
     Requests, SCHEMA_VERSION, StateError, message_type,
 };
-use framing::{Decoder, Frame, Header, wire_capacity};
+use polis_framing::{Decoder, Frame, Header, wire_capacity};
 
 const APP: [u8; 16] = *b"example-app-0001";
 const CODEC: ControlLink = ControlLink::new(APP);
@@ -34,7 +34,7 @@ fn fixed_payload_and_header_assignments_define_the_wire_schema() {
     let mut scratch = [0; PREFIX_LEN + 2];
     let mut wire = [0; wire_capacity((PREFIX_LEN + 2) as u16)];
     let bytes = CODEC.encode(message, &mut scratch, &mut wire).unwrap();
-    let decoded = framing::decode_datagram(&mut bytes.to_vec(), wire.len())
+    let decoded = polis_framing::decode_datagram(&mut bytes.to_vec(), wire.len())
         .unwrap()
         .payload
         .to_vec();
@@ -148,7 +148,7 @@ fn body_and_buffer_limits_are_enforced() {
     };
     let bytes = CODEC.encode(message, &mut scratch, &mut wire).unwrap();
     let mut storage = bytes.to_vec();
-    let decoded = framing::decode_datagram(&mut storage, wire_capacity(u16::MAX)).unwrap();
+    let decoded = polis_framing::decode_datagram(&mut storage, wire_capacity(u16::MAX)).unwrap();
     assert_eq!(CODEC.decode(decoded).unwrap(), message);
     let oversized = vec![0; MAX_BODY_LEN + 1];
     assert_eq!(
@@ -176,7 +176,7 @@ fn body_and_buffer_limits_are_enforced() {
     for len in 0..wire_capacity((PREFIX_LEN + 1) as u16) {
         assert_eq!(
             CODEC.encode(message, &mut scratch, &mut wire[..len]),
-            Err(Error::Framing(framing::Error::OutputTooSmall))
+            Err(Error::Framing(polis_framing::Error::OutputTooSmall))
         );
     }
 }
@@ -300,16 +300,18 @@ fn old_sessions_and_incoming_requests_do_not_change_pending_calls() {
 
 #[test]
 fn one_decoder_routes_discovery_and_control_without_a_dependency_between_protocols() {
-    use discovery_protocol::{ApplicationId, Discover, Discovery, Message as DiscoveryMessage};
+    use polis_discovery_protocol::{
+        ApplicationId, Discover, Discovery, Message as DiscoveryMessage,
+    };
 
     let discovery = Discovery::new(ApplicationId(APP));
     let query = DiscoveryMessage::Discover(Discover { discovery_id: 1 });
     let mut payload = [0; 64];
     let mut wire = [0; wire_capacity(64)];
-    let mut bytes = framing::encode(
+    let mut bytes = polis_framing::encode(
         Header {
-            protocol_id: discovery_protocol::PROTOCOL_ID,
-            schema_version: discovery_protocol::SCHEMA_VERSION,
+            protocol_id: polis_discovery_protocol::PROTOCOL_ID,
+            schema_version: polis_discovery_protocol::SCHEMA_VERSION,
             message_type: query.message_type(),
         },
         discovery.encode_payload(&query, &mut payload).unwrap(),
@@ -337,7 +339,7 @@ fn one_decoder_routes_discovery_and_control_without_a_dependency_between_protoco
         decoder.feed(chunk, |result| {
             let frame = result.unwrap();
             match frame.header.protocol_id {
-                discovery_protocol::PROTOCOL_ID => {
+                polis_discovery_protocol::PROTOCOL_ID => {
                     assert_eq!(
                         discovery.decode_payload(
                             frame.header.protocol_id,

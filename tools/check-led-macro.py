@@ -20,7 +20,7 @@ def main():
         (caller / "Cargo.toml").write_text(
             '[package]\nname = "led-macro-caller"\nversion = "0.0.0"\n'
             'edition = "2024"\npublish = false\n\n[workspace]\n\n'
-            '[dependencies]\nled-api = { package = "led-output", path = '
+            '[dependencies]\nled-api = { package = "polis-led-output", path = '
             + json.dumps(str(root / "crates/led-output")) + ' }\n'
         )
         for target in targets:

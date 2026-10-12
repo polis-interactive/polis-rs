@@ -1,4 +1,4 @@
-# control-link-embassy
+# polis-control-link-embassy
 
 Allocation-free, `no_std` point-to-point control communication. Both peers use
 the same send/receive API. One connection carries the identity/session handshake,
@@ -26,7 +26,7 @@ the application.
 ```rust,no_run
 #[cfg(feature = "uart")]
 async fn example<R: embedded_io_async::Read, W: embedded_io_async::Write>(reader: R, writer: W) {
-    use control_link_embassy::{
+    use polis_control_link_embassy::{
         Buffers,
         protocol::{ControlLink, Message, RequestGate},
         uart,
@@ -48,7 +48,7 @@ async fn example<R: embedded_io_async::Read, W: embedded_io_async::Write>(reader
     let mut gate = RequestGate::new(NonZeroU64::new(1).unwrap());
     let request = receiver
         .receive(
-            |message| -> Result<_, control_link_embassy::protocol::StateError> {
+            |message| -> Result<_, polis_control_link_embassy::protocol::StateError> {
                 match message {
                     Message::Request { key, body } => {
                         gate.accept(key)?; // Before invoking business logic.
@@ -102,7 +102,7 @@ handlers, deadlines, tasks, bounded queues, reconnect policy and keepalives are
 application-owned. Neither direction blocks the other through a shared lock.
 
 For body limit B <= `MAX_BODY_LEN`, payload storage needs `PREFIX_LEN + B` bytes;
-receive/transmit each need `framing::wire_capacity((PREFIX_LEN + B) as u16)` bytes.
+receive/transmit each need `polis_framing::wire_capacity((PREFIX_LEN + B) as u16)` bytes.
 The receiver also retains a 256-byte I/O chunk. No heap is required.
 
 Receive state survives cancellation, but cancelling a pending backend read is

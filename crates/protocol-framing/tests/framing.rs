@@ -1,4 +1,4 @@
-use framing::{
+use polis_framing::{
     Decoder, Error, Frame, Header, decode_datagram, encode, encode_datagram, encode_message,
     encode_message_datagram, wire_capacity,
 };

@@ -1,4 +1,27 @@
-# Initial library validation
+# Library validation
+
+## Polis package naming
+
+Validated on 2026-10-11 with Rust 1.99.0 after renaming all sixteen packages to
+`polis-*` and their Rust crate imports to `polis_*`. Package directories, wire
+fixtures, transport features and external dependency lockfile entries are
+unchanged. Earlier sections below retain the package names and commands used
+at the time; use the current READMEs for commands with the new names.
+
+| Check | Result |
+| --- | --- |
+| `python3 tools/check.py test` | All 32 native package/feature configurations passed, including TCP/UDP and serial tests |
+| `python3 tools/check.py build --platform all` and `python3 tools/check.py clippy --platform all` | Native, RP2040 and RP2350 matrices passed; registered embedded examples linked and local Clippy warnings were denied |
+| `RUSTDOCFLAGS='-D warnings' python3 tools/check.py doc --platform all` | All supported target/feature configurations documented successfully |
+| `python3 tools/check-led-macro.py` | The isolated `led-api` dependency alias caller built on the host and both embedded targets |
+| `cargo package --workspace --allow-dirty` | All sixteen archives created and verified with the renamed dependencies |
+
+Archive inspection confirmed normalized dependency names, no remaining internal
+dependency paths, and package-local READMEs/provenance. The `polis-framing` archive
+verifies with an ordinary compatible version requirement; the old `framing`
+exact-version workaround is removed. Formatting, diff whitespace and changed
+Markdown local links passed review. Source provenance and licenses are retained.
+No crates were published and no hardware was flashed or qualified.
 
 ## Point-to-point control-link adapters
 

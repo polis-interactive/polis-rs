@@ -7,7 +7,7 @@ use std::{
     time::Duration,
 };
 
-use framing::{Decoder, Header, encode_message, wire_capacity};
+use polis_framing::{Decoder, Header, encode_message, wire_capacity};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

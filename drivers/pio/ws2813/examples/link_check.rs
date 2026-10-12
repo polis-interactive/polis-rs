@@ -6,7 +6,7 @@ use defmt_rtt as _;
 use embassy_executor::Spawner;
 use embassy_rp::{bind_interrupts, dma, peripherals, pio};
 use panic_probe as _;
-use pio_ws2813::{PioWs2813, PioWs2813Program, RGB8};
+use polis_pio_ws2813::{PioWs2813, PioWs2813Program, RGB8};
 
 #[cfg(feature = "rp2040")]
 bind_interrupts!(struct Irqs {
@@ -35,7 +35,7 @@ async fn main(_spawner: Spawner) {
     let bottom =
         PioWs2813::<_, 1, 70>::new(&mut pio.common, pio.sm1, p.DMA_CH1, Irqs, p.PIN_3, &program);
     let black = RGB8::new(0, 0, 0);
-    let mut outputs = led_output::led_outputs!(left, bottom);
+    let mut outputs = polis_led_output::led_outputs!(left, bottom);
     loop {
         outputs.write(&[black; 133]).await.unwrap();
         embassy_time::Timer::after_millis(20).await;

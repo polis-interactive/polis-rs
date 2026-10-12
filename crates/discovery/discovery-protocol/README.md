@@ -1,13 +1,13 @@
 # Shared discovery protocol
 
-`discovery-protocol` defines one allocation-free `no_std` discovery protocol for
+`polis-discovery-protocol` defines one allocation-free `no_std` discovery protocol for
 embedded and host consumers. Configure it with your application's 16-byte
 `ApplicationId`; use those same bytes in every peer. The library contains no
 product enum, sockets, clock or executor. Portable role/session state stays here;
 runtime adapters execute its I/O and deadlines.
 
 ```rust
-use discovery_protocol::{ApplicationId, Discovery, Discover, Message,
+use polis_discovery_protocol::{ApplicationId, Discovery, Discover, Message,
     MAX_PAYLOAD_LEN, PROTOCOL_ID, SCHEMA_VERSION};
 
 // The application owns and persists this assignment. It is not a secret.
@@ -20,7 +20,7 @@ let payload = controller.encode_payload(&request, &mut scratch)?;
 let decoded = device.decode_payload(PROTOCOL_ID, SCHEMA_VERSION,
     request.message_type(), payload)?;
 assert_eq!(decoded, request);
-# Ok::<(), discovery_protocol::Error>(())
+# Ok::<(), polis_discovery_protocol::Error>(())
 ```
 
 Peers with the same application identifier use the same message format across
@@ -51,7 +51,7 @@ for unsolicited announcements on UDP. Unknown protocols, schemas and message IDs
 invalid/truncated bodies, and trailing bytes are rejected. Schema negotiation
 is not implemented. Schema changes require explicit versioning and fixtures.
 
-Compose this codec with `framing`: set `Header` from `PROTOCOL_ID`,
+Compose this codec with `polis-framing`: set `Header` from `PROTOCOL_ID`,
 `SCHEMA_VERSION`, and `message.message_type()`, then frame the bytes returned
 by `Discovery::encode_payload`. On receive, validate framing first and pass its
 header fields and payload to the configured `Discovery::decode_payload`.
@@ -114,8 +114,8 @@ Discover and `Announcement::unsolicited` constructs a startup/periodic announcem
 
 ## Validation and distribution
 
-Run `cargo test -p discovery-protocol` for independent byte fixtures, malformed-input
+Run `cargo test -p polis-discovery-protocol` for independent byte fixtures, malformed-input
 and application-filter tests, maximum sizes, slot vectors and stream/datagram
-composition. `python3 tools/check.py build --package discovery-protocol --platform all`
+composition. `python3 tools/check.py build --package polis-discovery-protocol --platform all`
 builds it on host, RP2040 and RP2350. See [PROVENANCE.md](PROVENANCE.md) for its
 origin and changes. This package is licensed under MIT; see LICENSE-MIT.
