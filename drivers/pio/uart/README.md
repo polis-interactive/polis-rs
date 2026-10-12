@@ -1,6 +1,6 @@
 # Async PIO UART wrapper
 
-`pio-uart` wraps Embassy RP 0.10.0's existing async PIO UART TX/RX
+`polis-pio-uart` wraps Embassy RP 0.10.0's existing async PIO UART TX/RX
 types and programs, without copying or replacing their waveforms. It implements
 `embedded-io-async` 0.7 `Read` and `Write`, providing short reads and a conservative
 physical transmit-completion delay for `flush`. RS-485 direction, turnaround,
@@ -13,7 +13,7 @@ Embassy's time driver and binds its PIO interrupt handler. Board support owns
 the clocks, pins, pulls and state-machine assignments.
 
 ```rust,ignore
-use pio_uart::{PioUart, Programs};
+use polis_pio_uart::{PioUart, Programs};
 
 // After creating Embassy's Pio and configuring the board clocks:
 let programs = Programs::new(&mut common);
@@ -78,9 +78,9 @@ Build from the workspace root (choose one board):
 
 ```sh
 # Pico / RP2040
-cargo build -p pio-uart --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+cargo build -p polis-pio-uart --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
 # Pico 2 / RP2350A
-cargo build -p pio-uart --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+cargo build -p polis-pio-uart --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
 ```
 
 The ELF is `target/<target>/release/examples/embassy`. Flash the matching
@@ -97,8 +97,8 @@ applications own deadlines and recovery. Builds do not qualify hardware.
 From the `polis-rs/` root:
 
 ```sh
-cargo test -p pio-uart
-cargo clippy -p pio-uart --all-targets
+cargo test -p polis-pio-uart
+cargo clippy -p polis-pio-uart --all-targets
 ```
 
 Host tests cover timing bounds and rejected clock/divider configurations.

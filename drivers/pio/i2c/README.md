@@ -1,6 +1,6 @@
 # PIO I²C controller
 
-`pio-i2c` supplies the physical I²C bus for RP2040 and RP2350A,
+`polis-pio-i2c` supplies the physical I²C bus for RP2040 and RP2350A,
 with an API shaped like Embassy RP 0.10.0's PIO SPI driver. It is adapted from Raspberry Pi's
 [`i2c.pio`](https://github.com/raspberrypi/pico-examples/blob/master/pio/i2c/i2c.pio)
 and [`pio_i2c.c`](https://github.com/raspberrypi/pico-examples/blob/master/pio/i2c/pio_i2c.c).
@@ -14,7 +14,7 @@ provide an Embassy time driver for both blocking deadlines and async timeouts. B
 Create `Pio` with Embassy's `InterruptHandler` binding before construction.
 
 ```rust,ignore
-use pio_i2c::{Config, I2c};
+use polis_pio_i2c::{Config, I2c};
 
 let mut config = Config::default();
 config.frequency = 400_000;
@@ -112,9 +112,9 @@ Build from the workspace root (choose one board):
 
 ```sh
 # Pico / RP2040
-cargo build -p pio-i2c --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+cargo build -p polis-pio-i2c --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
 # Pico 2 / RP2350A
-cargo build -p pio-i2c --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+cargo build -p polis-pio-i2c --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
 ```
 
 The ELF is `target/<target>/release/examples/embassy`. Flash the matching
@@ -129,9 +129,9 @@ applications own deadlines and recovery. Builds do not qualify hardware.
 ## Validation
 
 ```sh
-cargo test -p pio-i2c
-cargo build -p pio-i2c --features rp2040 --target thumbv6m-none-eabi --release
-cargo build -p pio-i2c --features rp235xa --target thumbv8m.main-none-eabihf --release
+cargo test -p polis-pio-i2c
+cargo build -p polis-pio-i2c --features rp2040 --target thumbv6m-none-eabi --release
+cargo build -p polis-pio-i2c --features rp235xa --target thumbv8m.main-none-eabihf --release
 ```
 
 Host tests interpret the emitted PIO instructions with the configured FIFO/shift

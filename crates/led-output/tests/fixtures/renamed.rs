@@ -1,7 +1,7 @@
 #![no_std]
 
 // This caller has only the renamed `led-api` dependency. A hardcoded
-// `led_output::` path in the macro would fail here.
+// `polis_led_output::` path in the macro would fail here.
 use led_api::{FrameLengthError, LedOutput, RGB8};
 
 struct Lane<'a, const N: usize>(&'a mut usize);

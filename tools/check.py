@@ -34,20 +34,28 @@ def main():
         for manifest in selected:
             package = manifest["package"]
             settings = package.get("metadata", {}).get("polis", {})
-            base = ["cargo", args.command, "-p", package["name"], "--no-default-features"]
-            if not args.unlocked:
-                base.append("--locked")
-            if args.command != "doc":
-                base.append(f"--message-format={args.message_format}")
-            if platform != "native":
-                base += ["--target", platforms[platform]["target"]]
-                if settings.get("chip-features"):
-                    base += ["--features", platforms[platform]["feature"]]
-            if args.command in ("build", "check", "clippy"):
-                base.append("--all-targets" if platform == "native" else "--lib")
-            if args.command == "doc":
-                base.append("--no-deps")
-            commands = [base]
+            if platform not in settings.get("platforms", ["native", *platforms]):
+                print(f"[{platform}] skipping {package['name']}: unsupported platform", file=sys.stderr)
+                continue
+            commands = []
+            for feature_set in settings.get("feature-sets", [[]]):
+                base = ["cargo", args.command, "-p", package["name"], "--no-default-features"]
+                if not args.unlocked:
+                    base.append("--locked")
+                if args.command != "doc":
+                    base.append(f"--message-format={args.message_format}")
+                features = list(feature_set)
+                if platform != "native":
+                    base += ["--target", platforms[platform]["target"]]
+                    if settings.get("chip-features"):
+                        features.append(platforms[platform]["feature"])
+                if features:
+                    base += ["--features", ",".join(features)]
+                if args.command in ("build", "check", "clippy"):
+                    base.append("--all-targets" if platform == "native" else "--lib")
+                if args.command == "doc":
+                    base.append("--no-deps")
+                commands.append(base)
             if platform != "native" and args.command in ("build", "check", "clippy"):
                 examples = [
                     (example, f'{platforms[platform]["feature"]},link-check')

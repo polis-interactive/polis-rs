@@ -1,0 +1,15 @@
+[package]
+name = "polis-control-link-protocol"
+version = "0.1.0"
+edition.workspace = true
+rust-version = "1.99"
+description = "Allocation-free control messages and request tracking for async device links"
+readme = "README.md"
+license = "MIT"
+publish = ["crates-io"]
+
+[dependencies]
+polis-framing.workspace = true
+
+[dev-dependencies]
+polis-discovery-protocol.workspace = true

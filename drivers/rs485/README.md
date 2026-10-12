@@ -1,6 +1,6 @@
 # Async RS-485
 
-`rs485` is a portable, allocation-free `no_std` half-duplex driver.
+`polis-rs485` is a portable, allocation-free `no_std` half-duplex driver.
 It consumes `embedded_io_async::Read` / `Write` (0.7), an infallible
 `embedded_hal::digital::OutputPin`, and `embedded_hal_async::delay::DelayNs`.
 It has **no Embassy, PIO, MCU, executor or clock dependency**.
@@ -10,7 +10,7 @@ It has **no Embassy, PIO, MCU, executor or clock dependency**.
 ```rust,ignore
 use embedded_hal::digital::PinState;
 use embedded_io_async::Read;
-use rs485::{Config, Rs485};
+use polis_rs485::{Config, Rs485};
 
 let mut bus = Rs485::new(serial, direction, delay, Config {
     tx_level: PinState::High,
@@ -99,9 +99,9 @@ Build from the workspace root (choose one board):
 
 ```sh
 # Pico / RP2040
-cargo build -p rs485 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+cargo build -p polis-rs485 --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
 # Pico 2 / RP2350A
-cargo build -p rs485 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+cargo build -p polis-rs485 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
 ```
 
 The ELF is `target/<target>/release/examples/embassy`. Flash the matching
@@ -118,8 +118,8 @@ applications own deadlines and recovery. Builds do not qualify hardware.
 From the `polis-rs/` root:
 
 ```sh
-cargo test -p rs485
-cargo clippy -p rs485 --all-targets
+cargo test -p polis-rs485
+cargo clippy -p polis-rs485 --all-targets
 ```
 
 Target builds compile this portable crate on both embedded targets.

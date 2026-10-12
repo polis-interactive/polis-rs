@@ -1,0 +1,67 @@
+[package]
+name = "polis-discovery-embassy"
+version = "0.1.0"
+edition.workspace = true
+rust-version = "1.99"
+description = "Allocation-free RS-485 and UDP discovery for Embassy applications"
+readme = "README.md"
+license = "MIT"
+publish = ["crates-io"]
+
+[features]
+default = []
+rs485 = ["dep:embedded-io-async", "dep:embassy-time"]
+udp = ["dep:embassy-net", "dep:embassy-time"]
+rp2040 = ["embassy-rp?/rp2040", "polis-pio-uart?/rp2040"]
+rp235xa = ["embassy-rp?/rp235xa", "polis-pio-uart?/rp235xa"]
+link-check = [
+    "udp", "rs485", "dep:bus-driver", "dep:polis-pio-uart", "dep:embedded-hal",
+    "dep:embassy-net-driver-channel", "dep:embassy-futures",
+    "dep:embassy-executor", "dep:cortex-m-rt", "dep:panic-probe", "dep:defmt-rtt",
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+]
+
+[[example]]
+name = "udp_link_check"
+required-features = ["link-check"]
+test = false
+bench = false
+
+[[example]]
+name = "rs485_link_check"
+required-features = ["link-check"]
+test = false
+bench = false
+
+[dependencies]
+bus-driver = { package = "polis-rs485", path = "../../../drivers/rs485", version = "0.1.0", default-features = false, optional = true }
+polis-pio-uart = { workspace = true, optional = true }
+embedded-hal = { workspace = true, optional = true }
+polis-discovery-protocol.workspace = true
+polis-framing.workspace = true
+embedded-io-async = { workspace = true, optional = true }
+embassy-net = { workspace = true, optional = true, features = ["udp", "proto-ipv4", "medium-ethernet", "multicast"] }
+embassy-time = { workspace = true, optional = true }
+embassy-rp = { workspace = true, optional = true }
+embassy-executor = { workspace = true, optional = true }
+embassy-futures = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+embassy-net-driver-channel = { version = "0.4.0", optional = true }
+
+[target.'cfg(not(target_os = "none"))'.dev-dependencies]
+critical-section = { version = "1.2", features = ["std"] }
+embassy-time = { workspace = true, features = ["std", "generic-queue-8"] }
+embassy-net-driver-channel = "0.4.0"
+tokio = { workspace = true, features = ["macros", "rt", "time"] }
+
+[package.metadata.polis]
+feature-sets = [[], ["udp"], ["rs485"], ["udp", "rs485"]]
+link-examples = ["udp_link_check", "rs485_link_check"]
+
+[package.metadata.docs.rs]
+features = ["udp", "rs485"]
+default-target = "thumbv8m.main-none-eabihf"
+targets = ["thumbv6m-none-eabi", "thumbv8m.main-none-eabihf"]

@@ -19,17 +19,22 @@ compatible; MCU implementations are enabled through explicit package features.
 
 | Library | Purpose |
 | --- | --- |
-| [framing](crates/framing) | Allocation-free byte framing with typed payload support |
-| [led-output](crates/led-output) | Group fixed-length RGB or RGBW LED chains into one output |
-| [discovery](crates/protocols/discovery) | Common discovery schema with consumer-assigned application identity |
-| [ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
-| [tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |
-| [rs485](drivers/rs485) | Async half-duplex RS-485 with direction and turnaround timing |
-| [w5500](drivers/w5500) | W5500 Ethernet startup adapter for Embassy |
-| [pio-i2c](drivers/pio/i2c) | PIO I²C controller for RP2040 and RP2350A |
-| [pio-uart](drivers/pio/uart) | Async PIO UART adapter for RP2040 and RP2350A |
-| [pio-sk6812](drivers/pio/sk6812) | PIO driver for SK6812 RGBW LED chains |
-| [pio-ws2813](drivers/pio/ws2813) | PIO driver for WS2813 RGB LED chains |
+| [polis-framing](crates/protocol-framing) | Allocation-free byte framing with typed payload support |
+| [polis-led-output](crates/led-output) | Group fixed-length RGB or RGBW LED chains into one output |
+| [polis-discovery-protocol](crates/discovery/discovery-protocol) | Common discovery schema with consumer-assigned application identity |
+| [polis-discovery-tokio](crates/discovery/discovery-tokio) | Host discovery; UDP by default, optional RS-485 |
+| [polis-discovery-embassy](crates/discovery/discovery-embassy) | Embedded discovery; opt-in UDP and RS-485 |
+| [polis-control-link-protocol](crates/control-link/control-link-protocol) | Shared control messages, bounded request tracking, and unsolicited events |
+| [polis-control-link-tokio](crates/control-link/control-link-tokio) | Point-to-point TCP and host serial control links |
+| [polis-control-link-embassy](crates/control-link/control-link-embassy) | Point-to-point UART, USB CDC and TCP control links |
+| [polis-ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
+| [polis-tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |
+| [polis-rs485](drivers/rs485) | Async half-duplex RS-485 with direction and turnaround timing |
+| [polis-w5500](drivers/w5500) | W5500 Ethernet startup adapter for Embassy |
+| [polis-pio-i2c](drivers/pio/i2c) | PIO I²C controller for RP2040 and RP2350A |
+| [polis-pio-uart](drivers/pio/uart) | Async PIO UART adapter for RP2040 and RP2350A |
+| [polis-pio-sk6812](drivers/pio/sk6812) | PIO driver for SK6812 RGBW LED chains |
+| [polis-pio-ws2813](drivers/pio/ws2813) | PIO driver for WS2813 RGB LED chains |
 
 Each package owns its API documentation, tests, changelog and source provenance.
 Every driver includes `examples/embassy.rs`, a minimal Pico/Pico 2 usage example.
@@ -54,12 +59,14 @@ The platform option selects the target and matching package features from root
 workspace metadata. PIO libraries also work with ordinary Cargo commands:
 
 ```sh
-cargo build -p pio-i2c --features rp2040 --target thumbv6m-none-eabi
+cargo build -p polis-pio-i2c --features rp2040 --target thumbv6m-none-eabi
 ```
 
 Host tests exercise codecs, sensor/bus behavior and portable waveform logic.
-Discovery owns its wire contract and slot calculation; socket adapters and live
-session state machines remain future work. Build results do not qualify hardware.
+Discovery adapters provide UART streams and UDP probing over the shared protocol.
+Discovery supports UDP and RS-485 bus scheduling. Control-link provides
+point-to-point runtime adapters; downstream adoption remains a separate step.
+Build results do not qualify hardware.
 
 ## Guides
 

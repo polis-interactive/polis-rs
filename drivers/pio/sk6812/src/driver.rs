@@ -159,15 +159,18 @@ impl<'d, P: Instance, const SM: usize, const N: usize> PioSk6812<'d, P, SM, N> {
     }
 }
 
-impl<P: Instance, const SM: usize, const N: usize> led_output::LedOutput
+impl<P: Instance, const SM: usize, const N: usize> polis_led_output::LedOutput
     for PioSk6812<'_, P, SM, N>
 {
     const PIXEL_COUNT: usize = N;
 
-    async fn write(&mut self, pixels: &[RGBW<u8>]) -> Result<(), led_output::FrameLengthError> {
+    async fn write(
+        &mut self,
+        pixels: &[RGBW<u8>],
+    ) -> Result<(), polis_led_output::FrameLengthError> {
         let colors = pixels
             .try_into()
-            .map_err(|_| led_output::FrameLengthError {
+            .map_err(|_| polis_led_output::FrameLengthError {
                 expected: N,
                 actual: pixels.len(),
             })?;

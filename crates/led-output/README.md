@@ -1,6 +1,6 @@
 # Fixed-layout LED outputs
 
-`led-output` groups physical RGB or RGBW chains into one allocation-free
+`polis-led-output` groups physical RGB or RGBW chains into one allocation-free
 `no_std` output capability. Lane counts and pixel counts are fixed in the types.
 A frame concatenates lanes in export order, preserving each lane's pixel
 transmission order. Rendering, brightness scaling and coordinate mapping belong
@@ -12,7 +12,7 @@ same color type, with no implicit color conversion. Use the variadic macro to
 combine different driver types and pixel counts:
 
 ```rust,ignore
-use led_output::led_outputs;
+use polis_led_output::led_outputs;
 
 let mut outputs = led_outputs!(lane0, lane1, lane2, lane3);
 outputs.write(&pixels).await?;
@@ -48,10 +48,10 @@ Available PIO and DMA resources determine the number of physical lanes.
 ## Validation
 
 ```sh
-cargo test -p led-output
-cargo build -p led-output
-cargo build -p led-output --target thumbv6m-none-eabi --release
-cargo clippy -p led-output --all-targets -- -D warnings
+cargo test -p polis-led-output
+cargo build -p polis-led-output
+cargo build -p polis-led-output --target thumbv6m-none-eabi --release
+cargo clippy -p polis-led-output --all-targets -- -D warnings
 ```
 
 Tests cover one through three and eight lanes, unequal lengths, concurrent progress,

@@ -1,4 +1,4 @@
-# ads1x1x
+# polis-ads1x1x
 
 Allocation-free `no_std` async I²C driver for TI ADS1013/1014/1015 and
 ADS1113/1114/1115, using `embedded-hal-async` 1.0. No MCU, executor or timer
@@ -21,8 +21,8 @@ I/O methods have an `_async` suffix and accept an async bus/delay.
 The consumer controls the enclosing deadline and bus recovery.
 
 ```rust,no_run
-use ads1x1x::{Address, Ads1015, Channel, Config, Error};
-use ads1x1x::model::DataRate12Bit;
+use polis_ads1x1x::{Address, Ads1015, Channel, Config, Error};
+use polis_ads1x1x::model::DataRate12Bit;
 use embedded_hal_async::{delay::DelayNs, i2c::I2c};
 
 async fn sample<B: I2c>(bus: B, delay: &mut impl DelayNs) -> Result<i16, Error<B::Error>> {
@@ -38,7 +38,7 @@ async fn sample<B: I2c>(bus: B, delay: &mut impl DelayNs) -> Result<i16, Error<B
 Rate types prevent selecting a 12-bit rate on a 16-bit model:
 
 ```rust,compile_fail
-use ads1x1x::{Config, model::{Ads1115, DataRate12Bit}};
+use polis_ads1x1x::{Config, model::{Ads1115, DataRate12Bit}};
 let config = Config::<Ads1115> {
     data_rate: DataRate12Bit::Sps1600, // ADS1115 has a different rate table.
     ..Default::default()
@@ -78,7 +78,7 @@ permit input voltages outside the device's supply limits.
 ## Moving from ads1015-rs
 
 This is an API redesign, not a drop-in rename. Replace the consumer's
-`ads1015-rs` dependency with `ads1x1x`, choose the model alias, and pass complete
+`ads1015-rs` dependency with `polis-ads1x1x`, choose the model alias, and pass complete
 `Config` values instead of cached field setters. `TargetAddr` becomes `Address`;
 `Channel::SingleA1` becomes `Channel::Single1`. Async methods consistently use
 `_async`; blocking methods are not provided. Ready-pin ownership and waiting move
@@ -100,9 +100,9 @@ Build from the workspace root (choose one board):
 
 ```sh
 # Pico / RP2040
-cargo build -p ads1x1x --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
+cargo build -p polis-ads1x1x --example embassy --features example-rp2040 --target thumbv6m-none-eabi --release --locked
 # Pico 2 / RP2350A
-cargo build -p ads1x1x --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
+cargo build -p polis-ads1x1x --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
 ```
 
 The ELF is `target/<target>/release/examples/embassy`. Flash the matching
@@ -117,10 +117,10 @@ applications own deadlines and recovery. Builds do not qualify hardware.
 ## Validation and release
 
 ```sh
-cargo test -p ads1x1x --locked
-python3 tools/check.py build --platform all --package ads1x1x
-python3 tools/check.py clippy --platform all --package ads1x1x
-cargo package -p ads1x1x --allow-dirty
+cargo test -p polis-ads1x1x --locked
+python3 tools/check.py build --platform all --package polis-ads1x1x
+python3 tools/check.py clippy --platform all --package polis-ads1x1x
+cargo package -p polis-ads1x1x --allow-dirty
 ```
 
 Mocks cover all six models with yielding async I²C transactions. Hardware

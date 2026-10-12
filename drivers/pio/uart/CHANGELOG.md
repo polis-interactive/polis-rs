@@ -2,6 +2,9 @@
 
 ## 0.1.0 Unreleased
 
+Renamed the package to `polis-pio-uart` and its Rust crate to
+`polis_pio_uart` under the workspace naming standard.
+
 - Add a minimal, opt-in Embassy usage example for Pico and Pico 2, with
   wiring, build commands, and target build/Clippy coverage.
 

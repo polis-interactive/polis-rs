@@ -1,5 +1,5 @@
 [package]
-name = "pio-ws2813"
+name = "polis-pio-ws2813"
 version = "0.1.0"
 edition.workspace = true
 publish = ["crates-io"]
@@ -54,7 +54,7 @@ embassy-time = { workspace = true, optional = true }
 fixed = { workspace = true, optional = true }
 pio.workspace = true
 smart-leds.workspace = true
-led-output.workspace = true
+polis-led-output.workspace = true
 embassy-executor = { workspace = true, optional = true }
 embassy-futures = { workspace = true, optional = true }
 cortex-m-rt = { workspace = true, optional = true }

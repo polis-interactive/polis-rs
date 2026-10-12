@@ -8,7 +8,7 @@ use embassy_executor::Spawner;
 use embassy_rp::{bind_interrupts, i2c, peripherals};
 use embassy_time::Timer;
 use panic_probe as _;
-use tmp1x2::{Address, Config, ConversionRate, Tmp1x2};
+use polis_tmp1x2::{Address, Config, ConversionRate, Tmp1x2};
 
 bind_interrupts!(struct Irqs {
     I2C1_IRQ => i2c::InterruptHandler<peripherals::I2C1>;

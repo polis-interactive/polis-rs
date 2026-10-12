@@ -16,7 +16,7 @@ pub use smart_leds::{RGB8, RGBW};
 /// The nested grouping type is an implementation detail; let inference name it.
 ///
 /// ```
-/// use led_output::{FrameLengthError, LedOutput, RGB8, led_outputs};
+/// use polis_led_output::{FrameLengthError, LedOutput, RGB8, led_outputs};
 /// struct Lane<const N: usize>;
 /// impl<const N: usize> LedOutput<RGB8> for Lane<N> {
 ///     const PIXEL_COUNT: usize = N;
@@ -33,17 +33,17 @@ pub use smart_leds::{RGB8, RGBW};
 /// Empty groups and separators other than commas are rejected:
 ///
 /// ```compile_fail
-/// let outputs = led_output::led_outputs!();
+/// let outputs = polis_led_output::led_outputs!();
 /// ```
 ///
 /// ```compile_fail
-/// let outputs = led_output::led_outputs!(lane0; lane1);
+/// let outputs = polis_led_output::led_outputs!(lane0; lane1);
 /// ```
 ///
 /// Each argument must be an output driver:
 ///
 /// ```compile_fail,E0277
-/// let outputs = led_output::led_outputs!(42_u8);
+/// let outputs = polis_led_output::led_outputs!(42_u8);
 /// ```
 #[macro_export]
 macro_rules! led_outputs {

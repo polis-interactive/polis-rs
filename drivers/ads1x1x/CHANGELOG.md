@@ -2,6 +2,9 @@
 
 ## 0.1.0 — unreleased
 
+Renamed the package to `polis-ads1x1x` and its Rust crate to
+`polis_ads1x1x` under the workspace naming standard.
+
 - Support six explicitly selected I²C ADC models.
 - Add 16-bit sample/threshold handling and model-specific data-rate types.
 - Validate multiplexer, PGA, comparator and threshold capabilities before I/O.

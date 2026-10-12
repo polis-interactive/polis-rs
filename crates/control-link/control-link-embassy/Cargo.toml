@@ -1,0 +1,63 @@
+[package]
+name = "polis-control-link-embassy"
+version = "0.2.0"
+edition.workspace = true
+rust-version = "1.99"
+description = "Allocation-free point-to-point UART, USB CDC and TCP control links"
+readme = "README.md"
+license = "MIT"
+publish = ["crates-io"]
+
+[features]
+default = ["uart"]
+uart = []
+supervisor = ["dep:embassy-futures", "dep:embassy-time"]
+tcp = ["dep:embassy-net"]
+serial = ["dep:embassy-usb"]
+rp2040 = ["embassy-rp?/rp2040"]
+rp235xa = ["embassy-rp?/rp235xa"]
+link-check = [
+    "uart", "tcp", "serial", "supervisor", "dep:embassy-net-driver-channel", "dep:embassy-futures",
+    "dep:embassy-executor", "dep:cortex-m-rt", "dep:panic-probe", "dep:defmt-rtt",
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+]
+
+[dependencies]
+polis-control-link-protocol.workspace = true
+polis-framing.workspace = true
+embedded-io-async.workspace = true
+embassy-net = { workspace = true, optional = true, features = ["tcp", "proto-ipv4", "medium-ethernet"] }
+embassy-usb = { version = "0.6.0", default-features = false, optional = true }
+embassy-rp = { workspace = true, optional = true }
+embassy-executor = { workspace = true, optional = true }
+embassy-futures = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+embassy-net-driver-channel = { version = "0.4.0", optional = true }
+
+[target.'cfg(not(target_os = "none"))'.dev-dependencies]
+critical-section = { version = "1.2", features = ["std"] }
+embassy-time = { workspace = true, features = ["std", "generic-queue-8"] }
+tokio = { workspace = true, features = ["macros", "rt", "time", "io-util"] }
+
+[[example]]
+name = "link_check"
+required-features = ["link-check"]
+test = false
+bench = false
+
+[package.metadata.polis]
+feature-sets = [
+    [], ["uart"], ["tcp"], ["serial"], ["uart", "tcp"], ["uart", "serial"], ["tcp", "serial"], ["uart", "tcp", "serial"],
+    ["supervisor"], ["uart", "supervisor"], ["tcp", "supervisor"], ["serial", "supervisor"],
+    ["uart", "tcp", "supervisor"], ["uart", "serial", "supervisor"], ["tcp", "serial", "supervisor"], ["uart", "tcp", "serial", "supervisor"],
+]
+link-examples = ["link_check"]
+
+[package.metadata.docs.rs]
+features = ["uart", "tcp", "serial", "supervisor"]
+default-target = "thumbv8m.main-none-eabihf"
+targets = ["thumbv6m-none-eabi", "thumbv8m.main-none-eabihf"]

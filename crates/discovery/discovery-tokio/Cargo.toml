@@ -1,0 +1,33 @@
+[package]
+name = "polis-discovery-tokio"
+version = "0.1.0"
+edition.workspace = true
+rust-version = "1.99"
+description = "Composable RS-485 and UDP discovery for Tokio applications"
+readme = "README.md"
+license = "MIT"
+publish = ["crates-io"]
+
+[features]
+default = ["udp"]
+rs485 = ["tokio/io-util", "tokio/time"]
+udp = ["tokio/net", "tokio/time"]
+
+[dependencies]
+polis-discovery-protocol.workspace = true
+polis-framing.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt", "time", "test-util"] }
+
+[[example]]
+name = "udp"
+required-features = ["udp"]
+
+[package.metadata.polis]
+platforms = ["native"]
+feature-sets = [[], ["udp"], ["rs485"], ["udp", "rs485"]]
+
+[package.metadata.docs.rs]
+features = ["udp", "rs485"]

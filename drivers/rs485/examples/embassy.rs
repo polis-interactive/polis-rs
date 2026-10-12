@@ -14,8 +14,8 @@ use embassy_rp::{
 use embassy_time::{Delay, Timer};
 use embedded_hal::digital::PinState;
 use panic_probe as _;
-use pio_uart::{PioUart, Programs};
-use rs485::{Config, Rs485};
+use polis_pio_uart::{PioUart, Programs};
+use polis_rs485::{Config, Rs485};
 
 bind_interrupts!(struct Irqs {
     PIO1_IRQ_0 => pio::InterruptHandler<peripherals::PIO1>;
