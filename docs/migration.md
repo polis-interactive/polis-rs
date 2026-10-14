@@ -1,8 +1,8 @@
 # Adding and adopting shared libraries
 
-The initial library extraction is complete. Package READMEs describe supported
-APIs; `PROVENANCE.md` files record origins and `validation.md` records checks.
-Further libraries can follow the same process.
+Package READMEs describe supported APIs and current limitations;
+`PROVENANCE.md` files record origins. See [development](development.md) for
+reproducible checks and [publishing](publishing.md) for archive verification.
 
 ## For each new library
 
@@ -11,11 +11,12 @@ Further libraries can follow the same process.
 2. Record the source revision, local differences, file hashes and license terms.
    Add the implementation, tests, package README and changelog together.
 3. Validate host behavior, supported target builds, relevant linked consumers and
-   the standalone package archive. Record hardware checks still outstanding.
+   the standalone package archive. Document outstanding hardware checks in the
+   package README; report check results in the PR or commit description.
 
 ## Consumer adoption
 
-All sixteen workspace libraries now use `polis-<purpose>` Cargo package names.
+All seventeen workspace libraries now use `polis-<purpose>` Cargo package names.
 Update dependency keys and Rust imports together: `framing` becomes
 `polis-framing` in Cargo.toml and `polis_framing` in Rust; the same prefix applies
 to every other library. Package directories, public items, transport feature

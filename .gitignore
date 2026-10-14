@@ -1,4 +1,4 @@
-/target/
+/.target/
 **/*.rs.bk
 # Keep the root Cargo.lock once the workspace is activated.
 

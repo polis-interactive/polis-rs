@@ -27,7 +27,7 @@ def main():
             command = [
                 "cargo", f"+{toolchain}", "build", "--offline",
                 "--manifest-path", str(caller / "Cargo.toml"),
-                "--target-dir", str(root / "target/macro-callers"),
+                "--target-dir", str(root / ".target/macro-callers"),
             ]
             if target:
                 command += ["--target", target]
