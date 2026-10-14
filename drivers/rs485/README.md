@@ -104,7 +104,7 @@ cargo build -p polis-rs485 --example embassy --features example-rp2040 --target 
 cargo build -p polis-rs485 --example embassy --features example-rp235xa --target thumbv8m.main-none-eabihf --release --locked
 ```
 
-The ELF is `target/<target>/release/examples/embassy`. Flash the matching
+The ELF is `.target/<target>/release/examples/embassy`. Flash the matching
 image with your usual SWD/UF2 workflow; an RTT-capable debug probe displays
 `defmt` output. These commands build and link only; they do not flash hardware.
 The opt-in features supply the executor, time driver, panic logger, boot image,

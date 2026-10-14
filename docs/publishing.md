@@ -36,7 +36,8 @@ The owner selected MIT for original code on 2026-10-11. Those packages declare
 license. Use the same convention for new original libraries.
 
 The imported SK6812/WS2813 drivers retain their original MIT notices; PIO I²C
-retains BSD-3-Clause. Preserve third-party copyright and license notices. A
+retains BSD-3-Clause. MAX31865 retains its upstream BSD-3-Clause declaration
+and Adafruit notices. Preserve third-party copyright and license notices. A
 package's license declaration must reflect its incorporated code, rather than
 blindly inheriting the repository default. Provenance records the source's
 license status at import and the subsequent owner-selected license.

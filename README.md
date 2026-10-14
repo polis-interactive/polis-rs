@@ -28,6 +28,7 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-control-link-tokio](crates/control-link/control-link-tokio) | Point-to-point TCP and host serial control links |
 | [polis-control-link-embassy](crates/control-link/control-link-embassy) | Point-to-point UART, USB CDC and TCP control links |
 | [polis-ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
+| [polis-max31865](drivers/max31865) | Async SPI driver for MAX31865 PT100/PT1000 RTD converters |
 | [polis-tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |
 | [polis-rs485](drivers/rs485) | Async half-duplex RS-485 with direction and turnaround timing |
 | [polis-w5500](drivers/w5500) | W5500 Ethernet startup adapter for Embassy |
@@ -43,8 +44,8 @@ Its README documents wiring, expected output, and the `example-rp2040` /
 target Clippy checks them too.
 
 Original code is licensed under [MIT](LICENSE-MIT). Imported SK6812/WS2813
-drivers retain their MIT notices; PIO I²C retains BSD-3-Clause. Each package
-declares its license and includes the applicable notice. No packages are
+drivers retain their MIT notices; PIO I²C and MAX31865 retain BSD-3-Clause.
+Each package declares its license and includes the applicable notice. No packages are
 published by this setup, and a Git remote has not been established here.
 
 ## Platform selection
@@ -76,7 +77,6 @@ Build results do not qualify hardware.
 | [Development](docs/development.md) | Native/embedded matrix, tooling and examples |
 | [Publishing](docs/publishing.md) | Per-package releases and remaining release inputs |
 | [Migration](docs/migration.md) | Source findings and adoption status |
-| [Validation](docs/validation.md) | Test, target build, archive and link validation results |
 
 ## Contributions
 
