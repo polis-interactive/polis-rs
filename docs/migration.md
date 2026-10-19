@@ -16,7 +16,7 @@ reproducible checks and [publishing](publishing.md) for archive verification.
 
 ## Consumer adoption
 
-All seventeen workspace libraries now use `polis-<purpose>` Cargo package names.
+All nineteen workspace libraries now use `polis-<purpose>` Cargo package names.
 Update dependency keys and Rust imports together: `framing` becomes
 `polis-framing` in Cargo.toml and `polis_framing` in Rust; the same prefix applies
 to every other library. Package directories, public items, transport feature
@@ -38,3 +38,12 @@ migration requirements.
 
 Release prerequisites and dependency ordering live in [publishing](publishing.md);
 package boundaries and dependency examples live in [architecture](architecture.md).
+
+## HDMI joystick extraction
+
+`drivers/joystick` preserves the former `hdmi-joystick` API under `polis-joystick`.
+The source files were untracked in HDMI, so package provenance records their
+hashes separately from the surrounding checkout revision. Until this extraction
+has a real committed revision or release, HDMI validates it through documented
+local Cargo patches, including one ADS driver identity shared by BSP and adapter.
+Do not substitute an older polis-rs commit that lacks the new package.
