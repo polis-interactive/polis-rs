@@ -1605,6 +1605,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "polis-modulino-buttons"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal-async",
+ "panic-probe",
+]
+
+[[package]]
 name = "polis-pio-encoder"
 version = "0.1.0"
 dependencies = [
