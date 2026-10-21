@@ -1,6 +1,6 @@
 # Workspace development
 
-One active virtual workspace contains nineteen library packages. Rust 1.99.0 is the
+One active virtual workspace contains twenty-three library packages. Rust 1.99.0 is the
 pinned contributor compiler and the initial supported compiler floor. This is a
 conservative tested floor, not a claim that older compilers cannot work. Lower a
 package's `rust-version` only after testing it and its resolved dependencies.

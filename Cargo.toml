@@ -12,10 +12,14 @@ members = [
     "drivers/ads1x1x",
     "drivers/joystick",
     "drivers/tmp1x2",
+    "drivers/sh1106",
+    "drivers/ssd1306",
+    "drivers/ili9341",
     "drivers/max31865",
     "drivers/rs485",
     "drivers/w5500",
     "drivers/pio/i2c",
+    "drivers/pio/i8080",
     "drivers/pio/uart",
     "drivers/pio/encoder",
     "drivers/pio/sk6812",
@@ -33,10 +37,14 @@ default-members = [
     "drivers/ads1x1x",
     "drivers/joystick",
     "drivers/tmp1x2",
+    "drivers/sh1106",
+    "drivers/ssd1306",
+    "drivers/ili9341",
     "drivers/max31865",
     "drivers/rs485",
     "drivers/w5500",
     "drivers/pio/i2c",
+    "drivers/pio/i8080",
     "drivers/pio/uart",
     "drivers/pio/encoder",
     "drivers/pio/sk6812",
@@ -47,6 +55,7 @@ default-members = [
 edition = "2024"
 
 [workspace.dependencies]
+polis-pio-i8080 = { path = "drivers/pio/i8080", version = "0.1.0", default-features = false }
 polis-ads1x1x = { path = "drivers/ads1x1x", version = "0.1.0", default-features = false }
 polis-framing = { path = "crates/protocol-framing", version = "0.1.0", default-features = false }
 polis-discovery-protocol = { path = "crates/discovery/discovery-protocol", version = "0.1.0", default-features = false }
@@ -59,6 +68,7 @@ cobs = { version = "0.3", default-features = false }
 crc = { version = "3.3", default-features = false }
 bitflags = { version = "2.10", default-features = false }
 libm = { version = "0.2", default-features = false }
+embedded-graphics-core = { version = "0.4.0", default-features = false }
 embedded-hal = "1.0.0"
 embedded-hal-async = "1.0.0"
 embedded-io-async = "0.7.0"
