@@ -30,9 +30,13 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
 | [polis-joystick](drivers/joystick) | Portable joystick calibration with borrowed ADS1x1x and RP ADC sources |
 | [polis-max31865](drivers/max31865) | Async SPI driver for MAX31865 PT100/PT1000 RTD converters |
+| [polis-ssd1306](drivers/ssd1306) | Async I²C 128×32 OLED adapter with a Mousefood/Ratatui example |
+| [polis-ili9341](drivers/ili9341) | Async SPI/PIO-parallel 320×240 RGB565 display with Mousefood/Ratatui examples |
+| [polis-sh1106](drivers/sh1106) | Async I²C 128×64 OLED driver with a Mousefood/Ratatui example |
 | [polis-tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |
 | [polis-rs485](drivers/rs485) | Async half-duplex RS-485 with direction and turnaround timing |
 | [polis-w5500](drivers/w5500) | W5500 Ethernet startup adapter for Embassy |
+| [polis-pio-i8080](drivers/pio/i8080) | Write-only 8-bit 8080 display bus using PIO and DMA |
 | [polis-pio-i2c](drivers/pio/i2c) | PIO I²C controller for RP2040 and RP2350A |
 | [polis-pio-uart](drivers/pio/uart) | Async PIO UART adapter for RP2040 and RP2350A |
 | [polis-pio-encoder](drivers/pio/encoder) | Cumulative quadrature positions independent of CPU drain latency |

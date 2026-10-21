@@ -134,7 +134,7 @@ consumer that requests it. Cargo features unify, so neither resolver 3 nor
 [Cargo feature behavior](https://doc.rust-lang.org/cargo/reference/features.html)
 explains why these builds must stay separate.
 
-Group PIO libraries under `drivers/pio/{i2c,uart,encoder,sk6812,ws2813}`. Shared workspace
+Group PIO libraries under `drivers/pio/{i2c,i8080,uart,encoder,sk6812,ws2813}`. Shared workspace
 dependencies pin HAL versions; a repository build command's `--platform` option
 selects the target and forwards the corresponding package features. A virtual
 workspace has no package features of its own. Keep the public package features

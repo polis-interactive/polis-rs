@@ -1,0 +1,49 @@
+[package]
+name = "polis-pio-i8080"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+description = "Write-only 8-bit 8080 display bus using RP PIO and DMA"
+license = "MIT"
+
+[features]
+default = []
+rp2040 = ["dep:embassy-rp", "embassy-rp/rp2040", "dep:fixed"]
+rp235xa = ["dep:embassy-rp", "embassy-rp/rp235xa", "dep:fixed"]
+example-rp2040 = ["embassy-example", "rp2040"]
+example-rp235xa = ["embassy-example", "rp235xa"]
+embassy-example = [
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+    "dep:embassy-time", "dep:embassy-executor", "dep:cortex-m-rt",
+    "dep:panic-probe", "dep:defmt-rtt", "dep:defmt",
+]
+
+[dependencies]
+embassy-futures.workspace = true
+embassy-rp = { workspace = true, optional = true }
+fixed = { workspace = true, optional = true }
+pio.workspace = true
+embassy-time = { workspace = true, optional = true }
+embassy-executor = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+defmt = { workspace = true, optional = true }
+
+[[example]]
+name = "embassy"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
+[package.metadata.polis]
+chip-features = true
+embassy-example = true
+
+[package.metadata.docs.rs]
+default-target = "thumbv6m-none-eabi"
+targets = ["thumbv6m-none-eabi"]
+features = ["rp2040"]
