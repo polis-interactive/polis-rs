@@ -1,0 +1,55 @@
+[package]
+name = "polis-joystick"
+version = "0.1.0"
+edition.workspace = true
+rust-version = "1.99"
+publish = ["crates-io"]
+description = "Allocation-free joystick calibration with borrowed async ADC adapters"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/polis-interactive/polis-rs"
+
+[features]
+default = []
+ads1x1x = ["dep:polis-ads1x1x", "dep:embedded-hal-async"]
+rp-adc = ["dep:embassy-rp"]
+rp2040 = ["rp-adc", "embassy-rp/rp2040"]
+rp235xa = ["rp-adc", "embassy-rp/rp235xa"]
+example-rp2040 = ["embassy-example", "rp2040"]
+example-rp235xa = ["embassy-example", "rp235xa"]
+embassy-example = [
+    "rp-adc", "embassy-rp/rt", "embassy-rp/time-driver",
+    "embassy-rp/critical-section-impl", "embassy-rp/executor-thread",
+    "embassy-rp/boot2-w25q080", "dep:embassy-time", "dep:embassy-executor",
+    "dep:cortex-m-rt", "dep:panic-probe", "dep:defmt-rtt", "dep:defmt",
+]
+
+[dependencies]
+polis-ads1x1x = { workspace = true, optional = true }
+embedded-hal-async = { workspace = true, optional = true }
+embassy-rp = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
+embassy-executor = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+defmt = { workspace = true, optional = true }
+
+[target.'cfg(not(target_os = "none"))'.dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros"] }
+
+[[example]]
+name = "embassy"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
+[package.metadata.polis]
+chip-features = true
+embassy-example = true
+feature-sets = [[], ["ads1x1x"]]
+
+[package.metadata.docs.rs]
+default-target = "thumbv6m-none-eabi"
+targets = ["thumbv6m-none-eabi"]
+features = ["ads1x1x", "rp2040"]

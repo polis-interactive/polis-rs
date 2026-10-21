@@ -28,12 +28,14 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-control-link-tokio](crates/control-link/control-link-tokio) | Point-to-point TCP and host serial control links |
 | [polis-control-link-embassy](crates/control-link/control-link-embassy) | Point-to-point UART, USB CDC and TCP control links |
 | [polis-ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
+| [polis-joystick](drivers/joystick) | Portable joystick calibration with borrowed ADS1x1x and RP ADC sources |
 | [polis-max31865](drivers/max31865) | Async SPI driver for MAX31865 PT100/PT1000 RTD converters |
 | [polis-tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |
 | [polis-rs485](drivers/rs485) | Async half-duplex RS-485 with direction and turnaround timing |
 | [polis-w5500](drivers/w5500) | W5500 Ethernet startup adapter for Embassy |
 | [polis-pio-i2c](drivers/pio/i2c) | PIO I²C controller for RP2040 and RP2350A |
 | [polis-pio-uart](drivers/pio/uart) | Async PIO UART adapter for RP2040 and RP2350A |
+| [polis-pio-encoder](drivers/pio/encoder) | Cumulative quadrature positions independent of CPU drain latency |
 | [polis-pio-sk6812](drivers/pio/sk6812) | PIO driver for SK6812 RGBW LED chains |
 | [polis-pio-ws2813](drivers/pio/ws2813) | PIO driver for WS2813 RGB LED chains |
 
@@ -45,6 +47,7 @@ target Clippy checks them too.
 
 Original code is licensed under [MIT](LICENSE-MIT). Imported SK6812/WS2813
 drivers retain their MIT notices; PIO I²C and MAX31865 retain BSD-3-Clause.
+PIO encoder combines original MIT Rust code with an attributed BSD-3-Clause PIO algorithm.
 Each package declares its license and includes the applicable notice. No packages are
 published by this setup, and a Git remote has not been established here.
 

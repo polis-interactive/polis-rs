@@ -1,6 +1,6 @@
 # Workspace development
 
-One active virtual workspace contains seventeen library packages. Rust 1.99.0 is the
+One active virtual workspace contains nineteen library packages. Rust 1.99.0 is the
 pinned contributor compiler and the initial supported compiler floor. This is a
 conservative tested floor, not a claim that older compilers cannot work. Lower a
 package's `rust-version` only after testing it and its resolved dependencies.
@@ -28,6 +28,12 @@ PIO host builds expose portable types and test timing/waveform code; select an M
 feature for the hardware API. Each package owns an independent version. Shared
 versions and internal `path` plus `version` declarations live in root
 `workspace.dependencies`. Keep the root Cargo.lock under version control.
+
+`polis-joystick` tests its portable core and optional `ads1x1x` adapter separately
+on the host. Embedded matrix runs add the selected RP ADC adapter, both alone
+and alongside ADS, and link its Pico/Pico 2 example. `rp-adc` itself selects no
+chip; consumers may supply the Embassy MCU feature directly or use `rp2040` /
+`rp235xa` forwarding. Product calibration and acquisition deadlines stay downstream.
 
 The build tool uses Python 3.11+ and checks packages individually to catch
 accidental reliance on another member's enabled features. CI and the editor use

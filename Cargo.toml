@@ -10,12 +10,14 @@ members = [
     "crates/control-link/control-link-tokio",
     "crates/control-link/control-link-embassy",
     "drivers/ads1x1x",
+    "drivers/joystick",
     "drivers/tmp1x2",
     "drivers/max31865",
     "drivers/rs485",
     "drivers/w5500",
     "drivers/pio/i2c",
     "drivers/pio/uart",
+    "drivers/pio/encoder",
     "drivers/pio/sk6812",
     "drivers/pio/ws2813",
 ]
@@ -29,12 +31,14 @@ default-members = [
     "crates/control-link/control-link-tokio",
     "crates/control-link/control-link-embassy",
     "drivers/ads1x1x",
+    "drivers/joystick",
     "drivers/tmp1x2",
     "drivers/max31865",
     "drivers/rs485",
     "drivers/w5500",
     "drivers/pio/i2c",
     "drivers/pio/uart",
+    "drivers/pio/encoder",
     "drivers/pio/sk6812",
     "drivers/pio/ws2813",
 ]
@@ -43,6 +47,7 @@ default-members = [
 edition = "2024"
 
 [workspace.dependencies]
+polis-ads1x1x = { path = "drivers/ads1x1x", version = "0.1.0", default-features = false }
 polis-framing = { path = "crates/protocol-framing", version = "0.1.0", default-features = false }
 polis-discovery-protocol = { path = "crates/discovery/discovery-protocol", version = "0.1.0", default-features = false }
 polis-control-link-protocol = { path = "crates/control-link/control-link-protocol", version = "0.1.0", default-features = false }

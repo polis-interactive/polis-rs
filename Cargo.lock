@@ -1342,6 +1342,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "polis-joystick"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal-async",
+ "panic-probe",
+ "polis-ads1x1x",
+ "tokio",
+]
+
+[[package]]
 name = "polis-led-output"
 version = "0.1.0"
 dependencies = [
@@ -1364,6 +1380,21 @@ dependencies = [
  "embedded-hal-bus",
  "libm",
  "panic-probe",
+]
+
+[[package]]
+name = "polis-pio-encoder"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "fixed",
+ "panic-probe",
+ "pio",
 ]
 
 [[package]]
