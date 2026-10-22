@@ -1,0 +1,48 @@
+[package]
+name = "polis-modulino-buttons"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/polis-interactive/polis-rs"
+description = "Asynchronous I2C driver for Arduino Modulino Buttons (ABX00110)"
+
+[features]
+default = []
+
+# Opt-in Pico/Pico 2 usage example; normal library builds select no runtime.
+example-rp2040 = ["embassy-example", "embassy-rp/rp2040"]
+example-rp235xa = ["embassy-example", "embassy-rp/rp235xa"]
+embassy-example = [
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+    "dep:embassy-rp",
+    "dep:embassy-time",
+    "dep:embassy-executor",
+    "dep:cortex-m-rt",
+    "dep:panic-probe",
+    "dep:defmt-rtt",
+    "dep:defmt",
+]
+
+[[example]]
+name = "embassy"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
+[dependencies]
+embassy-rp = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
+embassy-executor = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+defmt = { workspace = true, optional = true }
+embedded-hal-async.workspace = true
+
+[package.metadata.polis]
+embassy-example = true
+chip-features = false

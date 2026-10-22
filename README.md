@@ -34,6 +34,7 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-ili9341](drivers/ili9341) | Async SPI/PIO-parallel 320×240 RGB565 display with Mousefood/Ratatui examples |
 | [polis-sh1106](drivers/sh1106) | Async I²C 128×64 OLED driver with a Mousefood/Ratatui example |
 | [polis-tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |
+| [polis-modulino-buttons](drivers/modulino-buttons) | Async I²C driver for Arduino Modulino Buttons (ABX00110) and its three LEDs |
 | [polis-rs485](drivers/rs485) | Async half-duplex RS-485 with direction and turnaround timing |
 | [polis-w5500](drivers/w5500) | W5500 Ethernet startup adapter for Embassy |
 | [polis-pio-i8080](drivers/pio/i8080) | Write-only 8-bit 8080 display bus using PIO and DMA |
