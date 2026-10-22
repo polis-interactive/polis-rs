@@ -1,4 +1,4 @@
-//! ILI9341 8080: GP2..9 D0..7, GP10 WR, GP11 DC, GP12 CS, GP13 RESET.
+//! ILI9341 8080: GP0..7 D0..7, GP8 WR, GP9 DC, GP10 CS, GP11 RESET.
 //! Hold RD high (3.3 V). Verify shield logic levels and actual LCD pin labels.
 #![no_std]
 #![no_main]
@@ -53,9 +53,14 @@ async fn main(_spawner: Spawner) {
         &mut *core::ptr::addr_of_mut!(FRAMEBUFFER)
     };
 
-    let cs = Output::new(p.PIN_12, Level::High);
-    let dc = Output::new(p.PIN_11, Level::High);
-    let reset = Output::new(p.PIN_13, Level::High);
+    // This shield needs left-to-right reflection in landscape mode.
+    let display_config = Config {
+        mirror_horizontal: true,
+        ..Default::default()
+    };
+    let cs = Output::new(p.PIN_10, Level::High);
+    let dc = Output::new(p.PIN_9, Level::High);
+    let reset = Output::new(p.PIN_11, Level::High);
     let Pio {
         mut common,
         sm0,
@@ -65,16 +70,16 @@ async fn main(_spawner: Spawner) {
     } = Pio::new(p.PIO0, Irqs);
     let pins = Pins {
         data: [
+            common.make_pio_pin(p.PIN_0),
+            common.make_pio_pin(p.PIN_1),
             common.make_pio_pin(p.PIN_2),
             common.make_pio_pin(p.PIN_3),
             common.make_pio_pin(p.PIN_4),
             common.make_pio_pin(p.PIN_5),
             common.make_pio_pin(p.PIN_6),
             common.make_pio_pin(p.PIN_7),
-            common.make_pio_pin(p.PIN_8),
-            common.make_pio_pin(p.PIN_9),
         ],
-        wr: common.make_pio_pin(p.PIN_10),
+        wr: common.make_pio_pin(p.PIN_8),
         dc,
         cs,
     };
@@ -90,10 +95,9 @@ async fn main(_spawner: Spawner) {
     .unwrap();
     let interface = PioInterface::new(bus);
     Timer::after_millis(100).await; // Example supply-settling delay.
-    let mut display =
-        Ili9341Async::new(interface, reset, framebuffer, Config::default(), &mut Delay)
-            .await
-            .unwrap();
+    let mut display = Ili9341Async::new(interface, reset, framebuffer, display_config, &mut Delay)
+        .await
+        .unwrap();
 
     // 32 columns × 12 rows limits Ratatui's cell-buffer allocation on Pico.
     let backend = EmbeddedBackend::new(

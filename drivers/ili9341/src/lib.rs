@@ -1,4 +1,4 @@
-//! Buffered async ILI9341 driver for 320×240 landscape displays.
+//! Buffered async ILI9341 driver for landscape and portrait displays.
 //!
 //! [`Ili9341Async`] stores RGB565; [`Ili9341Rgb332`] halves framebuffer storage
 //! with RGB332 and requires a transport that expands pixels to RGB565.
@@ -30,16 +30,13 @@ use embedded_graphics_core::{
 use embedded_hal::digital::OutputPin;
 use embedded_hal_async::delay::DelayNs;
 use lcd_async::{
-    Builder, Display,
-    models::ILI9341Rgb565,
-    options::{Orientation, Rotation},
-    raw_framebuf::RawFrameBuf,
+    Builder, Display, models::ILI9341Rgb565, options::Orientation, raw_framebuf::RawFrameBuf,
 };
 
 pub use lcd_async::{
     InitError,
     interface::{Interface, SpiError, SpiInterface},
-    options::{ColorInversion, ColorOrder},
+    options::{ColorInversion, ColorOrder, Rotation},
 };
 
 /// Landscape width in pixels.
@@ -49,7 +46,6 @@ pub const HEIGHT: usize = 240;
 /// Caller-owned RGB565 framebuffer size: 153,600 bytes (150 KiB).
 pub const BUFFER_SIZE: usize = WIDTH * HEIGHT * 2;
 const STRIP_ROWS: usize = 8;
-const STRIP_BYTES: usize = WIDTH * STRIP_ROWS * 2;
 
 /// Landscape orientation; both variants expose the same 320×240 drawing area.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -66,6 +62,12 @@ pub enum Landscape {
 pub struct Config {
     /// Landscape mounting direction. Defaults to [`Landscape::Normal`].
     pub landscape: Landscape,
+    /// Reflect left-to-right in the selected landscape orientation. Defaults to false.
+    pub mirror_horizontal: bool,
+    /// Additional clockwise rotation after landscape mounting and mirroring.
+    /// Defaults to [`Rotation::Deg0`]; `Deg270` turns 90° counterclockwise.
+    /// Quarter turns expose a 240×320 drawing area instead of 320×240.
+    pub rotation: Rotation,
     /// Panel subpixel order. Defaults to BGR, common on ILI9341 SPI modules.
     pub color_order: ColorOrder,
     /// Panel inversion setting. Defaults to normal (not inverted).
@@ -76,9 +78,35 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             landscape: Landscape::Normal,
+            mirror_horizontal: false,
+            rotation: Rotation::Deg0,
             color_order: ColorOrder::Bgr,
             inversion: ColorInversion::Normal,
         }
+    }
+}
+
+impl Config {
+    fn orientation(self) -> Orientation {
+        let rotation = match self.landscape {
+            Landscape::Normal => Rotation::Deg90,
+            Landscape::Flipped => Rotation::Deg270,
+        };
+        let orientation = Orientation::new().rotate(rotation);
+        let orientation = if self.mirror_horizontal {
+            orientation.flip_horizontal()
+        } else {
+            orientation
+        };
+        orientation.rotate(self.rotation)
+    }
+}
+
+fn drawing_size(orientation: Orientation) -> Size {
+    if orientation.rotation.is_vertical() {
+        Size::new(WIDTH as u32, HEIGHT as u32)
+    } else {
+        Size::new(HEIGHT as u32, WIDTH as u32)
     }
 }
 
@@ -96,7 +124,7 @@ pub struct Ili9341Async<'a, DI: Interface<Word = u8>, RST: OutputPin> {
 }
 
 impl<'a, DI: Interface<Word = u8>, RST: OutputPin> Ili9341Async<'a, DI, RST> {
-    /// Reset, initialize RGB565 landscape mode, and upload the supplied pixels.
+    /// Reset, initialize RGB565 in the selected orientation, and upload the pixels.
     ///
     /// The framebuffer is preserved, not cleared. Supply zeroed memory for a
     /// black initial frame. Initialization pulses reset and awaits the upstream
@@ -114,15 +142,11 @@ impl<'a, DI: Interface<Word = u8>, RST: OutputPin> Ili9341Async<'a, DI, RST> {
         config: Config,
         delay: &mut impl DelayNs,
     ) -> Result<Self, InitError<DI::Error, RST::Error>> {
-        let rotation = match config.landscape {
-            Landscape::Normal => Rotation::Deg90,
-            Landscape::Flipped => Rotation::Deg270,
-        };
         // The upstream model describes native 240×320 RAM. Rotate it rather
         // than passing a 320×240 native display_size (which would be invalid).
         let controller = Builder::new(ILI9341Rgb565, interface)
             .reset_pin(reset)
-            .orientation(Orientation::new().rotate(rotation))
+            .orientation(config.orientation())
             .color_order(config.color_order)
             .invert_colors(config.inversion)
             .init(delay)
@@ -132,10 +156,10 @@ impl<'a, DI: Interface<Word = u8>, RST: OutputPin> Ili9341Async<'a, DI, RST> {
         Ok(display)
     }
 
-    /// Upload all pixels in thirty eight-row strips, including unchanged pixels.
+    /// Upload all pixels in eight-row strips, including unchanged pixels.
     ///
     /// Each strip reissues column/row windows and memory-write-start, then sends
-    /// 5,120 contiguous bytes. This bounds each pixel transaction without another
+    /// 5,120 landscape or 3,840 portrait bytes. This bounds each transaction without another
     /// copy or a second framebuffer. The bus must support writes of this size.
     /// Underlying interface errors are returned unchanged.
     ///
@@ -145,12 +169,13 @@ impl<'a, DI: Interface<Word = u8>, RST: OutputPin> Ili9341Async<'a, DI, RST> {
     /// In-flight transfer/CS cancellation safety belongs to the SPI device.
     /// There is no dirty tracking, frame synchronization, or tear-free guarantee.
     pub async fn flush(&mut self) -> Result<(), DI::Error> {
-        for (strip, bytes) in self.buffer.as_chunks::<STRIP_BYTES>().0.iter().enumerate() {
+        let width = self.size().width as usize;
+        for (strip, bytes) in self.buffer.chunks_exact(width * STRIP_ROWS * 2).enumerate() {
             self.controller
                 .show_raw_data(
                     0,
                     (strip * STRIP_ROWS) as u16,
-                    WIDTH as u16,
+                    width as u16,
                     STRIP_ROWS as u16,
                     bytes,
                 )
@@ -185,13 +210,18 @@ impl<'a, DI: Interface<Word = u8>, RST: OutputPin> Ili9341Async<'a, DI, RST> {
     }
 
     fn frame(&mut self) -> RawFrameBuf<Rgb565, &mut [u8]> {
-        RawFrameBuf::new(&mut self.buffer[..], WIDTH, HEIGHT)
+        let size = self.size();
+        RawFrameBuf::new(
+            &mut self.buffer[..],
+            size.width as usize,
+            size.height as usize,
+        )
     }
 }
 
 impl<DI: Interface<Word = u8>, RST: OutputPin> OriginDimensions for Ili9341Async<'_, DI, RST> {
     fn size(&self) -> Size {
-        Size::new(WIDTH as u32, HEIGHT as u32)
+        drawing_size(self.controller.orientation())
     }
 }
 

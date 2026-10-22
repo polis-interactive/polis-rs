@@ -65,8 +65,85 @@ fn assert_frame332(writes: &[(bool, &[u8])], buffer: &[u8]) {
 }
 
 #[test]
+fn portrait_drawing_and_row_uploads_use_240_pixel_stride_and_320_rows() {
+    for (rotation, madctl) in [(Rotation::Deg90, 0x48), (Rotation::Deg270, 0x88)] {
+        let trace = Shared::default();
+        let mut buffer = [0; RGB332_BUFFER_SIZE];
+        let address = buffer.as_ptr() as usize;
+        let interface = compressed(&trace);
+        let slices = interface.slices.clone();
+        let mut display = block_on(Ili9341Rgb332::new(
+            interface,
+            Pin("reset", trace.clone()),
+            &mut buffer,
+            Config {
+                mirror_horizontal: true,
+                rotation,
+                ..Default::default()
+            },
+            &mut Delay(trace.clone()),
+        ))
+        .unwrap();
+        assert_eq!(display.size(), Size::new(240, 320));
+        {
+            let trace = trace.borrow();
+            let writes = writes(&trace);
+            assert_eq!(writes[1], (true, &[madctl][..]));
+            assert_eq!(writes[15], (true, &[0, 0, 0, 239][..]));
+            assert_eq!(writes[17], (true, &[0, 0, 1, 63][..]));
+            assert_eq!(writes[20], (true, &display.buffer()[..]));
+            assert_eq!(*slices.borrow(), [(address, RGB332_BUFFER_SIZE)]);
+        }
+        trace.borrow_mut().events.clear();
+        display
+            .draw_iter([
+                Pixel(Point::new(239, 0), Rgb565::GREEN),
+                Pixel(Point::new(0, 1), Rgb565::BLUE),
+                Pixel(Point::new(239, 319), Rgb565::WHITE),
+                Pixel(Point::new(240, 0), Rgb565::RED),
+                Pixel(Point::new(0, 320), Rgb565::RED),
+            ])
+            .unwrap();
+        let mut expected = [0; RGB332_BUFFER_SIZE];
+        expected[239] = 0x1c;
+        expected[240] = 3;
+        expected[RGB332_BUFFER_SIZE - 1] = 0xff;
+        assert_eq!(display.buffer(), &expected);
+        assert!(trace.borrow().events.is_empty());
+        for (start, end) in [(0, 320), (255, 257), (319, usize::MAX)] {
+            trace.borrow_mut().events.clear();
+            block_on(display.flush_rows(start..end)).unwrap();
+            let end = end.min(320);
+            let y_start = (start as u16).to_be_bytes();
+            let y_end = ((end - 1) as u16).to_be_bytes();
+            let trace = trace.borrow();
+            let writes = writes(&trace);
+            assert_eq!(writes.len(), 7);
+            assert_eq!(writes[1], (true, &[0, 0, 0, 239][..]));
+            assert_eq!(
+                writes[3],
+                (true, &[y_start[0], y_start[1], y_end[0], y_end[1]][..])
+            );
+            assert_eq!(writes[6], (true, &display.buffer()[start * 240..end * 240]));
+            assert_eq!(
+                slices.borrow().last(),
+                Some(&(address + start * 240, (end - start) * 240))
+            );
+        }
+        trace.borrow_mut().events.clear();
+        block_on(display.flush_rows(320..usize::MAX)).unwrap();
+        assert!(trace.borrow().events.is_empty());
+    }
+}
+
+#[test]
 fn init_stays_rgb565_and_pixels_are_borrowed_rgb332() {
-    for landscape in [Landscape::Normal, Landscape::Flipped] {
+    for (landscape, mirror_horizontal, madctl) in [
+        (Landscape::Normal, false, 0x68),
+        (Landscape::Flipped, false, 0xa8),
+        (Landscape::Normal, true, 0xe8),
+        (Landscape::Flipped, true, 0x28),
+    ] {
         let trace = Shared::default();
         let mut buffer = [0; RGB332_BUFFER_SIZE];
         for (i, byte) in buffer.iter_mut().enumerate() {
@@ -77,6 +154,7 @@ fn init_stays_rgb565_and_pixels_are_borrowed_rgb332() {
         let slices = interface.slices.clone();
         let config = Config {
             landscape,
+            mirror_horizontal,
             ..Default::default()
         };
         let display = block_on(Ili9341Rgb332::new(
@@ -90,17 +168,7 @@ fn init_stays_rgb565_and_pixels_are_borrowed_rgb332() {
         assert_eq!(display.size(), Size::new(320, 240));
         let trace = trace.borrow();
         let writes = writes(&trace);
-        assert_eq!(
-            writes[1],
-            (
-                true,
-                &[if landscape == Landscape::Normal {
-                    0x68
-                } else {
-                    0xa8
-                }][..]
-            )
-        );
+        assert_eq!(writes[1], (true, &[madctl][..]));
         assert_eq!(writes[6], (false, &[0x3a][..]));
         assert_eq!(writes[7], (true, &[0x55][..]));
         assert_frame332(&writes[14..], display.buffer());

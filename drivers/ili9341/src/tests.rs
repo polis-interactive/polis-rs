@@ -148,18 +148,85 @@ fn writes(trace: &Trace) -> Vec<(bool, &[u8])> {
 }
 
 fn assert_frame(writes: &[(bool, &[u8])], buffer: &[u8]) {
-    assert_eq!(writes.len(), 30 * 7);
+    assert_frame_size(writes, buffer, 320, 240);
+}
+
+fn assert_frame_size(writes: &[(bool, &[u8])], buffer: &[u8], width: usize, height: usize) {
+    assert_eq!(writes.len(), height / 8 * 7);
+    let row_bytes = width * 2;
+    let x_end = ((width - 1) as u16).to_be_bytes();
     for (strip, group) in writes.as_chunks::<7>().0.iter().enumerate() {
+        let y_start = ((strip * 8) as u16).to_be_bytes();
+        let y_end = ((strip * 8 + 7) as u16).to_be_bytes();
         assert_eq!(group[0], (false, &[0x2A][..]));
-        assert_eq!(group[1], (true, &[0, 0, 1, 0x3F][..]));
+        assert_eq!(group[1], (true, &[0, 0, x_end[0], x_end[1]][..]));
         assert_eq!(group[2], (false, &[0x2B][..]));
         assert_eq!(
             group[3],
-            (true, &[0, (strip * 8) as u8, 0, (strip * 8 + 7) as u8][..])
+            (true, &[y_start[0], y_start[1], y_end[0], y_end[1]][..])
         );
         assert_eq!(group[4], (false, &[0x2C][..]));
         assert_eq!(group[5], (true, &[][..]));
-        assert_eq!(group[6], (true, &buffer[strip * 5120..(strip + 1) * 5120]));
+        assert_eq!(
+            group[6],
+            (
+                true,
+                &buffer[strip * 8 * row_bytes..(strip + 1) * 8 * row_bytes]
+            )
+        );
+    }
+}
+
+#[test]
+fn quarter_turns_preserve_mirroring_and_use_portrait_strides_and_windows() {
+    for (landscape, mirror_horizontal, clockwise, counterclockwise) in [
+        (Landscape::Normal, false, 0xc8, 0x08),
+        (Landscape::Flipped, false, 0x08, 0xc8),
+        (Landscape::Normal, true, 0x48, 0x88),
+        (Landscape::Flipped, true, 0x88, 0x48),
+    ] {
+        for (rotation, madctl) in [
+            (Rotation::Deg90, clockwise),
+            (Rotation::Deg270, counterclockwise),
+        ] {
+            let trace = Shared::default();
+            let mut buffer = [0; BUFFER_SIZE];
+            let mut display = display(
+                &trace,
+                &mut buffer,
+                Config {
+                    landscape,
+                    mirror_horizontal,
+                    rotation,
+                    ..Default::default()
+                },
+            );
+            assert_eq!(display.size(), Size::new(240, 320));
+            {
+                let trace = trace.borrow();
+                let writes = writes(&trace);
+                assert_eq!(writes[1], (true, &[madctl][..]));
+                assert_frame_size(&writes[14..], display.buffer(), 240, 320);
+            }
+            trace.borrow_mut().events.clear();
+            display
+                .draw_iter([
+                    Pixel(Point::new(239, 0), Rgb565::GREEN),
+                    Pixel(Point::new(0, 1), Rgb565::BLUE),
+                    Pixel(Point::new(239, 319), Rgb565::WHITE),
+                    Pixel(Point::new(240, 0), Rgb565::RED),
+                    Pixel(Point::new(0, 320), Rgb565::RED),
+                ])
+                .unwrap();
+            let mut expected = [0; BUFFER_SIZE];
+            expected[478..480].copy_from_slice(&[0x07, 0xe0]);
+            expected[480..482].copy_from_slice(&[0x00, 0x1f]);
+            expected[BUFFER_SIZE - 2..].copy_from_slice(&[0xff, 0xff]);
+            assert_eq!(display.buffer(), &expected);
+            assert!(trace.borrow().events.is_empty());
+            block_on(display.flush()).unwrap();
+            assert_frame_size(&writes(&trace.borrow()), display.buffer(), 240, 320);
+        }
     }
 }
 
@@ -172,9 +239,27 @@ fn reset_timing_rgb565_landscape_and_initial_frame() {
                 landscape: Landscape::Flipped,
                 color_order: ColorOrder::Rgb,
                 inversion: ColorInversion::Inverted,
+                ..Default::default()
             },
             0xA0,
             0x21,
+        ),
+        (
+            Config {
+                mirror_horizontal: true,
+                ..Default::default()
+            },
+            0xE8,
+            0x20,
+        ),
+        (
+            Config {
+                landscape: Landscape::Flipped,
+                mirror_horizontal: true,
+                ..Default::default()
+            },
+            0x28,
+            0x20,
         ),
     ] {
         let trace = Shared::default();

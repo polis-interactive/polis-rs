@@ -29,6 +29,7 @@ embassy-example = [
     "dep:defmt",
     "dep:embedded-hal-bus",
     "dep:mousefood",
+    "dep:embedded-graphics",
     "dep:ratatui-core",
     "dep:embedded-alloc",
     "dep:portable-atomic",
@@ -58,6 +59,12 @@ required-features = ["embassy-example"]
 test = false
 bench = false
 
+[[example]]
+name = "parallel_rockets"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
 [dependencies]
 polis-pio-i8080 = { workspace = true, optional = true }
 embassy-rp = { workspace = true, optional = true }
@@ -74,6 +81,7 @@ embedded-hal-bus = { workspace = true, optional = true }
 embedded-graphics-core.workspace = true
 
 # UI and allocation belong only to the opt-in example.
+embedded-graphics = { version = "0.8.1", default-features = false, optional = true }
 mousefood = { version = "0.4.0", default-features = false, optional = true }
 ratatui-core = { version = "0.1.2", default-features = false, features = ["portable-atomic"], optional = true }
 embedded-alloc = { version = "0.7.0", default-features = false, features = ["llff"], optional = true }
@@ -85,7 +93,7 @@ embassy-futures.workspace = true
 [package.metadata.polis]
 embassy-example = true
 chip-features = true
-link-examples = ["parallel", "parallel_rgb332", "parallel_rgb332_bench"]
+link-examples = ["parallel", "parallel_rgb332", "parallel_rgb332_bench", "parallel_rockets"]
 
 [package.metadata.docs.rs]
 default-target = "thumbv6m-none-eabi"

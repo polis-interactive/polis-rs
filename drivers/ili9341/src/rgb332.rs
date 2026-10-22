@@ -56,7 +56,7 @@ pub struct Ili9341Rgb332<'a, DI: Rgb332Interface, RST: OutputPin> {
 }
 
 impl<'a, DI: Rgb332Interface, RST: OutputPin> Ili9341Rgb332<'a, DI, RST> {
-    /// Initialize landscape RGB565 output and upload the existing RGB332 frame.
+    /// Initialize RGB565 in the selected orientation and upload the RGB332 frame.
     ///
     /// Supply zeroed storage for an initial black frame. Power, backlight,
     /// reset delays, failure/cancellation and borrowed-resource recovery follow
@@ -68,13 +68,9 @@ impl<'a, DI: Rgb332Interface, RST: OutputPin> Ili9341Rgb332<'a, DI, RST> {
         config: Config,
         delay: &mut impl DelayNs,
     ) -> Result<Self, InitError<DI::Error, RST::Error>> {
-        let rotation = match config.landscape {
-            Landscape::Normal => Rotation::Deg90,
-            Landscape::Flipped => Rotation::Deg270,
-        };
         let controller = Builder::new(ILI9341Rgb565, Expand(interface))
             .reset_pin(reset)
-            .orientation(Orientation::new().rotate(rotation))
+            .orientation(config.orientation())
             .color_order(config.color_order)
             .invert_colors(config.inversion)
             .init(delay)
@@ -93,19 +89,21 @@ impl<'a, DI: Rgb332Interface, RST: OutputPin> Ili9341Rgb332<'a, DI, RST> {
     /// pixels; after bus recovery retry the full flush. Reinitialize after a
     /// panel reset. There is no dirty tracking or tear-free guarantee.
     pub async fn flush(&mut self) -> Result<(), DI::Error> {
-        self.flush_rows(0..HEIGHT).await
+        self.flush_rows(0..self.size().height as usize).await
     }
 
     /// Upload a full-width row range using one address window.
     ///
-    /// `0..HEIGHT` uploads a full frame; `y..y + 16` uploads a wipe band.
+    /// `0..self.size().height as usize` uploads a full frame; `y..y + 16` a wipe band.
     /// Bounds are clipped to the framebuffer; empty/reversed ranges do no I/O.
     /// The transport can overlap chunks across the entire range.
     /// No dirty tracking or tear synchronization is
     /// performed. After cancellation/recovery, retry the same range.
     pub async fn flush_rows(&mut self, rows: core::ops::Range<usize>) -> Result<(), DI::Error> {
-        let start = rows.start.min(HEIGHT);
-        let end = rows.end.min(HEIGHT);
+        let size = self.size();
+        let width = size.width as usize;
+        let start = rows.start.min(size.height as usize);
+        let end = rows.end.min(size.height as usize);
         if start >= end {
             return Ok(());
         }
@@ -113,9 +111,9 @@ impl<'a, DI: Rgb332Interface, RST: OutputPin> Ili9341Rgb332<'a, DI, RST> {
             .show_raw_data(
                 0,
                 start as u16,
-                WIDTH as u16,
+                width as u16,
                 (end - start) as u16,
-                &self.buffer[start * WIDTH..end * WIDTH],
+                &self.buffer[start * width..end * width],
             )
             .await
     }
@@ -146,7 +144,12 @@ impl<'a, DI: Rgb332Interface, RST: OutputPin> Ili9341Rgb332<'a, DI, RST> {
     }
 
     fn frame(&mut self) -> RawFrameBuf<PackedRgb332, &mut [u8]> {
-        RawFrameBuf::new(&mut self.buffer[..], WIDTH, HEIGHT)
+        let size = self.size();
+        RawFrameBuf::new(
+            &mut self.buffer[..],
+            size.width as usize,
+            size.height as usize,
+        )
     }
 }
 
@@ -170,7 +173,7 @@ impl From<Rgb565> for PackedRgb332 {
 
 impl<DI: Rgb332Interface, RST: OutputPin> OriginDimensions for Ili9341Rgb332<'_, DI, RST> {
     fn size(&self) -> Size {
-        Size::new(WIDTH as u32, HEIGHT as u32)
+        drawing_size(self.controller.orientation())
     }
 }
 

@@ -1,20 +1,76 @@
-//! Mousefood/Ratatui on a 128×32 SSD1306: GP6 SDA, GP7 SCL, address 0x3C.
+//! Scrolling text and bars on a 128×32 SSD1306: GP6 SDA, GP7 SCL, address 0x3C.
 #![no_std]
 #![no_main]
 
-use core::mem::MaybeUninit;
 use defmt_rtt as _;
 use embassy_executor::Spawner;
 use embassy_rp::{bind_interrupts, i2c, peripherals};
-use embassy_time::Timer;
-use mousefood::{EmbeddedBackend, embedded_graphics::mono_font::ascii::FONT_6X10};
+use embassy_time::{Duration, Ticker, Timer};
+use embedded_graphics::{
+    mono_font::{MonoTextStyle, ascii::FONT_7X14},
+    pixelcolor::BinaryColor,
+    prelude::*,
+    text::{Baseline, Text},
+};
 use panic_probe as _;
-use polis_ssd1306::Ssd1306Async;
-use ratatui_core::{terminal::Terminal, text::Text};
+use polis_ssd1306::{Ssd1306Async, WIDTH};
 
-// Ratatui uses allocation; the display driver itself does not.
-#[global_allocator]
-static HEAP: embedded_alloc::LlffHeap = embedded_alloc::LlffHeap::empty();
+// ASCII text, including the gap before it repeats. Each 7×14 cell is doubled.
+const MESSAGE: &str = "I LOVE DICK  ";
+const SCALE: i32 = 2;
+const TEXT_HEIGHT: i32 = 28;
+const TEXT_WIDTH: i32 = MESSAGE.len() as i32 * 7 * SCALE;
+const PADDING: i32 = 2;
+const BAR_HEIGHT: i32 = 2;
+// Half-screen bars separated by quarter-screen gaps: 64 pixels on, 32 off.
+const BAR_WIDTH: i32 = WIDTH as i32 / 2;
+const BAR_GAP: i32 = WIDTH as i32 / 4;
+const BAR_PERIOD: i32 = BAR_WIDTH + BAR_GAP;
+const FRAME_MS: u64 = 33;
+
+// Scale the font and wrap the banner at pixel resolution without a second buffer.
+struct ScrollingText<'a, D> {
+    display: &'a mut D,
+    offset: i32,
+}
+
+impl<D> OriginDimensions for ScrollingText<'_, D> {
+    fn size(&self) -> Size {
+        Size::new((TEXT_WIDTH / SCALE) as u32, (TEXT_HEIGHT / SCALE) as u32)
+    }
+}
+
+impl<D: DrawTarget<Color = BinaryColor>> DrawTarget for ScrollingText<'_, D> {
+    type Color = BinaryColor;
+    type Error = D::Error;
+
+    fn draw_iter<I>(&mut self, pixels: I) -> Result<(), Self::Error>
+    where
+        I: IntoIterator<Item = Pixel<Self::Color>>,
+    {
+        let offset = self.offset;
+        self.display.draw_iter(
+            pixels
+                .into_iter()
+                .flat_map(|Pixel(point, color)| {
+                    (0..SCALE).flat_map(move |dy| {
+                        (0..SCALE).map(move |dx| {
+                            Pixel(
+                                Point::new(
+                                    (point.x * SCALE + dx - offset).rem_euclid(TEXT_WIDTH),
+                                    point.y * SCALE + dy,
+                                ),
+                                color,
+                            )
+                        })
+                    })
+                })
+                .filter(|Pixel(point, _)| {
+                    point.x < WIDTH as i32 && (0..TEXT_HEIGHT).contains(&point.y)
+                }),
+        )
+    }
+}
 
 bind_interrupts!(struct Irqs {
     I2C1_IRQ => i2c::InterruptHandler<peripherals::I2C1>;
@@ -26,12 +82,6 @@ bind_interrupts!(struct Irqs {
 )]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
-    const HEAP_SIZE: usize = 32 * 1024;
-    static mut HEAP_MEMORY: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
-    // SAFETY: main runs once; this static storage is exclusively owned by HEAP
-    // for the program's lifetime and is initialized before any allocation.
-    unsafe { HEAP.init(core::ptr::addr_of_mut!(HEAP_MEMORY) as usize, HEAP_SIZE) };
-
     let mut config = i2c::Config::default();
     config.frequency = 400_000;
     config.sda_pullup = false;
@@ -42,31 +92,36 @@ async fn main(_spawner: Spawner) {
     let mut display = Ssd1306Async::new(bus);
     display.init().await.unwrap();
 
-    // 6×10 cells give 21 columns and 3 rows on this small panel.
-    let backend = EmbeddedBackend::new(
-        &mut display,
-        mousefood::EmbeddedBackendConfig {
-            font_regular: FONT_6X10,
-            ..Default::default()
-        },
-    );
-    let mut terminal = Terminal::new(backend).unwrap();
-    let mut tick = false;
+    let style = MonoTextStyle::new(&FONT_7X14, BinaryColor::On);
+    let mut ticker = Ticker::every(Duration::from_millis(FRAME_MS));
+    let mut text_offset = 0;
+    let mut bar_offset = 0;
     loop {
-        terminal
-            .draw(|frame| {
-                let text = if tick {
-                    "SSD1306 + Ratatui\nMousefood\nTick"
-                } else {
-                    "SSD1306 + Ratatui\nMousefood\nTock"
-                };
-                frame.render_widget(Text::from(text), frame.area());
+        display.clear_buffer();
+        Text::with_baseline(MESSAGE, Point::zero(), style, Baseline::Top)
+            .draw(&mut ScrollingText {
+                display: &mut display,
+                offset: text_offset,
             })
             .unwrap();
-        // Ratatui renders into the local framebuffer synchronously. This async
-        // call is what actually transfers the pixels over I²C.
-        terminal.backend_mut().display_mut().flush().await.unwrap();
-        tick = !tick;
-        Timer::after_secs(1).await;
+
+        // Rows 28–29 stay blank; rows 30–31 contain a continuous bar/gap pattern.
+        display
+            .draw_iter((0..WIDTH as i32).flat_map(|x| {
+                let color = if (x + bar_offset) % BAR_PERIOD < BAR_WIDTH {
+                    BinaryColor::On
+                } else {
+                    BinaryColor::Off
+                };
+                (0..BAR_HEIGHT)
+                    .map(move |dy| Pixel(Point::new(x, TEXT_HEIGHT + PADDING + dy), color))
+            }))
+            .unwrap();
+        display.flush().await.unwrap();
+
+        // One pixel left per frame, with independent wrap periods and no reset jump.
+        text_offset = (text_offset + 1) % TEXT_WIDTH;
+        bar_offset = (bar_offset + 1) % BAR_PERIOD;
+        ticker.next().await;
     }
 }
