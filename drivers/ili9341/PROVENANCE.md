@@ -56,6 +56,16 @@ signals. No claim is made that every board revision is electrically identical.
 
 ## Licensing and distribution
 
+The rocket example added on 2026-10-22 uses the user-supplied
+`assets/rocket_sprite/output/rocket.rs` decoder and `rocket.bin` sprite, copied
+verbatim into `examples/rocket_support/` so package builds are self-contained.
+The source asset README describes a manually reconstructed 11×21 pixel grid from
+a reference image. No separate asset license was supplied; this provenance note
+does not assert ownership or grant additional rights to the artwork. Its source
+and hashes are recorded in `examples/rocket_support/README.txt`. The new scene,
+renderer, simulation tests, preview and firmware integration are original example
+code under the repository's MIT policy. Original asset files remain unchanged.
+
 Original adapter/example/test code uses the owner's established MIT policy and
 includes LICENSE-MIT. `lcd-async` remains a registry dependency carrying its own
 notices; this package does not relicense its implementation.

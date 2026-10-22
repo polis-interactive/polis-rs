@@ -2,6 +2,23 @@
 
 ## 0.1.0 — Unreleased
 
+- Precompute scaled color runs and exhaust coordinates for rocket rendering;
+  verify equivalent pixels across rotations, scales, flame lengths and clipping.
+
+- Raise the rocket example's PIO clock request to 50 MHz and show separate update,
+  render and LCD elapsed times in its HUD/RTT to diagnose frame-rate bottlenecks.
+
+- Add an allocation-free rocket graphics example with bounded random speed and
+  headings, offscreen spawning/despawning, adjustable average population, an FPS
+  overlay, and a native preview sharing the firmware simulation and renderer.
+
+- Add configurable rotation after mounting/mirror correction, including 240×320
+  portrait drawing, RGB565 strips and RGB332 row uploads. Rotate the RGB332 UI
+  example 90° counterclockwise.
+
+- Add optional horizontal mirroring for both framebuffer formats and landscape
+  directions; enable it in the parallel examples for HiLetgo shield bring-up.
+
 - Add a two-SM RGB332 pipeline adapter and full-frame/320×16 band benchmark for
   Pico/Pico 2, with alternating caller-owned buffers and cancellation/retry checks.
 - Add clipped RGB332 `flush_rows`; RGB332 `flush` now uses a single full-frame

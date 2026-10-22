@@ -68,7 +68,7 @@ without releasing the driver, supply an application-owned shared-bus adapter wit
 an external recovery handle. There is no direct `bus_mut()` because upstream's
 controller/interface owns the bus privately.
 
-## Mousefood / Ratatui example
+## Scrolling text example
 
 [`examples/embassy.rs`](examples/embassy.rs) targets Pico/Pico 2. Connect SDA to
 GP6, SCL to GP7, GND to ground, and supply the module according to its specifications.
@@ -76,10 +76,21 @@ The example assumes a 3.3 V-compatible module with onboard power-on reset,
 pull-ups to 3.3 V, and address 0x3C. It waits 100 ms before initialization; adapt
 the reset/power sequence for the actual module.
 
-The screen shows `SSD1306 + Ratatui`, `Mousefood`, and alternating `Tick`/`Tock`
-once per second. A 6×10 font gives **21 columns and three rows** on the 128×32
-panel. The example supplies a 32 KiB heap for the UI. The driver itself has no
-allocator or runtime dependency.
+The screen scrolls `SSD1306 scrolling text` continuously to the left, with a
+repeating animated bar pattern underneath. The layout is:
+
+| Rows | Content |
+| --- | --- |
+| 0–27 | 28-pixel text area, using a 7×14 font scaled 2× to 14×28 cells |
+| 28–29 | 2-pixel blank padding |
+| 30–31 | 2-pixel-high bars, each 64 pixels wide, separated by 32 blank pixels |
+
+Each bar spans half the screen width, with a quarter-screen gap before the next.
+Text and bars move one pixel per 33 ms frame (about 30 pixels/second), wrapping
+independently without a reset jump. Edit `MESSAGE` and `FRAME_MS` in the example
+to change the text and speed. Trailing spaces in `MESSAGE` separate repetitions;
+keep it ASCII and at least ten characters long so its scaled width fills the
+screen. The example uses embedded-graphics directly and requires no heap.
 
 ```sh
 # Pico / RP2040
@@ -92,21 +103,9 @@ Choose one board feature. The ELF is `.target/<target>/release/examples/embassy`
 These commands build and link; they do not flash hardware. The example stops on
 errors; applications own retry/deadline policy.
 
-Mousefood 0.4 and Ratatui-core 0.1.2 are optional dependencies enabled only by
-example features. Core supplies `Terminal` and `Text`, matching the SH1106 example
-without pulling in the RP2040-incompatible `alloc::sync::Arc` use observed in
-ratatui-widgets 0.3.2. Full widget-library compatibility is not claimed.
-
-Rendering and I²C transfer are separate:
-
-```text
-terminal.draw(...)                                  // synchronous local drawing
-terminal.backend_mut().display_mut().flush().await  // asynchronous I²C upload
-```
-
-Retain the terminal between frames. If pixels are changed outside Ratatui,
-invalidate its cached screen with `terminal.clear()` before rendering again.
-Retrying an interrupted I²C flush needs no cache invalidation.
+Each frame clears and redraws the local framebuffer, then calls
+`display.flush().await` to upload it over I²C. The frame ticker includes drawing
+and transfer time in its 33 ms interval.
 
 ## Validation
 

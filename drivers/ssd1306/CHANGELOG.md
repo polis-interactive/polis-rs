@@ -7,5 +7,6 @@
   local clear/inspection, and bus release.
 - Reset addressing and transmit full frames on every flush for repeatable retry
   after failed or cancelled transfers; retain pixels during reinitialization.
-- Add an optional Mousefood/Ratatui-core Pico/Pico 2 example with three text rows.
+- Add an optional allocation-free Pico/Pico 2 example with 28-pixel text scrolling
+  above a 2-pixel gap and animated 2-pixel bars.
 - Add host regression tests, embedded build integration and package provenance.

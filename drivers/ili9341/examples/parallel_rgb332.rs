@@ -1,6 +1,7 @@
-//! ILI9341 8080: GP2..9 D0..7, GP10 WR, GP11 DC, GP12 CS, GP13 RESET.
+//! ILI9341 8080: GP0..7 D0..7, GP8 WR, GP9 DC, GP10 CS, GP11 RESET.
 //! One-byte RGB332 framebuffer; PIO expands to RGB565 without a CPU copy.
 //! Hold RD high (3.3 V). Verify shield logic levels and actual LCD pin labels.
+//! Non-wireless Pico/Pico 2 LED: three startup flashes, then toggles after each flush.
 #![no_std]
 #![no_main]
 
@@ -20,7 +21,7 @@ use embassy_time::{Delay, Timer};
 use mousefood::{EmbeddedBackend, embedded_graphics::mono_font::ascii::FONT_10X20};
 use panic_probe as _;
 use polis_ili9341::{
-    Config, Ili9341Rgb332, RGB332_BUFFER_SIZE,
+    Config, Ili9341Rgb332, RGB332_BUFFER_SIZE, Rotation,
     parallel::{BusConfig, Pins, PioI8080, PioRgb332Interface},
 };
 use ratatui_core::{
@@ -43,6 +44,17 @@ bind_interrupts!(struct Irqs {
 )]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
+    // GP25 is the onboard LED on non-wireless Pico/Pico 2 boards.
+    // This indication does not require a debug probe or a working LCD.
+    let mut status = Output::new(p.PIN_25, Level::Low);
+    for _ in 0..3 {
+        status.set_high();
+        Timer::after_millis(150).await;
+        status.set_low();
+        Timer::after_millis(150).await;
+    }
+    status.set_high();
+    defmt::info!("RGB332 example started; configuring display bus");
     const HEAP_SIZE: usize = 64 * 1024;
     static mut HEAP_MEMORY: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
     static mut FRAMEBUFFER: [u8; RGB332_BUFFER_SIZE] = [0; RGB332_BUFFER_SIZE];
@@ -54,9 +66,15 @@ async fn main(_spawner: Spawner) {
         &mut *core::ptr::addr_of_mut!(FRAMEBUFFER)
     };
 
-    let cs = Output::new(p.PIN_12, Level::High);
-    let dc = Output::new(p.PIN_11, Level::High);
-    let reset = Output::new(p.PIN_13, Level::High);
+    // This shield needs left-to-right reflection in landscape mode.
+    let display_config = Config {
+        mirror_horizontal: true,
+        rotation: Rotation::Deg270,
+        ..Default::default()
+    };
+    let cs = Output::new(p.PIN_10, Level::High);
+    let dc = Output::new(p.PIN_9, Level::High);
+    let reset = Output::new(p.PIN_11, Level::High);
     let Pio {
         mut common,
         sm0,
@@ -66,16 +84,16 @@ async fn main(_spawner: Spawner) {
     } = Pio::new(p.PIO0, Irqs);
     let pins = Pins {
         data: [
+            common.make_pio_pin(p.PIN_0),
+            common.make_pio_pin(p.PIN_1),
             common.make_pio_pin(p.PIN_2),
             common.make_pio_pin(p.PIN_3),
             common.make_pio_pin(p.PIN_4),
             common.make_pio_pin(p.PIN_5),
             common.make_pio_pin(p.PIN_6),
             common.make_pio_pin(p.PIN_7),
-            common.make_pio_pin(p.PIN_8),
-            common.make_pio_pin(p.PIN_9),
         ],
-        wr: common.make_pio_pin(p.PIN_10),
+        wr: common.make_pio_pin(p.PIN_8),
         dc,
         cs,
     };
@@ -91,12 +109,13 @@ async fn main(_spawner: Spawner) {
     .unwrap();
     let interface = PioRgb332Interface::new(bus, &mut common);
     Timer::after_millis(100).await; // Example supply-settling delay.
-    let mut display =
-        Ili9341Rgb332::new(interface, reset, framebuffer, Config::default(), &mut Delay)
-            .await
-            .unwrap();
+    defmt::info!("Resetting LCD, sending initialization, and uploading black frame");
+    let mut display = Ili9341Rgb332::new(interface, reset, framebuffer, display_config, &mut Delay)
+        .await
+        .unwrap();
+    defmt::info!("LCD initialization and initial transfer completed (no LCD readback)");
 
-    // 32 columns × 12 rows limits Ratatui's cell-buffer allocation on Pico.
+    // 24 columns × 16 rows limits Ratatui's cell-buffer allocation on Pico.
     let backend = EmbeddedBackend::new(
         &mut display,
         mousefood::EmbeddedBackendConfig {
@@ -122,6 +141,8 @@ async fn main(_spawner: Spawner) {
             .unwrap();
         // Terminal::draw only changes local pixels. PIO/DMA work happens here.
         terminal.backend_mut().display_mut().flush().await.unwrap();
+        status.toggle();
+        defmt::debug!("UI frame transfer completed");
         tick = !tick;
         Timer::after_secs(1).await;
     }

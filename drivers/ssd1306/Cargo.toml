@@ -24,10 +24,7 @@ embassy-example = [
     "dep:panic-probe",
     "dep:defmt-rtt",
     "dep:defmt",
-    "dep:mousefood",
-    "dep:ratatui-core",
-    "dep:embedded-alloc",
-    "dep:portable-atomic",
+    "dep:embedded-graphics",
 ]
 
 [[example]]
@@ -49,11 +46,8 @@ ssd1306 = { version = "0.10.0", default-features = false, features = ["async"] }
 display-interface = "0.5.0"
 embedded-graphics-core.workspace = true
 
-# UI and allocation belong only to the opt-in example.
-mousefood = { version = "0.4.0", default-features = false, optional = true }
-ratatui-core = { version = "0.1.2", default-features = false, features = ["portable-atomic"], optional = true }
-embedded-alloc = { version = "0.7.0", default-features = false, features = ["llff"], optional = true }
-portable-atomic = { version = "1", default-features = false, features = ["critical-section"], optional = true }
+# Font rendering belongs only to the opt-in example.
+embedded-graphics = { version = "0.8.1", default-features = false, optional = true }
 
 [dev-dependencies]
 embedded-hal.workspace = true

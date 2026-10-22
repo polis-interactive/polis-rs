@@ -1,5 +1,5 @@
 //! Compare one-SM expansion with the two-SM pipeline on the same 8-bit panel.
-//! GP2..9 = D0..7, GP10 = WR, GP11 = DC, GP12 = CS, GP13 = RESET; RD high.
+//! GP0..7 = D0..7, GP8 = WR, GP9 = DC, GP10 = CS, GP11 = RESET; RD high.
 //! RTT logs report upload latency, not panel refresh rate. No heap or rasterizer.
 #![no_std]
 #![no_main]
@@ -56,9 +56,14 @@ async fn main(_spawner: Spawner) {
     for (i, pixel) in frame.iter_mut().enumerate() {
         *pixel = (((i / WIDTH) / 15) * 16 + (i % WIDTH) / 20) as u8;
     }
-    let cs = Output::new(p.PIN_12, Level::High);
-    let dc = Output::new(p.PIN_11, Level::High);
-    let reset = Output::new(p.PIN_13, Level::High);
+    // This shield needs left-to-right reflection in landscape mode.
+    let display_config = Config {
+        mirror_horizontal: true,
+        ..Default::default()
+    };
+    let cs = Output::new(p.PIN_10, Level::High);
+    let dc = Output::new(p.PIN_9, Level::High);
+    let reset = Output::new(p.PIN_11, Level::High);
     let Pio {
         mut common,
         sm0,
@@ -69,16 +74,16 @@ async fn main(_spawner: Spawner) {
     } = Pio::new(p.PIO0, Irqs);
     let pins = Pins {
         data: [
+            common.make_pio_pin(p.PIN_0),
+            common.make_pio_pin(p.PIN_1),
             common.make_pio_pin(p.PIN_2),
             common.make_pio_pin(p.PIN_3),
             common.make_pio_pin(p.PIN_4),
             common.make_pio_pin(p.PIN_5),
             common.make_pio_pin(p.PIN_6),
             common.make_pio_pin(p.PIN_7),
-            common.make_pio_pin(p.PIN_8),
-            common.make_pio_pin(p.PIN_9),
         ],
-        wr: common.make_pio_pin(p.PIN_10),
+        wr: common.make_pio_pin(p.PIN_8),
         dc,
         cs,
     };
@@ -108,7 +113,7 @@ async fn main(_spawner: Spawner) {
         PioRgb332Interface::new(bus, &mut common),
         reset,
         frame,
-        Config::default(),
+        display_config,
         &mut Delay,
     )
     .await
@@ -127,7 +132,7 @@ async fn main(_spawner: Spawner) {
     );
     let interface =
         PioRgb332PipelineInterface::new(PioI8080Rgb332Pipeline::new(bus, converter, scratch));
-    let mut display = Ili9341Rgb332::new(interface, reset, frame, Config::default(), &mut Delay)
+    let mut display = Ili9341Rgb332::new(interface, reset, frame, display_config, &mut Delay)
         .await
         .unwrap();
 
