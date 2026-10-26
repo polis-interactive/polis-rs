@@ -1,6 +1,6 @@
 # Workspace development
 
-One active virtual workspace contains twenty-four library packages. Rust 1.99.0 is the
+One active virtual workspace contains twenty-five library packages. Rust 1.99.0 is the
 pinned contributor compiler and the initial supported compiler floor. This is a
 conservative tested floor, not a claim that older compilers cannot work. Lower a
 package's `rust-version` only after testing it and its resolved dependencies.
@@ -78,6 +78,11 @@ includes them in target Clippy/check runs. `check` still does not link images.
 The WS2813 `link_check` fixture remains enabled by `link-check` for additional
 concurrent-chain integration coverage. No build command flashes hardware;
 linked examples do not replace electrical or downstream product validation.
+
+`polis-xca954xa` tests its portable and optional `embassy` sharing APIs separately.
+It registers `embassy` and `embassy_tasks` in `package.metadata.polis.embassy-examples`;
+both three-SSD1306 examples are linked and linted for each embedded platform.
+Packages without this list retain the default single `embassy` example.
 
 ## Editor and CI
 

@@ -62,7 +62,10 @@ def main():
                     for example in settings.get("link-examples", [])
                 ]
                 if settings.get("embassy-example"):
-                    examples.append(("embassy", f'example-{platforms[platform]["feature"]}'))
+                    examples.extend(
+                        (example, f'example-{platforms[platform]["feature"]}')
+                        for example in settings.get("embassy-examples", ["embassy"])
+                    )
                 for example, features in examples:
                     commands.append([
                         "cargo", args.command, "-p", package["name"], "--no-default-features",

@@ -1,0 +1,63 @@
+[package]
+name = "polis-xca954xa"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+license = "MIT"
+description = "Allocation-free async PCA9548A/TCA9548A driver with optional shared I2C channel buses"
+
+[features]
+default = []
+embassy = ["dep:embassy-sync"]
+example-rp2040 = ["embassy-example", "embassy-rp/rp2040"]
+example-rp235xa = ["embassy-example", "embassy-rp/rp235xa"]
+embassy-example = [
+    "embassy", "dep:polis-ssd1306", "dep:embedded-graphics", "dep:static_cell",
+    "dep:portable-atomic",
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+    "dep:embassy-rp", "dep:embassy-time", "dep:embassy-executor",
+    "dep:cortex-m-rt", "dep:panic-probe", "dep:defmt-rtt", "dep:defmt",
+]
+
+[[example]]
+name = "embassy"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
+[[example]]
+name = "embassy_tasks"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
+[dependencies]
+embedded-hal.workspace = true
+embedded-hal-async.workspace = true
+embassy-sync = { workspace = true, optional = true }
+polis-ssd1306 = { workspace = true, optional = true }
+embedded-graphics = { version = "0.8.1", default-features = false, optional = true }
+static_cell = { workspace = true, optional = true }
+# StaticCell needs a CAS fallback on RP2040; the example supplies the RP provider.
+portable-atomic = { workspace = true, optional = true, features = ["critical-section"] }
+embassy-rp = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
+embassy-executor = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+defmt = { workspace = true, optional = true }
+
+[dev-dependencies]
+embassy-futures.workspace = true
+polis-ssd1306.workspace = true
+embedded-graphics-core.workspace = true
+
+[package.metadata.polis]
+embassy-example = true
+embassy-examples = ["embassy", "embassy_tasks"]
+chip-features = false
+feature-sets = [[], ["embassy"]]
