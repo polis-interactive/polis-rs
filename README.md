@@ -31,6 +31,7 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-joystick](drivers/joystick) | Portable joystick calibration with borrowed ADS1x1x and RP ADC sources |
 | [polis-max31865](drivers/max31865) | Async SPI driver for MAX31865 PT100/PT1000 RTD converters |
 | [polis-ssd1306](drivers/ssd1306) | Async I²C 128×32 OLED adapter with a Mousefood/Ratatui example |
+| [polis-xca954xa](drivers/xca954xa) | Async I²C mux with shared channel buses and three-SSD1306 examples |
 | [polis-ili9341](drivers/ili9341) | Async SPI/PIO-parallel 320×240 RGB565 display with Mousefood/Ratatui examples |
 | [polis-sh1106](drivers/sh1106) | Async I²C 128×64 OLED driver with a Mousefood/Ratatui example |
 | [polis-tmp1x2](drivers/tmp1x2) | Async I²C driver for TMP102 and TMP112 temperature sensors |

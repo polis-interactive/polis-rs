@@ -15,6 +15,7 @@ members = [
     "drivers/modulino-buttons",
     "drivers/sh1106",
     "drivers/ssd1306",
+    "drivers/xca954xa",
     "drivers/ili9341",
     "drivers/max31865",
     "drivers/rs485",
@@ -41,6 +42,7 @@ default-members = [
     "drivers/modulino-buttons",
     "drivers/sh1106",
     "drivers/ssd1306",
+    "drivers/xca954xa",
     "drivers/ili9341",
     "drivers/max31865",
     "drivers/rs485",
@@ -57,6 +59,10 @@ default-members = [
 edition = "2024"
 
 [workspace.dependencies]
+polis-ssd1306 = { path = "drivers/ssd1306", version = "0.1.0", default-features = false }
+embassy-sync = { version = "0.8.0", default-features = false }
+static_cell = "2.1.1"
+portable-atomic = { version = "1.15.0", default-features = false }
 polis-pio-i8080 = { path = "drivers/pio/i8080", version = "0.1.0", default-features = false }
 polis-ads1x1x = { path = "drivers/ads1x1x", version = "0.1.0", default-features = false }
 polis-framing = { path = "crates/protocol-framing", version = "0.1.0", default-features = false }
