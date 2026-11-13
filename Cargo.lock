@@ -1808,6 +1808,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "polis-xca953xa"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal-async",
+ "panic-probe",
+]
+
+[[package]]
 name = "polis-xca954xa"
 version = "0.1.0"
 dependencies = [
