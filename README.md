@@ -30,6 +30,7 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
 | [polis-joystick](drivers/joystick) | Portable joystick calibration with borrowed ADS1x1x and RP ADC sources |
 | [polis-max31865](drivers/max31865) | Async SPI driver for MAX31865 PT100/PT1000 RTD converters |
+| [polis-tmc5160](drivers/tmc5160) | Async SPI STEP/DIR configuration and diagnostics, with an explicit BTT Plus board preset |
 | [polis-ssd1306](drivers/ssd1306) | Async I²C 128×32 OLED adapter with a Mousefood/Ratatui example |
 | [polis-xca954xa](drivers/xca954xa) | Async I²C mux with shared channel buses and three-SSD1306 examples |
 | [polis-xca953xa](drivers/xca953xa) | Async PCA9534/TCA9534 and A-variant GPIO expanders with uncached register access |

@@ -1775,6 +1775,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "polis-tmc5160"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal-async",
+ "embedded-hal-bus",
+ "panic-probe",
+]
+
+[[package]]
 name = "polis-tmp1x2"
 version = "0.1.0"
 dependencies = [
