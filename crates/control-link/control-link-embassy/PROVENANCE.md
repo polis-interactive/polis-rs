@@ -4,6 +4,14 @@ Original polis-rs implementation, 2026-10-11, under the repository MIT license.
 Composes control-link-protocol and embassy I/O; no downstream product source
 is copied. See LICENSE-MIT.
 
+The half-duplex adapter and two-board RS-485 example were added on 2026-11-19
+as original MIT code. Requirements were reviewed against the local
+`2052-HipCircumduction/hc-software/docs` half-duplex proposal. No HC source,
+board assignments, product messages or scheduling policy were extracted.
+Split streams and half-duplex links share private framing state factored from
+this package's existing implementation. The example reuses the repository's
+RS-485 example setup and THVD1420 timing values; it is not HC firmware.
+
 The optional connection supervisor was designed against
 `BuildrootImages/package/polis-wired-control/firmware/src/usb.rs` on 2026-10-11.
 The consumer checkout was at `475d0a50f2005101cf793bea7c2ec6b3682d1fa0` with an

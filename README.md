@@ -26,7 +26,7 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-discovery-embassy](crates/discovery/discovery-embassy) | Embedded discovery; opt-in UDP and RS-485 |
 | [polis-control-link-protocol](crates/control-link/control-link-protocol) | Shared control messages, bounded request tracking, and unsolicited events |
 | [polis-control-link-tokio](crates/control-link/control-link-tokio) | Point-to-point TCP and host serial control links |
-| [polis-control-link-embassy](crates/control-link/control-link-embassy) | Point-to-point UART, USB CDC and TCP control links |
+| [polis-control-link-embassy](crates/control-link/control-link-embassy) | Point-to-point UART, half-duplex RS-485, USB CDC and TCP control links |
 | [polis-ads1x1x](drivers/ads1x1x) | Async I²C driver for ADS1013/1014/1015 and ADS1113/1114/1115 ADCs |
 | [polis-joystick](drivers/joystick) | Portable joystick calibration with borrowed ADS1x1x and RP ADC sources |
 | [polis-max31865](drivers/max31865) | Async SPI driver for MAX31865 PT100/PT1000 RTD converters |

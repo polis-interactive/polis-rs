@@ -204,7 +204,7 @@ impl fmt::Display for Error {
 
 impl core::error::Error for Error {}
 
-/// Caller-owned storage for one full-duplex connection. No allocation is required.
+/// Caller-owned storage for one control connection. No allocation is required.
 /// For a maximum body of B bytes, payload needs PREFIX_LEN + B bytes; receive and
 /// transmit each need polis_framing::wire_capacity((PREFIX_LEN + B) as u16).
 /// Keep B <= MAX_BODY_LEN. Buffers remain with the connection through its handshake.

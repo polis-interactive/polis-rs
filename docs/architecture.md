@@ -65,6 +65,13 @@ identity checks, handlers, deadlines and any queues/reconnect policy they need;
 operations with uncertain outcomes are never automatically replayed. Control-link
 is always point-to-point, including UART/USB serial.
 
+Embassy's always-available `half_duplex::Link` owns one `Read + Write` backend,
+sharing persistent framing mechanics with the split stream API. A configured
+`polis-rs485` backend owns direction/physical completion; applications grant bus
+turns, enforce reply windows and recover the backend explicitly after retiring
+an interrupted link. No multidrop addressing, discovery or bus arbitration is
+added. The full-duplex supervisor does not drive this exclusive transport.
+
 Embassy's optional `supervisor` feature runs an application's `ConnectionHandler`
 receive/transmit loops with one lifetime. Failure, send timeout/cancellation or
 an application-supplied reset retires both halves. Low-level split remains

@@ -3,7 +3,7 @@ name = "polis-control-link-embassy"
 version = "0.2.0"
 edition.workspace = true
 rust-version = "1.99"
-description = "Allocation-free point-to-point UART, USB CDC and TCP control links"
+description = "Allocation-free point-to-point UART, half-duplex, USB CDC and TCP control links"
 readme = "README.md"
 license = "MIT"
 publish = ["crates-io"]
@@ -22,6 +22,14 @@ link-check = [
     "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
     "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
 ]
+example-rp2040 = ["embassy-example", "rp2040", "polis-pio-uart/rp2040"]
+example-rp235xa = ["embassy-example", "rp235xa", "polis-pio-uart/rp235xa"]
+embassy-example = [
+    "dep:polis-rs485", "dep:polis-pio-uart", "dep:embedded-hal", "dep:defmt",
+    "dep:embassy-time", "dep:embassy-executor", "dep:cortex-m-rt", "dep:panic-probe", "dep:defmt-rtt",
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+]
 
 [dependencies]
 polis-control-link-protocol.workspace = true
@@ -37,15 +45,28 @@ cortex-m-rt = { workspace = true, optional = true }
 panic-probe = { workspace = true, optional = true }
 defmt-rtt = { workspace = true, optional = true }
 embassy-net-driver-channel = { version = "0.4.0", optional = true }
+polis-rs485 = { workspace = true, optional = true }
+polis-pio-uart = { workspace = true, optional = true }
+embedded-hal = { workspace = true, optional = true }
+defmt = { workspace = true, optional = true }
 
 [target.'cfg(not(target_os = "none"))'.dev-dependencies]
 critical-section = { version = "1.2", features = ["std"] }
 embassy-time = { workspace = true, features = ["std", "generic-queue-8"] }
 tokio = { workspace = true, features = ["macros", "rt", "time", "io-util"] }
+polis-rs485.workspace = true
+embedded-hal.workspace = true
+embedded-hal-async.workspace = true
 
 [[example]]
 name = "link_check"
 required-features = ["link-check"]
+test = false
+bench = false
+
+[[example]]
+name = "half_duplex"
+required-features = ["embassy-example"]
 test = false
 bench = false
 
@@ -56,6 +77,8 @@ feature-sets = [
     ["uart", "tcp", "supervisor"], ["uart", "serial", "supervisor"], ["tcp", "serial", "supervisor"], ["uart", "tcp", "serial", "supervisor"],
 ]
 link-examples = ["link_check"]
+embassy-example = true
+embassy-examples = ["half_duplex"]
 
 [package.metadata.docs.rs]
 features = ["uart", "tcp", "serial", "supervisor"]

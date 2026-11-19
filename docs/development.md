@@ -24,6 +24,10 @@ covers four combinations: none, `udp`, `rs485`, and both. Tokio defaults to UDP;
 Embassy discovery has no default transport. Control-link covers four Tokio
 combinations (`tcp`, `serial`) and sixteen Embassy combinations (`uart`, `tcp`,
 `serial`, optional `supervisor`), defaulting to TCP and UART respectively.
+The generic Embassy `half_duplex` module is available in every feature set, like
+`stream`; it adds no driver/runtime dependencies. Its `half_duplex` two-board
+RS-485 example uses `example-rp2040` / `example-rp235xa` and is linked alongside
+the existing `link_check` fixture by the platform tool.
 PIO host builds expose portable types and test timing/waveform code; select an MCU
 feature for the hardware API. Each package owns an independent version. Shared
 versions and internal `path` plus `version` declarations live in root

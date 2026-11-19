@@ -3,6 +3,8 @@
 #![doc = include_str!("../README.md")]
 pub use polis_control_link_protocol as protocol;
 pub use protocol::Buffers;
+pub mod half_duplex;
+mod io;
 #[cfg(feature = "serial")]
 pub mod serial;
 pub mod stream;

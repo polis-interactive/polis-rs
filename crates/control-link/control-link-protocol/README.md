@@ -104,10 +104,12 @@ hardware integration are the responsibility of subsequent adapter validation.
 ## Runtime adapters
 
 `polis-control-link-tokio` provides TCP (default) and host serial. `polis-control-link-embassy`
-provides UART (default), USB CDC serial and TCP. All control links are point to
+provides UART (default), USB CDC serial, TCP and a generic half-duplex adapter
+for configured RS-485 backends. All control links are point to
 point. Each adapter retains its decoder and unread bytes from the initial
 identity exchange through normal communication; it does not hand off a serial
 connection from discovery. The `Buffers` type supplies caller-owned storage.
 
-The adapter halves perform I/O. Compose them with `Requests` and `RequestGate`
+The adapters perform I/O. Compose them with `Requests` and `RequestGate`
 for session handling, and supply application identity checks and business logic.
+Half-duplex bus turns and reply windows also belong to the application.

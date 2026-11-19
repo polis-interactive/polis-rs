@@ -1,5 +1,7 @@
 fn main() {
-    if std::env::var_os("CARGO_FEATURE_LINK_CHECK").is_none() {
+    if std::env::var_os("CARGO_FEATURE_LINK_CHECK").is_none()
+        && std::env::var_os("CARGO_FEATURE_EMBASSY_EXAMPLE").is_none()
+    {
         return;
     }
     let rp2040 = std::env::var_os("CARGO_FEATURE_RP2040").is_some();
