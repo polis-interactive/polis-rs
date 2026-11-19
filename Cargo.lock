@@ -1436,6 +1436,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "polis-74hc595"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-executor",
+ "embassy-rp",
+ "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "panic-probe",
+]
+
+[[package]]
 name = "polis-ads1x1x"
 version = "0.1.0"
 dependencies = [

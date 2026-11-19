@@ -5,6 +5,8 @@
   belong in downstream repositories. Tests and focused examples are allowed.
 - Use one agent unless the user explicitly enables delegation. Preserve unrelated
   changes; leave edits unstaged and uncommitted unless requested otherwise.
+- Use `probe-rs run --chip <chip> <ELF>` when giving flash/run instructions
+  for embedded examples.
 - All Cargo artifacts must use the repository-root `.target/`, including new
   packages, examples, tests, and package verification. Inherit the workspace
   `.cargo/config.toml`; never create a package-local `target/` or use Cargo's

@@ -33,6 +33,7 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-tmc5160](drivers/tmc5160) | Async SPI STEP/DIR configuration and diagnostics, with an explicit BTT Plus board preset |
 | [polis-ssd1306](drivers/ssd1306) | Async I²C 128×32 OLED adapter with a Mousefood/Ratatui example |
 | [polis-xca954xa](drivers/xca954xa) | Async I²C mux with shared channel buses and three-SSD1306 examples |
+| [polis-74hc595](drivers/74hc595) | Async SPI output driver for 74HC595/74HCT595 chains with explicit latch timing |
 | [polis-xca953xa](drivers/xca953xa) | Async PCA9534/TCA9534 and A-variant GPIO expanders with uncached register access |
 | [polis-ili9341](drivers/ili9341) | Async SPI/PIO-parallel 320×240 RGB565 display with Mousefood/Ratatui examples |
 | [polis-sh1106](drivers/sh1106) | Async I²C 128×64 OLED driver with a Mousefood/Ratatui example |
