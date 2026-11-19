@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "crates/protocol-framing",
     "crates/led-output",
+    "crates/settings",
     "crates/discovery/discovery-protocol",
     "crates/discovery/discovery-tokio",
     "crates/discovery/discovery-embassy",
@@ -34,6 +35,7 @@ members = [
 default-members = [
     "crates/protocol-framing",
     "crates/led-output",
+    "crates/settings",
     "crates/discovery/discovery-protocol",
     "crates/discovery/discovery-tokio",
     "crates/discovery/discovery-embassy",
@@ -67,6 +69,8 @@ default-members = [
 edition = "2024"
 
 [workspace.dependencies]
+sequential-storage = { version = "=8.0.2", default-features = false }
+embedded-storage-async = { version = "0.4.2", default-features = false }
 polis-ssd1306 = { path = "drivers/ssd1306", version = "0.1.0", default-features = false }
 embassy-sync = { version = "0.8.0", default-features = false }
 static_cell = "2.1.1"

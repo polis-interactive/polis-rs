@@ -1,6 +1,6 @@
 # Workspace development
 
-One active virtual workspace contains twenty-nine library packages. Rust 1.99.0 is the
+One active virtual workspace contains thirty library packages. Rust 1.99.0 is the
 pinned contributor compiler and the initial supported compiler floor. This is a
 conservative tested floor, not a claim that older compilers cannot work. Lower a
 package's `rust-version` only after testing it and its resolved dependencies.
@@ -91,6 +91,13 @@ Packages without this list retain the default single `embassy` example.
 `polis-tmc5160` registers both hardware-SPI `embassy` and PIO-SPI `embassy_pio`
 diagnostic examples, linked on both RP targets. Its library has no MCU/runtime
 dependency and uses an explicit board configuration; examples hold EN disabled.
+
+`polis-settings` tests typed records and the pinned flash backend on the host,
+including injected faults/cancellation through append and page migration. Its
+Pico/Pico 2 boot-counter examples reserve four sectors in their linker layouts
+and derive runtime offsets from linker symbols. Normal library builds have no
+MCU/runtime dependency. Hardware power-interruption and timing qualification
+remain downstream; see its package validation report.
 
 ## Editor and CI
 

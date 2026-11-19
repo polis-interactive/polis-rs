@@ -9,7 +9,7 @@ to adopt the whole workspace.
 
 | Location | Responsibility | Packages |
 | --- | --- | --- |
-| `crates/` (group related packages in subdirectories) | Codecs, shared protocol definitions, reusable algorithms and host libraries | `polis-framing`, `polis-discovery-protocol`, `polis-control-link-protocol`, `polis-led-output` |
+| `crates/` (group related packages in subdirectories) | Codecs, shared protocol definitions, reusable algorithms and host libraries | `polis-framing`, `polis-discovery-protocol`, `polis-control-link-protocol`, `polis-led-output`, `polis-settings` |
 | `drivers/` and `drivers/pio/` | Peripheral behavior, bus timing, electrical direction, device recovery | `polis-rs485`, `polis-tmp1x2`, `polis-pio-uart` |
 | Package `examples/` and `tests/` | Small usage demonstrations, mocks, compatibility and link checks | TCP/UDP framing demos; explicit MCU link examples |
 | Product repositories | Composition and deployment | Board pins, product messages, boot images, service entry points |
@@ -48,6 +48,24 @@ Keep framing independent of discovery and product messages. Discovery
 adapters compose payload definitions, framing, I/O and a clock. Discovery
 payload definitions must remain usable without a socket, driver or executor.
 Extract state machines separately from platform I/O only when real code exists.
+
+## Shared settings
+
+`crates/settings` provides `polis-settings`: allocation-free typed/versioned
+records over a pinned `sequential-storage` map. It accepts caller flash, partition
+offsets and buffers, validates geometry/capacity, and returns distinct missing,
+unsupported, malformed and reported storage-failure outcomes. Ordinary saves
+preserve unsupported/malformed records; replacement/migration and whole-partition
+reset are explicit. Backend integrity/wear/recovery remain in sequential-storage;
+there is no extra journal. Corrupt items skipped by the backend can appear missing
+or expose an older record, so the wrapper cannot guarantee a corruption diagnostic.
+
+Products own record keys/schemas, defaults/migrations, linker reservations,
+validated RAM fallbacks, coalescing, unchanged-value suppression, generation-aware
+dirty tracking, retries and authorization of flash-maintenance time. A successful
+save acknowledges only that snapshot. All operations can trigger backend recovery
+and flash erases; async provides no bounded-time guarantee. No product task, global,
+MCU selection, flash address or automatic erase-on-load-failure policy is chosen.
 
 ## Shared control link
 

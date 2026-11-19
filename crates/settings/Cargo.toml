@@ -1,0 +1,46 @@
+[package]
+name = "polis-settings"
+version = "0.1.0"
+edition.workspace = true
+publish = ["crates-io"]
+rust-version = "1.99"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/polis-interactive/polis-rs"
+description = "Allocation-free versioned settings over sequential-storage flash maps"
+categories = ["embedded", "no-std::no-alloc"]
+keywords = ["settings", "flash", "storage", "no-std"]
+
+[features]
+default = []
+example-rp2040 = ["embassy-example", "embassy-rp/rp2040"]
+example-rp235xa = ["embassy-example", "embassy-rp/rp235xa"]
+embassy-example = [
+    "embassy-rp/rt", "embassy-rp/time-driver", "embassy-rp/critical-section-impl",
+    "embassy-rp/executor-thread", "embassy-rp/boot2-w25q080",
+    "dep:embassy-rp", "dep:embassy-executor", "dep:cortex-m-rt",
+    "dep:panic-probe", "dep:defmt-rtt", "dep:defmt",
+]
+
+[dependencies]
+sequential-storage.workspace = true
+embedded-storage-async.workspace = true
+embassy-rp = { workspace = true, optional = true }
+embassy-executor = { workspace = true, optional = true }
+cortex-m-rt = { workspace = true, optional = true }
+panic-probe = { workspace = true, optional = true }
+defmt-rtt = { workspace = true, optional = true }
+defmt = { workspace = true, optional = true }
+
+[[example]]
+name = "embassy"
+required-features = ["embassy-example"]
+test = false
+bench = false
+
+[package.metadata.polis]
+chip-features = false
+embassy-example = true
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu", "thumbv6m-none-eabi", "thumbv8m.main-none-eabihf"]

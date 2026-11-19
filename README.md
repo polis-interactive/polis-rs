@@ -21,6 +21,7 @@ compatible; MCU implementations are enabled through explicit package features.
 | --- | --- |
 | [polis-framing](crates/protocol-framing) | Allocation-free byte framing with typed payload support |
 | [polis-led-output](crates/led-output) | Group fixed-length RGB or RGBW LED chains into one output |
+| [polis-settings](crates/settings) | Typed, versioned flash settings with explicit persistence outcomes |
 | [polis-discovery-protocol](crates/discovery/discovery-protocol) | Common discovery schema with consumer-assigned application identity |
 | [polis-discovery-tokio](crates/discovery/discovery-tokio) | Host discovery; UDP by default, optional RS-485 |
 | [polis-discovery-embassy](crates/discovery/discovery-embassy) | Embedded discovery; opt-in UDP and RS-485 |
