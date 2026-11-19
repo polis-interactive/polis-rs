@@ -45,6 +45,7 @@ compatible; MCU implementations are enabled through explicit package features.
 | [polis-pio-i2c](drivers/pio/i2c) | PIO I²C controller for RP2040 and RP2350A |
 | [polis-pio-uart](drivers/pio/uart) | Async PIO UART adapter for RP2040 and RP2350A |
 | [polis-pio-encoder](drivers/pio/encoder) | Cumulative quadrature positions independent of CPU drain latency |
+| [polis-pio-step-dir](drivers/pio/step-dir) | DMA-fed bounded STEP/DIR execution with completion and abort accounting |
 | [polis-pio-sk6812](drivers/pio/sk6812) | PIO driver for SK6812 RGBW LED chains |
 | [polis-pio-ws2813](drivers/pio/ws2813) | PIO driver for WS2813 RGB LED chains |
 

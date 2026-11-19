@@ -141,12 +141,20 @@ consumer that requests it. Cargo features unify, so neither resolver 3 nor
 [Cargo feature behavior](https://doc.rust-lang.org/cargo/reference/features.html)
 explains why these builds must stay separate.
 
-Group PIO libraries under `drivers/pio/{i2c,i8080,uart,encoder,sk6812,ws2813}`. Shared workspace
+Group PIO libraries under `drivers/pio/{i2c,i8080,uart,encoder,step-dir,sk6812,ws2813}`. Shared workspace
 dependencies pin HAL versions; a repository build command's `--platform` option
 selects the target and forwards the corresponding package features. A virtual
 workspace has no package features of its own. Keep the public package features
 usable directly by downstream Cargo consumers; avoid custom global cfg flags
 that silently change dependency selection.
+
+`polis-pio-step-dir` executes single-axis pulse/delay segments through one PIO SM
+and DMA. Accepted commands are committed under an explicit time budget; consumers
+retain replaceable plans. Electrical timing, completion, starvation, cancellation
+and partial emitted-edge accounting belong to the driver. Mechanical units,
+velocity/acceleration/jerk planning, homing, brake sequencing and motor enable
+remain downstream. Completed-segment checkpoints are not Hall-edge captures or
+measured motor position; the first implementation does not provide exact Hall capture.
 
 ## Product consumption
 

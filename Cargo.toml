@@ -27,6 +27,7 @@ members = [
     "drivers/pio/i8080",
     "drivers/pio/uart",
     "drivers/pio/encoder",
+    "drivers/pio/step-dir",
     "drivers/pio/sk6812",
     "drivers/pio/ws2813",
 ]
@@ -57,6 +58,7 @@ default-members = [
     "drivers/pio/i8080",
     "drivers/pio/uart",
     "drivers/pio/encoder",
+    "drivers/pio/step-dir",
     "drivers/pio/sk6812",
     "drivers/pio/ws2813",
 ]
