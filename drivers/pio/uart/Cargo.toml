@@ -41,7 +41,7 @@ cortex-m-rt = { workspace = true, optional = true }
 panic-probe = { workspace = true, optional = true }
 defmt-rtt = { workspace = true, optional = true }
 defmt = { workspace = true, optional = true }
-embassy-rp = { workspace = true, optional = true }
+embassy-rp = { workspace = true, optional = true, features = ["unstable-pac"] }
 embassy-time = { workspace = true, optional = true }
 embedded-io-async.workspace = true
 

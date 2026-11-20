@@ -289,11 +289,11 @@ fn configure_checks_hardware_before_writes_and_applies_chopper_last() {
     assert_eq!(
         sent.iter().map(|f| f[0]).collect::<Vec<_>>(),
         [
-            4, 4, 0xec, 0x8b, 0x90, 0x91, 0x93, 0x94, 0x95, 0xed, 0xf0, 0x80, 0xec
+            4, 4, 0xec, 0x8b, 0x90, 0x91, 0x93, 0x94, 0x95, 0xed, 0x80, 0xf0, 0xf0, 0x80, 0xec
         ]
     );
     assert_eq!(sent[2], [0xec, 0x14, 0x41, 1, 0x50]);
-    assert_eq!(sent[12], [0xec, 0x14, 0x41, 1, 0x53]);
+    assert_eq!(sent[14], [0xec, 0x14, 0x41, 1, 0x53]);
     assert_eq!(
         driver.configuration_progress(),
         ConfigurationProgress::Complete
@@ -303,7 +303,7 @@ fn configure_checks_hardware_before_writes_and_applies_chopper_last() {
 
 #[test]
 fn every_config_write_failure_reports_partial_progress_without_retry() {
-    for index in 2..13 {
+    for index in 2..15 {
         for after_effect in [false, true] {
             let (mut driver, state) = device();
             state.borrow_mut().failure = Some((index, after_effect));
@@ -326,7 +326,7 @@ fn every_config_write_failure_reports_partial_progress_without_retry() {
 
 #[test]
 fn cancellation_at_every_config_await_preserves_progress() {
-    for pending in 1..=39 {
+    for pending in 1..=45 {
         let (mut driver, state) = device();
         cancel_after(driver.configure(&config()), pending);
         assert!(driver.recovery_required());
@@ -476,4 +476,26 @@ fn diagnostic_field_decoding_and_signed_stall_threshold() {
     assert!(Coolconf::DISABLED.with_stall_guard(-65, false).is_err());
     let spi = SpiStatus(0x0f);
     assert!(spi.reset() && spi.driver_error() && spi.stalled() && spi.standstill());
+}
+
+#[test]
+fn automatic_pwm_is_seeded_before_stealthchop_even_on_reconfiguration() {
+    let (mut driver, state) = device();
+    let mut conf = config();
+    conf.global = conf.global.with_stealth_chop(true);
+    conf.pwm = Pwmconf::from_bits((conf.pwm.bits() & !0xffff) | (23 << 8) | 58).unwrap();
+    state.borrow_mut().registers[0] = conf.global.bits();
+    run(driver.configure(&conf)).unwrap();
+    let sent = frames(&state);
+    let value = |i: usize| u32::from_be_bytes(sent[i][1..5].try_into().unwrap());
+    assert_eq!(sent[10][0], 0x80);
+    assert_eq!(value(10) & 4, 0);
+    assert_eq!(sent[11][0], 0xf0);
+    assert_eq!(value(11) & ((1 << 18) | (1 << 19)), 0);
+    assert_eq!(value(11) & 0xffff, (23 << 8) | 58);
+    assert_eq!(sent[12][0], 0xf0);
+    assert_eq!(value(12), conf.pwm.bits());
+    assert_eq!(sent[13][0], 0x80);
+    assert_eq!(value(13), conf.global.bits());
+    assert_eq!(sent[14][0], 0xec);
 }

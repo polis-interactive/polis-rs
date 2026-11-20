@@ -8,7 +8,7 @@ compile_error!("select only one MCU feature: rp2040 or rp235xa");
 #[cfg(any(feature = "rp2040", feature = "rp235xa"))]
 mod driver;
 #[cfg(any(feature = "rp2040", feature = "rp235xa"))]
-pub use driver::{PioUart, Programs};
+pub use driver::{PioUart, Programs, RxFaults};
 
 #[cfg(any(feature = "rp2040", feature = "rp235xa", test))]
 mod timing;

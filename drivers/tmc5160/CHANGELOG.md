@@ -9,3 +9,7 @@
 - Add pipelined reads, status reporting, explicit fault acknowledgement,
   cancellation/error blocking, backend recovery and partial configuration progress.
 - Add mock tests and Pico/Pico 2 diagnostic examples for hardware and PIO SPI.
+
+- Initialize automatic PWM scaling from configured PWM_OFS/PWM_GRAD while
+  autoscale/autograd and StealthChop are off, then restore automatic regulation
+  before selecting StealthChop. ENN must remain high throughout configuration.

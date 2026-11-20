@@ -23,6 +23,16 @@ impl<'d, P: Instance> Programs<'d, P> {
     }
 }
 
+/// Sticky hardware receive faults since the previous acknowledgement.
+/// A set flag means at least one event, not an exact count of lost bytes.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct RxFaults {
+    /// The RX state machine stalled trying to push into its full FIFO.
+    pub fifo_stalled: bool,
+    /// A character had an invalid stop bit, or the line signalled a break.
+    pub framing: bool,
+}
+
 /// Owned Embassy async TX/RX halves with embedded-io-async interfaces.
 ///
 /// 8N1 only. Keep clk_sys unchanged for the entire lifetime. No DMA/background
@@ -32,6 +42,7 @@ pub struct PioUart<'d, P: Instance, const TX: usize, const RX: usize> {
     tx: PioUartTx<'d, P, TX>,
     rx: PioUartRx<'d, P, RX>,
     flush_us: u64,
+    registers: embassy_rp::pac::pio::Pio,
 }
 
 impl<'d, P: Instance, const TX: usize, const RX: usize> PioUart<'d, P, TX, RX> {
@@ -49,11 +60,51 @@ impl<'d, P: Instance, const TX: usize, const RX: usize> PioUart<'d, P, TX, RX> {
         baud: u32,
     ) -> Result<Self, ConfigError> {
         let flush_us = timing::flush_us(clk_sys_freq(), baud)?;
+        // Embassy keeps the instance registers private. Identify the block from
+        // the FIFO pointer of the state machine we own, without stealing a token.
+        let registers = if rx_sm.rx_fifo_ptr() == embassy_rp::pac::PIO0.rxf(RX).as_ptr() {
+            embassy_rp::pac::PIO0
+        } else if rx_sm.rx_fifo_ptr() == embassy_rp::pac::PIO1.rxf(RX).as_ptr() {
+            embassy_rp::pac::PIO1
+        } else {
+            #[cfg(feature = "rp235xa")]
+            {
+                embassy_rp::pac::PIO2
+            }
+            #[cfg(not(feature = "rp235xa"))]
+            {
+                unreachable!("unknown PIO instance")
+            }
+        };
         Ok(Self {
             tx: PioUartTx::new(baud, common, tx_sm, tx_pin, &programs.tx),
             rx: PioUartRx::new(baud, common, rx_sm, rx_pin, &programs.rx),
             flush_us,
+            registers,
         })
+    }
+}
+
+impl<P: Instance, const TX: usize, const RX: usize> PioUart<'_, P, TX, RX> {
+    /// Read and acknowledge only this receiver's sticky FIFO-stall/framing flags.
+    /// Does not read FIFO data, alter direction, reset the SM, or discard bytes.
+    /// Call from the bus owner outside time-critical receive windows. Events may
+    /// coalesce between calls; an overflow can corrupt reception before this is
+    /// observed. `Read` retains its existing `Infallible` contract.
+    pub fn take_rx_faults(&self) -> RxFaults {
+        let pio = self.registers;
+        let faults = RxFaults {
+            fifo_stalled: pio.fdebug().read().rxstall() & (1 << RX) != 0,
+            framing: pio.irq().read().0 & (1 << (RX + 4)) != 0,
+        };
+        // Write-one-to-clear only the owned SM's flags; leave all other lanes alone.
+        if faults.fifo_stalled {
+            pio.fdebug().write(|w| w.set_rxstall(1 << RX));
+        }
+        if faults.framing {
+            pio.irq().write(|w| w.0 = 1 << (RX + 4));
+        }
+        faults
     }
 }
 

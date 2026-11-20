@@ -86,6 +86,11 @@ impl<S, D: OutputPin<Error = Infallible>, T> Rs485<S, D, T> {
         }
     }
 
+    /// Inspect backend diagnostics without bypassing direction ownership.
+    pub fn serial(&self) -> &S {
+        &self.serial
+    }
+
     pub fn recovery_required(&self) -> bool {
         self.recovery_required
     }

@@ -2,6 +2,8 @@
 
 ## 0.2.0 (unreleased)
 
+- Expose read-only `half_duplex::Link::transport()` access for backend diagnostics without bypassing framing ownership.
+
 Renamed the package to `polis-control-link-embassy` and its Rust crate to
 `polis_control_link_embassy` under the workspace naming standard.
 

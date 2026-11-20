@@ -56,9 +56,15 @@ transmitter disabled during recovery. `read` returns one byte without waiting
 to fill the buffer; an empty read returns immediately. Cancelling a pending
 read does not consume a byte.
 
-Receive error reporting retains Embassy's limitations: the trait error is
-`Infallible`, framing errors are not surfaced, and FIFO overflow is not reported
-to the caller. At 1 Mbaud, eight RX bytes represent about 80 us of buffering.
+The trait error remains `Infallible`. The bus owner can call `take_rx_faults()`
+between exchanges to read and acknowledge sticky FIFO-stall and stop-bit/break
+flags. This does not consume FIFO data, reset the receiver, or change direction;
+only the owned RX SM's flags are cleared. Events can coalesce, so these flags are
+not exact lost-byte counts or proof that an observed stall corrupted a frame.
+The accessor adds no instrumentation to the per-byte read/write path.
+`Rs485::serial()` and `half_duplex::Link::transport()` allow inspecting this
+backend without bypassing transport ownership. Callers still own fault policy
+and protocol/session recovery. At 1 Mbaud, eight RX bytes represent about 80 us of buffering.
 This wrapper does not establish production receive capacity or four-lane
 reliability. Those require hardware qualification and potentially a future
 buffering/error-reporting adapter.

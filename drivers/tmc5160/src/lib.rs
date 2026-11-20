@@ -266,7 +266,11 @@ impl<SPI: SpiDevice<u8>, DELAY: DelayNs> Tmc5160<SPI, DELAY> {
     ///
     /// Validates the entire configuration before I/O, checks IOIN version, SD_MODE
     /// and DRV_ENN, disables the chopper first, then applies current/configuration
-    /// and writes the desired CHOPCONF last. Caller must keep ENN high and STEP
+    /// and writes the desired CHOPCONF last. PWM_OFS/PWM_GRAD seed automatic
+    /// scaling with autoscale/autograd off before restoring the requested PWMCONF
+    /// and enabling StealthChop (datasheet rev 1.17, PWMCONF). This also works when
+    /// reconfiguring a chip whose GCONF still has StealthChop selected.
+    /// Caller must keep ENN high and STEP
     /// inactive throughout; the initial read cannot enforce later pin levels.
     /// Does not clear faults, start pulses, perform automatic tuning or enable ENN.
     /// Errors/cancellation leave partial progress accessible; do not resume from
@@ -291,7 +295,7 @@ impl<SPI: SpiDevice<u8>, DELAY: DelayNs> Tmc5160<SPI, DELAY> {
             return Err(Error::DriverDisableRequired);
         }
         // Values are all validated before the first transfer; no hidden cache/RMW.
-        let mut writes = [None; 13];
+        let mut writes = [None; 15];
         writes[0] = Some((
             registers::Chopconf::ADDRESS,
             config.chopper.disabled().bits(),
@@ -315,9 +319,21 @@ impl<SPI: SpiDevice<u8>, DELAY: DelayNs> Tmc5160<SPI, DELAY> {
         writes[7] = Some((registers::Tcoolthrs::ADDRESS, config.cool_threshold.bits()));
         writes[8] = Some((registers::Thigh::ADDRESS, config.high_threshold.bits()));
         writes[9] = Some((registers::Coolconf::ADDRESS, config.cool.bits()));
-        writes[10] = Some((registers::Pwmconf::ADDRESS, config.pwm.bits()));
-        writes[11] = Some((registers::Gconf::ADDRESS, config.global.bits()));
-        writes[12] = Some((registers::Chopconf::ADDRESS, config.chopper.bits()));
+        // Datasheet PWMCONF requires seeding with autoscale=0, followed by
+        // autoscale=1, and only then selecting StealthChop. ENN remains high.
+        writes[10] = Some((
+            registers::Gconf::ADDRESS,
+            config.global.with_stealth_chop(false).bits(),
+        ));
+        if config.pwm.bits() & (1 << 18) != 0 {
+            writes[11] = Some((
+                registers::Pwmconf::ADDRESS,
+                config.pwm.bits() & !((1 << 18) | (1 << 19)),
+            ));
+        }
+        writes[12] = Some((registers::Pwmconf::ADDRESS, config.pwm.bits()));
+        writes[13] = Some((registers::Gconf::ADDRESS, config.global.bits()));
+        writes[14] = Some((registers::Chopconf::ADDRESS, config.chopper.bits()));
         let mut status = SpiStatus(0);
         for (completed, (address, value)) in writes.into_iter().flatten().enumerate() {
             self.progress = ConfigurationProgress::Writing {

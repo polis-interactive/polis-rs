@@ -2,6 +2,8 @@
 
 ## 0.1.0 Unreleased
 
+- Add explicit `take_rx_faults()` inspection of the owned receiver's sticky FIFO-stall and framing flags, without changing the byte I/O or flush paths.
+
 Renamed the package to `polis-pio-uart` and its Rust crate to
 `polis_pio_uart` under the workspace naming standard.
 

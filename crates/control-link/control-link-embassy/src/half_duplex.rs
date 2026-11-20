@@ -67,6 +67,11 @@ impl<'a, S: Read + Write> Link<'a, S> {
         self.receive.receive(&mut self.transport, decode).await
     }
 
+    /// Inspect backend diagnostics without sending or consuming buffered input.
+    pub fn transport(&self) -> &S {
+        &self.transport
+    }
+
     /// Retire the link and recover ownership of its backend, discarding buffered
     /// receive data. This does NOT recover the hardware or purge its RX buffers.
     ///
